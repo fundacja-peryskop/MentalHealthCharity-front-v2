@@ -13,7 +13,9 @@ import {
     AVAILABILITY_CAPACITY_OPTIONS,
     AVAILABILITY_QUESTION,
     AVAILABILITY_WEEKLY_TIME_HINT,
+    DEFAULT_AVAILABILITY_CAPACITY,
     FIRST_TIME_AVAILABILITY_MESSAGE,
+    FIRST_TIME_ZERO_AVAILABILITY_MESSAGE,
     LOW_AVAILABILITY_WARNING,
     MAX_AVAILABILITY_CAPACITY,
     MIN_AVAILABILITY_CAPACITY,
@@ -26,8 +28,9 @@ const VolunteerAvailabilityPrompt = () => {
     const { user } = useUser();
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
-    const [capacity, setCapacity] = useState(String(MIN_AVAILABILITY_CAPACITY));
+    const [capacity, setCapacity] = useState(String(DEFAULT_AVAILABILITY_CAPACITY));
     const [showFirstTimeConfirmation, setShowFirstTimeConfirmation] = useState(false);
+    const [firstTimeDeclaredCapacity, setFirstTimeDeclaredCapacity] = useState<number | null>(null);
     const firstTimeConfirmationRef = useRef(false);
     const isVolunteer = user?.user_role === Roles.VOLUNTEER;
 
@@ -42,10 +45,11 @@ const VolunteerAvailabilityPrompt = () => {
     const { mutate, isPending } = useMutation({
         mutationFn: updateVolunteerAvailabilityMutation,
         onSuccess: (updatedAvailability) => {
-            setCapacity(String(MIN_AVAILABILITY_CAPACITY));
+            setCapacity(String(updatedAvailability.declared_capacity ?? DEFAULT_AVAILABILITY_CAPACITY));
 
             if (updatedAvailability.first_time_declaration) {
                 firstTimeConfirmationRef.current = true;
+                setFirstTimeDeclaredCapacity(updatedAvailability.declared_capacity);
                 setShowFirstTimeConfirmation(true);
                 setOpen(true);
             } else {
@@ -61,11 +65,7 @@ const VolunteerAvailabilityPrompt = () => {
     useEffect(() => {
         if (!isVolunteer || !data) return;
 
-        if (data.must_prompt) {
-            setCapacity(String(MIN_AVAILABILITY_CAPACITY));
-        } else if (data.declared_capacity) {
-            setCapacity(String(data.declared_capacity));
-        }
+        setCapacity(String(data.declared_capacity ?? DEFAULT_AVAILABILITY_CAPACITY));
 
         if (!firstTimeConfirmationRef.current && !showFirstTimeConfirmation) {
             setOpen(data.must_prompt);
@@ -90,6 +90,7 @@ const VolunteerAvailabilityPrompt = () => {
 
     const closeFirstTimeConfirmation = () => {
         firstTimeConfirmationRef.current = false;
+        setFirstTimeDeclaredCapacity(null);
         setShowFirstTimeConfirmation(false);
         setOpen(false);
     };
@@ -113,9 +114,13 @@ const VolunteerAvailabilityPrompt = () => {
             {showFirstTimeConfirmation ? (
                 <div className="flex flex-col gap-4">
                     <p className="text-muted-foreground text-sm">
-                        {t("matching.availability_first_time_message", {
-                            defaultValue: FIRST_TIME_AVAILABILITY_MESSAGE,
-                        })}
+                        {firstTimeDeclaredCapacity === 0
+                            ? t("matching.availability_first_time_zero_message", {
+                                  defaultValue: FIRST_TIME_ZERO_AVAILABILITY_MESSAGE,
+                              })
+                            : t("matching.availability_first_time_message", {
+                                  defaultValue: FIRST_TIME_AVAILABILITY_MESSAGE,
+                              })}
                     </p>
                     <Button className="ml-auto" type="button" onClick={closeFirstTimeConfirmation}>
                         {t("common.close", { defaultValue: "Zamknij" })}
@@ -154,7 +159,7 @@ const VolunteerAvailabilityPrompt = () => {
                         {!isValidCapacity && (
                             <p className="text-destructive text-sm">
                                 {t("matching.availability_validation", {
-                                    defaultValue: "Wpisz liczbę od 1 do 10.",
+                                    defaultValue: "Wpisz liczbę od 0 do 10.",
                                 })}
                             </p>
                         )}

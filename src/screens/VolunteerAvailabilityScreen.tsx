@@ -11,8 +11,8 @@ import { useTranslation } from "react-i18next";
 import {
     AVAILABILITY_CAPACITY_OPTIONS,
     AVAILABILITY_WEEKLY_TIME_HINT,
+    DEFAULT_AVAILABILITY_CAPACITY,
     LOW_AVAILABILITY_WARNING,
-    MIN_AVAILABILITY_CAPACITY,
 } from "../modules/matching/constants";
 import updateVolunteerAvailabilityMutation from "../modules/matching/queries/updateVolunteerAvailabilityMutation";
 import { volunteerAvailabilityQueryOptions } from "../modules/matching/queries/volunteerAvailabilityQueryOptions";
@@ -34,7 +34,7 @@ const VolunteerAvailabilityScreen = () => {
         mutationFn: updateVolunteerAvailabilityMutation,
         onSuccess: (updatedAvailability) => {
             queryClient.setQueryData(["volunteerAvailability"], updatedAvailability);
-            setCapacity(String(updatedAvailability.declared_capacity ?? MIN_AVAILABILITY_CAPACITY));
+            setCapacity(String(updatedAvailability.declared_capacity ?? DEFAULT_AVAILABILITY_CAPACITY));
             toast.success(t("matching.availability_saved", { defaultValue: "Dyspozycyjność została zapisana" }));
         },
     });
@@ -42,7 +42,7 @@ const VolunteerAvailabilityScreen = () => {
     useEffect(() => {
         if (!data) return;
 
-        setCapacity(String(data.declared_capacity ?? MIN_AVAILABILITY_CAPACITY));
+        setCapacity(String(data.declared_capacity ?? DEFAULT_AVAILABILITY_CAPACITY));
     }, [data]);
 
     const activeChatCount = data?.active_chat_count ?? 0;
