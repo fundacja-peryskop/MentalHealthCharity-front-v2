@@ -33,6 +33,9 @@ const Navbar = () => {
     const { user, logout } = useUser();
     const isAdminPanel = location.pathname.includes("/admin");
     const isChatScreen = location.pathname.startsWith("/chat");
+    // The redesigned homepage renders its own header (SiteHeader), so the global
+    // Navbar is suppressed on "/".
+    const isHomeScreen = location.pathname === "/";
     const { data: chats } = useQuery(
         getChatsQueryOptions(
             { size: 50, page: 1 },
@@ -112,7 +115,7 @@ const Navbar = () => {
         setIsDrawerOpen(false);
     }, [location]);
 
-    if (isAdminPanel) return null;
+    if (isAdminPanel || isHomeScreen) return null;
 
     const primaryPages = mainPages.filter((page) => !page.permissions || hasPermissions(page.permissions));
     const visibleVolunteerPages = volunteerPages.filter(

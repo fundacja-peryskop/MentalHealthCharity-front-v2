@@ -15,6 +15,10 @@ const Layout = ({ children }: Props) => {
     const { pathname } = useLocation();
     const isAdminScreen = pathname.includes("/admin");
     const isChatScreen = pathname.startsWith("/chat");
+    // The redesigned homepage owns its own chrome (announcement bar + footer),
+    // so the global CrisisBar / Footer are suppressed on "/".
+    const isHomeScreen = pathname === "/";
+    const showGlobalChrome = !isAdminScreen && !isChatScreen && !isHomeScreen;
 
     useEffect(() => {
         document.documentElement.classList.toggle("chat-route", isChatScreen);
@@ -36,7 +40,7 @@ const Layout = ({ children }: Props) => {
             >
                 Skip to main content
             </a>
-            {!isAdminScreen && !isChatScreen && <CrisisBar />}
+            {showGlobalChrome && <CrisisBar />}
             <Toaster
                 toastOptions={{
                     style: {
@@ -52,7 +56,7 @@ const Layout = ({ children }: Props) => {
             </main>
             <VolunteerAvailabilityPrompt />
             <MenteeRematchPrompt />
-            {!isAdminScreen && !isChatScreen && <Footer />}
+            {showGlobalChrome && <Footer />}
             <CookiesBar />
         </div>
     );
