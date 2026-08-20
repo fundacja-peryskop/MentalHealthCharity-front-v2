@@ -98,6 +98,9 @@ from `content.ts`; DS tokens only. `HomepageScreen` renders `<HomePage />`.
 - _(commit a2b2796)_ Wired `@fundacja-peryskop/ui` (Tamagui) into MHC: `.npmrc` scope +
   `legacy-peer-deps`, installed library + `tamagui` + `@tamagui/vite-plugin` + `react-native-web`,
   added Tamagui Vite plugin, `PeryskopProvider` at root, Sarabun font.
-- _(impl)_ Built the full DS homepage (`src/modules/homepage/*`), added `@types/react-native` +
-  `src/tamagui-env.d.ts`, suppressed global chrome on `/`. Typecheck + lint + prod build green;
-  verified in-browser (tokens, semantics, responsive, carousel, mobile menu).
+- _(commit 1d7192f)_ Built the full DS homepage (`src/modules/homepage/*`), added
+  `@types/react-native` + `src/tamagui-env.d.ts`, suppressed global chrome on `/`. Typecheck +
+  lint + prod build green; verified in-browser (tokens, semantics, responsive, carousel, mobile menu).
+- _(push)_ Pushed `redesign/homepage-peryskop-ui` to origin. Final verifications: articles grid
+  renders correctly with data (DS `Article`/`Badge`/`Person`/`Avatar`, banner + initials fallback);
+  all illustration PNGs load; exactly one `header`/`footer`/`aside`/`main`/`h1` (no duplicate chrome).
