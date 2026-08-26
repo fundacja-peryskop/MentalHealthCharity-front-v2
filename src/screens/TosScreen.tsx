@@ -1,30 +1,51 @@
+import { Section, Typography, YStack, shadows } from "@fundacja-peryskop/ui";
 import { useTranslation } from "react-i18next";
-import bgImage from "../assets/static/admin_panel_bg.svg";
-import Card from "../modules/shared/components/Card";
-import Container from "../modules/shared/components/Container";
-import InternalLink from "../modules/shared/components/InternalLink";
+import { AppLink } from "../modules/layout/AppLink";
+import { PageContainer } from "../modules/layout/PageContainer";
+
+const DOCUMENTS = [
+    { href: "/klauzula-informacyjna-RODO.pdf", key: "tos.clause" },
+    { href: "/polityka-prywatnosci-i-cookies.pdf", key: "tos.privacy_policy" },
+    { href: "/przetwarzanie-danych-osobowych.pdf", key: "tos.data_processing" },
+    { href: "/regulamin-serwisu.pdf", key: "tos.terms" },
+];
 
 const TosScreen = () => {
     const { t } = useTranslation();
+
     return (
-        <Container className="w-full bg-[length:100%] bg-center" style={{ backgroundImage: `url(${bgImage})` }}>
-            <Card title={t("tos.title")} subtitle={t("tos.subtitle")} className="w-full">
-                <div className="mt-5 flex flex-col gap-5">
-                    <InternalLink target="_blank" to="/klauzula-informacyjna-RODO.pdf">
-                        {t("tos.clause")}
-                    </InternalLink>
-                    <InternalLink target="_blank" to="/polityka-prywatnosci-i-cookies.pdf">
-                        {t("tos.privacy_policy")}
-                    </InternalLink>
-                    <InternalLink target="_blank" to="/przetwarzanie-danych-osobowych.pdf">
-                        {t("tos.data_processing")}
-                    </InternalLink>
-                    <InternalLink target="_blank" to="/regulamin-serwisu.pdf">
-                        {t("tos.terms")}
-                    </InternalLink>
-                </div>
-            </Card>
-        </Container>
+        <Section alignItems="center" paddingVertical="$xxxl" minHeight="70vh">
+            <PageContainer>
+                <YStack
+                    width="100%"
+                    maxWidth={640}
+                    alignSelf="center"
+                    gap="$lg"
+                    padding="$xl"
+                    borderRadius="$lg"
+                    borderWidth={1}
+                    borderColor="$borderColor"
+                    backgroundColor="$background"
+                    {...shadows.small}
+                >
+                    <YStack gap="$sm">
+                        <Typography variant="title2" tag="h1">
+                            {t("tos.title")}
+                        </Typography>
+                        <Typography variant="largeRegular" muted>
+                            {t("tos.subtitle")}
+                        </Typography>
+                    </YStack>
+                    <YStack gap="$md">
+                        {DOCUMENTS.map((doc) => (
+                            <AppLink key={doc.href} href={doc.href} external variant="regularSemibold" color="$primary">
+                                {t(doc.key)}
+                            </AppLink>
+                        ))}
+                    </YStack>
+                </YStack>
+            </PageContainer>
+        </Section>
     );
 };
 

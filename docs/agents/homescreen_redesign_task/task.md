@@ -110,13 +110,20 @@ content file.
 - ✅ Auth: `LoginScreen` + `RegisterScreen` + their forms, via a shared branded `AuthShell`.
   Verified: fields render, formik validation fires (required errors), native submit works.
 
+**Done (cont.):**
+- ✅ Password flows: `ForgetPasswordScreen`, `ChangePasswordScreen` (+ email-sent), `ChangePasswordCompleteScreen`
+  (+ `ChangePasswordFormBegin` / `ChangePasswordFormComplete`); email confirm: `ConfirmEmailScreen`,
+  `ConfirmEmailCompleteScreen` (via `InfoScreen`).
+- ✅ Articles list (`ArticlesScreen`) + shared `articles/components/DsArticleCard` + `ArticlesHeading` (DS search).
+- ✅ Static: `AboutChatScreen`, `TosScreen`.
+
 **Roadmap (priority order):**
-- ⬜ Articles list (`ArticlesScreen`) + article detail (`ArticleScreen`)
-- ⬜ Password flows (Forget / Change / Reset), Confirm email
-- ⬜ Static / marketing: SupportUs, Donations, Tos, AboutChat, Leaving
-- ⬜ Forms: mentee (getting-started + form), volunteer (needs `FormSelect`/`FormTextarea` DS fields)
-- ⬜ Profile
-- ⬜ Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) — last
+- ⬜ Article detail (`ArticleScreen`) — markdown render, author, banner.
+- ⬜ Static / marketing: `SupportUsScreen` (external iframe widget + share/copy), `DonationsScreen`.
+- ⬜ `LeavingScreen` — security-critical external-link interstitial (multiple states); careful pass.
+- ⬜ Forms: mentee (getting-started + form), volunteer — needs DS `FormSelect` / `FormTextarea` fields first.
+- ⬜ `ProfileScreen`.
+- ⬜ Authenticated features: Chat, Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) — large; last.
 - ⬜ **Chrome unification** (global DS header/footer/announcement) — dedicated, higher-risk pass;
   the `Navbar` carries auth/permissions/dropdowns/drawer/theme/chat logic. Until then, migrated
   non-home views keep the existing global chrome (DS body sandwiched in the Tailwind chrome).
