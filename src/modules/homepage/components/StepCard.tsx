@@ -2,7 +2,7 @@ import { Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import type { HowItWorksStep } from "../content";
 import { ChatWindowMockup } from "../illustrations/ChatWindowMockup";
 import { PersonWithBubblesIllustration } from "../illustrations/PersonWithBubblesIllustration";
-import { useIconColor } from "./useIconColor";
+import { useIconColor } from "../../layout/useIconColor";
 
 /** Soft background + matching strong accent, cycled by step number. */
 const TONE_CYCLE = [

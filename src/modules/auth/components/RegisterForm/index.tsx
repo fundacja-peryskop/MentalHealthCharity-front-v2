@@ -1,11 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Field, Form, Formik } from "formik";
+import { Button, Checkbox, Typography, YStack } from "@fundacja-peryskop/ui";
+import { Form, Formik } from "formik";
 import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
-import InternalLink from "../../../shared/components/InternalLink";
+import { AppLink } from "../../../layout/AppLink";
+import { FormCheckboxField } from "../../../layout/form/FormCheckboxField";
+import { FormTextField } from "../../../layout/form/FormTextField";
 import { validation } from "../../../shared/constants";
 import { LoginFormValues, RegisterFormValues } from "../../types";
 
@@ -34,101 +33,34 @@ const RegisterForm = ({ onSubmit, initial }: Props) => {
         ...initial,
     };
 
+    const policyLabel = (
+        <Typography variant="smallRegular">
+            Rejestrując się, akceptuję{" "}
+            <AppLink href="/tos" variant="smallSemibold" color="$primary">
+                warunki użytkowania i politykę prywatności
+            </AppLink>
+        </Typography>
+    );
+
     return (
         <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-            {({ isSubmitting, errors, touched, handleChange, handleBlur, values, setFieldValue }) => (
-                <Form className="flex flex-col gap-4">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="full_name">Imię lub ksywka</Label>
-                        <Input
-                            id="full_name"
-                            name="full_name"
-                            type="text"
-                            value={values.full_name}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        {touched.full_name && errors.full_name && (
-                            <p className="text-destructive text-sm">{errors.full_name}</p>
-                        )}
-                    </div>
+            {({ isSubmitting }) => (
+                <Form>
+                    <YStack gap="$lg">
+                        <FormTextField name="full_name" label="Imię lub ksywka" autoFocus />
+                        <FormTextField name="email" label="Email" type="email" />
+                        <FormTextField name="password" label="Hasło" type="password" />
+                        <FormTextField name="confirmPassword" label="Potwierdź hasło" type="password" />
 
-                    <div className="space-y-1.5">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={values.email}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        {touched.email && errors.email && <p className="text-destructive text-sm">{errors.email}</p>}
-                    </div>
+                        <YStack gap="$md">
+                            <Checkbox defaultChecked size="sm" label="Zapamiętaj mnie" />
+                            <FormCheckboxField name="policy_confirm" size="sm" label={policyLabel} />
+                        </YStack>
 
-                    <div className="space-y-1.5">
-                        <Label htmlFor="password">Hasło</Label>
-                        <Input
-                            id="password"
-                            name="password"
-                            type="password"
-                            value={values.password}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        {touched.password && errors.password && (
-                            <p className="text-destructive text-sm">{errors.password}</p>
-                        )}
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label htmlFor="confirmPassword">Potwierdź hasło</Label>
-                        <Input
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            value={values.confirmPassword}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        {touched.confirmPassword && errors.confirmPassword && (
-                            <p className="text-destructive text-sm">{errors.confirmPassword}</p>
-                        )}
-                    </div>
-
-                    <div className="flex flex-col items-start gap-3">
-                        <div className="flex items-center gap-2">
-                            <Checkbox id="remember" defaultChecked />
-                            <Label htmlFor="remember" className="cursor-pointer text-sm">
-                                Zapamiętaj mnie
-                            </Label>
-                        </div>
-                        <div className="flex items-start gap-2">
-                            <Field name="policy_confirm">
-                                {({ field }: { field: { value: boolean } }) => (
-                                    <Checkbox
-                                        id="policy_confirm"
-                                        checked={field.value}
-                                        onCheckedChange={(checked) => setFieldValue("policy_confirm", checked)}
-                                    />
-                                )}
-                            </Field>
-                            <Label
-                                htmlFor="policy_confirm"
-                                className="inline cursor-pointer text-sm leading-relaxed font-normal"
-                            >
-                                Rejestrując się, akceptuję{" "}
-                                <InternalLink to="/tos">warunki użytkowania i politykę prywatności</InternalLink>
-                            </Label>
-                        </div>
-                        {errors.policy_confirm && touched.policy_confirm && (
-                            <p className="text-destructive text-sm">{errors.policy_confirm}</p>
-                        )}
-                    </div>
-
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        Zarejestruj
-                    </Button>
+                        <Button variant="primary" fullWidth disabled={isSubmitting}>
+                            Zarejestruj
+                        </Button>
+                    </YStack>
                 </Form>
             )}
         </Formik>

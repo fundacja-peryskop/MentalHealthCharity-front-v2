@@ -5,7 +5,7 @@ import { ArticleStatus } from "../../articles/constants";
 import { articlesQueryOptions } from "../../articles/queries/articlesQueryOptions";
 import { articlesHeading } from "../content";
 import { HomeArticleCard } from "./HomeArticleCard";
-import { PageContainer } from "./PageContainer";
+import { PageContainer } from "../../layout/PageContainer";
 
 const MAX_ARTICLES = 6;
 

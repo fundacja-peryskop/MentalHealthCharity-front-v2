@@ -1,7 +1,7 @@
 import { Section, Typography } from "@fundacja-peryskop/ui";
 import { howItWorksHeading, howItWorksSteps } from "../content";
 import { Carousel } from "./Carousel";
-import { PageContainer } from "./PageContainer";
+import { PageContainer } from "../../layout/PageContainer";
 import { StepCard } from "./StepCard";
 
 /**

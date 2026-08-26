@@ -4,7 +4,7 @@ import { ChatWindowMockup } from "../illustrations/ChatWindowMockup";
 import { EmptyChairIllustration } from "../illustrations/EmptyChairIllustration";
 import { PersonWithBubblesIllustration } from "../illustrations/PersonWithBubblesIllustration";
 import { CircleArrowButton } from "./CircleArrowButton";
-import { CtaButton } from "./CtaButton";
+import { CtaButton } from "../../layout/CtaButton";
 
 /** Per-tone artwork rendered at the bottom of the card (spec §4.4 / §8). */
 function PitchIllustration({ tone }: { tone: PitchCardContent["tone"] }) {

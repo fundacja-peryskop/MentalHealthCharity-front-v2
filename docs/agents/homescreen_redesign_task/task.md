@@ -93,6 +93,34 @@ from `content.ts`; DS tokens only. `HomepageScreen` renders `<HomePage />`.
   landmark nesting nit — improve by lifting the homepage chrome out of `main` if desired.
 - Migrate homepage copy from `content.ts` to i18n if the app should keep one content source.
 
+---
+
+# Phase 5 — App-wide migration (in progress)
+
+Extend the DS beyond the homepage, one view at a time. The shared DS foundation lives in
+`src/modules/layout/`: `PageContainer`, `AppLink`, `CtaButton`, `useIconColor`, `content.brand`,
+`AuthShell`, and Formik fields `form/FormTextField` + `form/FormCheckboxField` (reused by every
+migrated form). App views reuse the app's existing i18n (`react-i18next`) rather than a local
+content file.
+
+**Done:**
+- ✅ Extracted the shared `layout` module (helpers moved out of `homepage`).
+- ✅ DS Formik fields: `FormTextField`, `FormCheckboxField`.
+- ✅ `NotFoundScreen` — DS (also removed a double-`Layout` wrap bug).
+- ✅ Auth: `LoginScreen` + `RegisterScreen` + their forms, via a shared branded `AuthShell`.
+  Verified: fields render, formik validation fires (required errors), native submit works.
+
+**Roadmap (priority order):**
+- ⬜ Articles list (`ArticlesScreen`) + article detail (`ArticleScreen`)
+- ⬜ Password flows (Forget / Change / Reset), Confirm email
+- ⬜ Static / marketing: SupportUs, Donations, Tos, AboutChat, Leaving
+- ⬜ Forms: mentee (getting-started + form), volunteer (needs `FormSelect`/`FormTextarea` DS fields)
+- ⬜ Profile
+- ⬜ Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) — last
+- ⬜ **Chrome unification** (global DS header/footer/announcement) — dedicated, higher-risk pass;
+  the `Navbar` carries auth/permissions/dropdowns/drawer/theme/chat logic. Until then, migrated
+  non-home views keep the existing global chrome (DS body sandwiched in the Tailwind chrome).
+
 ## Changelog
 - _(setup)_ Branch `redesign/homepage-peryskop-ui` created; research notes + status log added.
 - _(commit a2b2796)_ Wired `@fundacja-peryskop/ui` (Tamagui) into MHC: `.npmrc` scope +
@@ -104,3 +132,6 @@ from `content.ts`; DS tokens only. `HomepageScreen` renders `<HomePage />`.
 - _(push)_ Pushed `redesign/homepage-peryskop-ui` to origin. Final verifications: articles grid
   renders correctly with data (DS `Article`/`Badge`/`Person`/`Avatar`, banner + initials fallback);
   all illustration PNGs load; exactly one `header`/`footer`/`aside`/`main`/`h1` (no duplicate chrome).
+- _(phase 5)_ Extracted shared `layout` module; added DS Formik fields + `AuthShell`; migrated
+  `NotFoundScreen`, `LoginScreen`, `RegisterScreen` (+ forms) to the DS. Typecheck 0 errors,
+  lint clean; verified in-browser.

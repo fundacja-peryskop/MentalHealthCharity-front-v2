@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { useUser } from "../../auth/components/AuthProvider";
 import { brand, headerCta, navLinks } from "../content";
-import { AppLink } from "./AppLink";
-import { CtaButton } from "./CtaButton";
-import { useIconColor } from "./useIconColor";
+import { AppLink } from "../../layout/AppLink";
+import { CtaButton } from "../../layout/CtaButton";
+import { useIconColor } from "../../layout/useIconColor";
 
 const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
 

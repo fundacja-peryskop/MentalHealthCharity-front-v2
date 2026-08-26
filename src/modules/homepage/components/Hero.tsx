@@ -1,6 +1,6 @@
 import { Section, Typography } from "@fundacja-peryskop/ui";
 import { hero } from "../content";
-import { PageContainer } from "./PageContainer";
+import { PageContainer } from "../../layout/PageContainer";
 
 /**
  * §4.3 — hero. Centered display heading (the page's single `<h1>`) with a

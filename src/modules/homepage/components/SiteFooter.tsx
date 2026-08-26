@@ -1,8 +1,8 @@
 import { Footer, Stack, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { Facebook, Linkedin } from "lucide-react";
 import { brand, footer } from "../content";
-import { AppLink } from "./AppLink";
-import { PageContainer } from "./PageContainer";
+import { AppLink } from "../../layout/AppLink";
+import { PageContainer } from "../../layout/PageContainer";
 
 const SOCIAL_ANCHOR: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
 

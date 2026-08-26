@@ -3,8 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import { topics, topicsHeading } from "../content";
 import { TopicIcon } from "../illustrations/TopicIcon";
-import { PageContainer } from "./PageContainer";
-import { useIconColor } from "./useIconColor";
+import { PageContainer } from "../../layout/PageContainer";
+import { useIconColor } from "../../layout/useIconColor";
 
 const LIST_RESET: React.CSSProperties = { listStyle: "none", margin: 0, padding: 0 };
 const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "block", width: "100%" };

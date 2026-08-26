@@ -1,6 +1,6 @@
 import { Section, XStack } from "@fundacja-peryskop/ui";
 import { pitchCards } from "../content";
-import { PageContainer } from "./PageContainer";
+import { PageContainer } from "../../layout/PageContainer";
 import { PitchCard } from "./PitchCard";
 
 /**

@@ -8,7 +8,11 @@
  * to the app's i18n (`react-i18next`) without touching the section components.
  */
 
+import { brand } from "../layout/content";
 import type { TopicId } from "./illustrations/TopicIcon";
+
+/** Re-exported so homepage components can keep importing it from one place. */
+export { brand };
 
 /** A navigation or call-to-action target. */
 export interface LinkItem {
@@ -18,11 +22,6 @@ export interface LinkItem {
     /** Open in a new tab (external destinations). */
     external?: boolean;
 }
-
-export const brand = {
-    name: "Fundacja Peryskop",
-    shortName: "Peryskop",
-} as const;
 
 /** §4.1 — utility/announcement bar. */
 export const announcement = {
