@@ -1,12 +1,13 @@
+import { Section, Stack, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { useQuery } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import ArticleCard from "../modules/articles/components/ArticleCard";
+import { DsArticleCard } from "../modules/articles/components/DsArticleCard";
 import ArticlesHeading from "../modules/articles/components/ArticlesHeading";
 import { ArticleStatus } from "../modules/articles/constants";
 import { articlesQueryOptions } from "../modules/articles/queries/articlesQueryOptions";
-import AnimatedSection from "../modules/shared/components/AnimatedSection";
+import { PageContainer } from "../modules/layout/PageContainer";
 
 const ArticlesScreen = () => {
     const [query, setQuery] = useState("");
@@ -15,7 +16,7 @@ const ArticlesScreen = () => {
     const { t } = useTranslation();
 
     const debouncedSetQuery = useCallback(
-        debounce((q) => {
+        debounce((q: string) => {
             setDebouncedQuery(q);
         }, 500),
         []
@@ -27,45 +28,50 @@ const ArticlesScreen = () => {
 
     const { data, isLoading } = useQuery(articlesQueryOptions({ q: debouncedQuery, page, size: 50 }));
 
-    // TODO: Waiting for backend to fix
     const published = useMemo(() => {
         return data?.items
             .filter((article) => article.status === ArticleStatus.PUBLISHED)
             .sort((a, b) => new Date(b.creation_date).getTime() - new Date(a.creation_date).getTime());
     }, [data]);
 
-    return (
-        <div>
-            {/* Gradient header */}
-            <div className="from-primary-brand-50 to-background bg-gradient-to-b px-5 pt-12 pb-8 md:pt-20 md:pb-12">
-                <div className="mx-auto max-w-[1200px]">
-                    <h1 className="text-foreground text-3xl font-bold md:text-4xl">{t("articles.title")}</h1>
-                    <p className="text-muted-foreground mt-2 max-w-[600px] text-base md:text-lg">
-                        {t("articles.subtitle")}
-                    </p>
-                    <div className="mt-6">
-                        <ArticlesHeading onSearch={setQuery} search={query} />
-                    </div>
-                </div>
-            </div>
+    const isEmpty = !isLoading && (!published || published.length === 0);
 
-            {/* Articles grid */}
-            <div className="mx-auto max-w-[1200px] py-10">
-                <div className="grid min-h-[400px] grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {!isLoading && (!published || published.length === 0) && (
-                        <p className="text-muted-foreground col-span-full mt-12 text-center text-lg">
+    return (
+        <YStack>
+            {/* Header band */}
+            <Section backgroundColor="$primarySoft" paddingTop="$xxxl" paddingBottom="$xl" alignItems="center">
+                <PageContainer gap="$lg">
+                    <YStack gap="$sm" maxWidth={620}>
+                        <Typography variant="title2" tag="h1">
+                            {t("articles.title")}
+                        </Typography>
+                        <Typography variant="largeRegular" muted>
+                            {t("articles.subtitle")}
+                        </Typography>
+                    </YStack>
+                    <ArticlesHeading onSearch={setQuery} search={query} />
+                </PageContainer>
+            </Section>
+
+            {/* Grid */}
+            <Section paddingVertical="$xxxl" alignItems="center">
+                <PageContainer minHeight={360}>
+                    {isEmpty ? (
+                        <Typography variant="largeRegular" muted align="center" paddingVertical="$xxxl">
                             {t("common.not_found")}
-                        </p>
+                        </Typography>
+                    ) : (
+                        <XStack flexWrap="wrap" gap="$lg">
+                            {published?.map((article) => (
+                                <Stack key={article.id} width="100%" $sm={{ width: "48%" }} $md={{ width: "31.5%" }}>
+                                    <DsArticleCard article={article} />
+                                </Stack>
+                            ))}
+                        </XStack>
                     )}
-                    {published &&
-                        published.map((article, i) => (
-                            <AnimatedSection as="div" key={article.id} delay={i * 100}>
-                                <ArticleCard article={article} />
-                            </AnimatedSection>
-                        ))}
-                </div>
-            </div>
-        </div>
+                </PageContainer>
+            </Section>
+        </YStack>
     );
 };
 

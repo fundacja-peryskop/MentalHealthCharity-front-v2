@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { ArticleStatus } from "../../articles/constants";
 import { articlesQueryOptions } from "../../articles/queries/articlesQueryOptions";
 import { articlesHeading } from "../content";
-import { HomeArticleCard } from "./HomeArticleCard";
+import { DsArticleCard } from "../../articles/components/DsArticleCard";
 import { PageContainer } from "../../layout/PageContainer";
 
 const MAX_ARTICLES = 6;
@@ -38,7 +38,7 @@ export function ArticlesSection() {
                 <XStack flexWrap="wrap" gap="$lg">
                     {published.map((article) => (
                         <Stack key={article.id} width="100%" $sm={{ width: "48%" }} $md={{ width: "31.5%" }}>
-                            <HomeArticleCard article={article} />
+                            <DsArticleCard article={article} />
                         </Stack>
                     ))}
                 </XStack>

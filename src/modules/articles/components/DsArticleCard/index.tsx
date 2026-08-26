@@ -1,8 +1,8 @@
 import resolveAssetUrl from "@/modules/shared/helpers/resolveAssetUrl";
 import { Article, Avatar, Badge, Person, Typography, shadows } from "@fundacja-peryskop/ui";
 import { Link as RouterLink } from "react-router-dom";
-import type { Article as ArticleData } from "../../articles/types";
-import formatDate from "../../shared/helpers/formatDate";
+import formatDate from "../../../shared/helpers/formatDate";
+import type { Article as ArticleData } from "../../types";
 
 const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "block", width: "100%" };
 const BANNER_FALLBACK = "https://placehold.co/600x300";
@@ -17,11 +17,11 @@ function toExcerpt(markdown: string, length = 120): string {
 }
 
 /**
- * §4.7 — one article rendered with the design system's `Article` compound
- * (semantic `<article>` + fixed-ratio banner), category `Badge`, and author
- * `Person`. Fed real article data; the whole card links to the article.
+ * Article rendered with the design system's `Article` compound (semantic
+ * `<article>` + fixed-ratio banner), category `Badge` and author `Person`. The
+ * whole card links to the article. Shared by the homepage and the articles list.
  */
-export function HomeArticleCard({ article }: { article: ArticleData }) {
+export function DsArticleCard({ article }: { article: ArticleData }) {
     const author = article.created_by;
 
     return (
