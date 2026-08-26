@@ -84,6 +84,13 @@ from `content.ts`; DS tokens only. `HomepageScreen` renders `<HomePage />`.
   signed-in users see the marketing header (with a "Moje konto" CTA) instead of the full app nav
   (theme toggle, admin/volunteer menus) on `/` only — flag for follow-up if undesired._
 
+## Migration gotchas (learned)
+- **Long body text in a flex column overflows**: a DS `Typography` (react-native-web `Text`) sized
+  by min-content refuses to wrap and widens its flex-column parent past the container. Fix: put
+  `width="100%"` on the long-text `Typography` and its wrapping `YStack`. Apply to any paragraph-heavy view.
+- DS `Input` forwards layout props to its inner field, not its wrapper — to stretch it in a row,
+  wrap it in a `YStack flex={1}` (stretch fills width).
+
 ## Known issues to report upstream (PeryskopUI)
 - DS `Button` spreads non-DOM appearance keys (`hoverBackgroundColor`, `pressBackgroundColor`) onto
   the `<button>`, producing a React "unknown prop" console warning on every Button. Harmless but noisy.
@@ -116,10 +123,11 @@ content file.
   `ConfirmEmailCompleteScreen` (via `InfoScreen`).
 - ✅ Articles list (`ArticlesScreen`) + shared `articles/components/DsArticleCard` + `ArticlesHeading` (DS search).
 - ✅ Static: `AboutChatScreen`, `TosScreen`.
+- ✅ Article detail (`ArticleView`) — DS hero/meta/related; keeps Markdown + Videoplayer body.
+- ✅ `DonationsScreen` — full marketing page (hero, mission, goals grid, how-we-work, donate CTA).
 
 **Roadmap (priority order):**
-- ⬜ Article detail (`ArticleScreen`) — markdown render, author, banner.
-- ⬜ Static / marketing: `SupportUsScreen` (external iframe widget + share/copy), `DonationsScreen`.
+- ⬜ `SupportUsScreen` (external iframe widget + share/copy).
 - ⬜ `LeavingScreen` — security-critical external-link interstitial (multiple states); careful pass.
 - ⬜ Forms: mentee (getting-started + form), volunteer — needs DS `FormSelect` / `FormTextarea` fields first.
 - ⬜ `ProfileScreen`.

@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Section, Stack, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import {
     ArrowRight,
     Copy,
@@ -7,6 +6,7 @@ import {
     Globe,
     Heart,
     HeartHandshake,
+    type LucideIcon,
     MessageCircleHeart,
     Monitor,
     ShieldCheck,
@@ -15,195 +15,250 @@ import {
 import { useCallback } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { PageContainer } from "../modules/layout/PageContainer";
+import { useIconColor } from "../modules/layout/useIconColor";
+
+const BANK_ACCOUNT = "62 1870 1045 2083 1080 5210 0001";
+const POMAGAM_URL = "https://pomagam.pl/rw9bkc";
+const ANCHOR_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
+
+/** Brand-tinted rounded square holding a lucide icon. */
+function IconSquare({ icon: Icon, color, size = 48 }: { icon: LucideIcon; color: string; size?: number }) {
+    return (
+        <Stack
+            width={size}
+            height={size}
+            borderRadius="$md"
+            alignItems="center"
+            justifyContent="center"
+            backgroundColor="$primarySoft"
+        >
+            <Icon size={size * 0.5} color={color} />
+        </Stack>
+    );
+}
 
 const DonationsScreen = () => {
     const { t } = useTranslation();
+    const icon = useIconColor();
 
     const handleCopyAccount = useCallback(() => {
-        navigator.clipboard.writeText("62 1870 1045 2083 1080 5210 0001");
+        navigator.clipboard.writeText(BANK_ACCOUNT);
         toast.success(t("common.copied_to_clipboard"));
     }, [t]);
 
     const goals = [
-        {
-            icon: HeartHandshake,
-            title: t("donations.goals.goal1_title"),
-            desc: t("donations.goals.goal1_desc"),
-        },
-        {
-            icon: Users,
-            title: t("donations.goals.goal2_title"),
-            desc: t("donations.goals.goal2_desc"),
-        },
-        {
-            icon: ShieldCheck,
-            title: t("donations.goals.goal3_title"),
-            desc: t("donations.goals.goal3_desc"),
-        },
-        {
-            icon: Monitor,
-            title: t("donations.goals.goal4_title"),
-            desc: t("donations.goals.goal4_desc"),
-        },
+        { icon: HeartHandshake, title: t("donations.goals.goal1_title"), desc: t("donations.goals.goal1_desc") },
+        { icon: Users, title: t("donations.goals.goal2_title"), desc: t("donations.goals.goal2_desc") },
+        { icon: ShieldCheck, title: t("donations.goals.goal3_title"), desc: t("donations.goals.goal3_desc") },
+        { icon: Monitor, title: t("donations.goals.goal4_title"), desc: t("donations.goals.goal4_desc") },
     ];
 
+    const whatIs = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"];
+
     return (
-        <div className="min-h-screen">
+        <YStack>
             {/* Hero */}
-            <section className="from-primary-brand/10 via-primary-brand/5 relative overflow-hidden bg-gradient-to-b to-transparent px-5 pt-24 pb-16 text-center">
-                <div
-                    className="absolute inset-0 opacity-[0.03]"
-                    style={{
-                        backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)",
-                        backgroundSize: "40px 40px",
-                    }}
-                />
-                <div className="relative mx-auto max-w-[700px]">
-                    <div className="bg-primary-brand/10 text-primary-brand mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl">
-                        <Heart className="size-8" />
-                    </div>
-                    <h1 className="text-foreground text-4xl font-bold tracking-tight md:text-5xl">
+            <Section backgroundColor="$primarySoft" alignItems="center" paddingVertical="$xxxl">
+                <PageContainer alignItems="center" gap="$lg" maxWidth={720}>
+                    <IconSquare icon={Heart} color={icon.primary ?? ""} size={64} />
+                    <Typography variant="title1" tag="h1" align="center" $sm={{ fontSize: 34, lineHeight: 40 }}>
                         {t("donations.hero_title")}
-                    </h1>
-                    <p className="text-muted-foreground mx-auto mt-4 max-w-[520px] text-lg">
+                    </Typography>
+                    <Typography variant="largeRegular" muted align="center" maxWidth={520}>
                         {t("donations.hero_subtitle")}
-                    </p>
-                </div>
-            </section>
+                    </Typography>
+                </PageContainer>
+            </Section>
 
             {/* What is the Foundation */}
-            <section className="px-5 py-16 md:py-24">
-                <div className="mx-auto max-w-[760px]">
-                    <h2 className="text-foreground text-3xl font-bold tracking-tight md:text-4xl">
+            <Section alignItems="center" paddingVertical="$xxxl">
+                <PageContainer gap="$lg" maxWidth={780}>
+                    <Typography variant="title2" tag="h2">
                         {t("donations.what_is.title")}
-                    </h2>
-                    <Separator className="my-6" />
-                    <div className="text-muted-foreground space-y-5 text-[1.05rem] leading-relaxed">
-                        <p>{t("donations.what_is.p1")}</p>
-                        <p>{t("donations.what_is.p2")}</p>
-                        <p>{t("donations.what_is.p3")}</p>
-                        <p className="text-foreground font-medium italic">{t("donations.what_is.p4")}</p>
-                        <p>{t("donations.what_is.p5")}</p>
-                        <p className="text-primary-brand text-lg font-semibold">{t("donations.what_is.p6")}</p>
-                        <p>{t("donations.what_is.p7")}</p>
-                        <p>{t("donations.what_is.p8")}</p>
-                        <p className="text-foreground font-medium">{t("donations.what_is.p9")}</p>
-                    </div>
-                </div>
-            </section>
-
-            {/* Our Goals */}
-            <section className="bg-muted/50 px-5 py-16 md:py-24">
-                <div className="mx-auto max-w-[1000px]">
-                    <h2 className="text-foreground text-center text-3xl font-bold tracking-tight md:text-4xl">
-                        {t("donations.goals.title")}
-                    </h2>
-                    <div className="mt-12 grid gap-6 sm:grid-cols-2">
-                        {goals.map(({ icon: Icon, title, desc }) => (
-                            <div
-                                key={title}
-                                className="bg-card rounded-2xl border p-6 transition-shadow hover:shadow-md"
-                            >
-                                <div className="bg-primary-brand/10 text-primary-brand mb-4 flex size-12 items-center justify-center rounded-xl">
-                                    <Icon className="size-6" />
-                                </div>
-                                <h3 className="text-foreground text-lg font-semibold">{title}</h3>
-                                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{desc}</p>
-                            </div>
+                    </Typography>
+                    <Stack height={1} backgroundColor="$borderColor" />
+                    <YStack gap="$md" width="100%">
+                        {whatIs.map((p) => (
+                            <Typography key={p} variant="regularRegular" muted width="100%">
+                                {t(`donations.what_is.${p}`)}
+                            </Typography>
                         ))}
-                    </div>
-                </div>
-            </section>
+                    </YStack>
+                </PageContainer>
+            </Section>
 
-            {/* How We Work */}
-            <section className="px-5 py-16 md:py-24">
-                <div className="mx-auto max-w-[760px]">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-primary-brand/10 text-primary-brand flex size-12 items-center justify-center rounded-xl">
-                            <Globe className="size-6" />
-                        </div>
-                        <h2 className="text-foreground text-3xl font-bold tracking-tight md:text-4xl">
+            {/* Our goals */}
+            <Section backgroundColor="$backgroundHover" alignItems="center" paddingVertical="$xxxl">
+                <PageContainer gap="$xl" alignItems="center" maxWidth={1000}>
+                    <Typography variant="title2" tag="h2" align="center">
+                        {t("donations.goals.title")}
+                    </Typography>
+                    <XStack flexWrap="wrap" gap="$lg" justifyContent="center">
+                        {goals.map(({ icon: GoalIcon, title, desc }) => (
+                            <YStack
+                                key={title}
+                                width="100%"
+                                $sm={{ width: "48%" }}
+                                gap="$md"
+                                padding="$xl"
+                                borderRadius="$lg"
+                                borderWidth={1}
+                                borderColor="$borderColor"
+                                backgroundColor="$background"
+                            >
+                                <IconSquare icon={GoalIcon} color={icon.primary ?? ""} />
+                                <Typography variant="largeBold" tag="h3">
+                                    {title}
+                                </Typography>
+                                <Typography variant="smallRegular" muted>
+                                    {desc}
+                                </Typography>
+                            </YStack>
+                        ))}
+                    </XStack>
+                </PageContainer>
+            </Section>
+
+            {/* How we work */}
+            <Section alignItems="center" paddingVertical="$xxxl">
+                <PageContainer gap="$lg" maxWidth={780}>
+                    <XStack alignItems="center" gap="$md">
+                        <IconSquare icon={Globe} color={icon.primary ?? ""} />
+                        <Typography variant="title2" tag="h2">
                             {t("donations.how_we_work.title")}
-                        </h2>
-                    </div>
-                    <Separator className="my-6" />
-                    <div className="text-muted-foreground space-y-5 text-[1.05rem] leading-relaxed">
-                        <p>{t("donations.how_we_work.p1")}</p>
-                        <p>{t("donations.how_we_work.p2")}</p>
-                        <div className="bg-primary-brand/5 border-primary-brand/20 flex items-start gap-4 rounded-xl border p-5">
-                            <MessageCircleHeart className="text-primary-brand mt-0.5 size-6 shrink-0" />
-                            <div>
-                                <p className="text-foreground font-medium">{t("donations.how_we_work.p3")}</p>
-                                <p className="mt-2 text-sm">{t("donations.how_we_work.p4")}</p>
-                            </div>
-                        </div>
-                        <p className="text-foreground font-medium italic">{t("donations.how_we_work.p5")}</p>
-                    </div>
-                </div>
-            </section>
+                        </Typography>
+                    </XStack>
+                    <Stack height={1} backgroundColor="$borderColor" />
+                    <YStack gap="$md" width="100%">
+                        <Typography variant="regularRegular" muted width="100%">
+                            {t("donations.how_we_work.p1")}
+                        </Typography>
+                        <Typography variant="regularRegular" muted width="100%">
+                            {t("donations.how_we_work.p2")}
+                        </Typography>
+                        <XStack
+                            width="100%"
+                            gap="$md"
+                            alignItems="flex-start"
+                            padding="$lg"
+                            borderRadius="$md"
+                            borderWidth={1}
+                            borderColor="$primaryBorder"
+                            backgroundColor="$primarySoft"
+                        >
+                            <Stack marginTop={2}>
+                                <MessageCircleHeart size={22} color={icon.primary} />
+                            </Stack>
+                            <YStack gap="$xs" flex={1}>
+                                <Typography variant="regularSemibold" color="$primaryTextSoft">
+                                    {t("donations.how_we_work.p3")}
+                                </Typography>
+                                <Typography variant="smallRegular" color="$primaryTextSoft">
+                                    {t("donations.how_we_work.p4")}
+                                </Typography>
+                            </YStack>
+                        </XStack>
+                        <Typography variant="regularSemibold" width="100%" style={{ fontStyle: "italic" }}>
+                            {t("donations.how_we_work.p5")}
+                        </Typography>
+                    </YStack>
+                </PageContainer>
+            </Section>
 
             {/* Donate CTA */}
-            <section className="bg-primary-brand px-5 py-16 text-white md:py-24">
-                <div className="mx-auto max-w-[700px] text-center">
-                    <Heart className="mx-auto mb-4 size-10 opacity-80" />
-                    <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{t("donations.donate.title")}</h2>
-                    <p className="mx-auto mt-4 max-w-[500px] text-lg text-white/80">{t("donations.donate.subtitle")}</p>
+            <Section backgroundColor="$primary" alignItems="center" paddingVertical="$xxxl">
+                <PageContainer alignItems="center" gap="$lg" maxWidth={700}>
+                    <Heart size={40} color="rgba(255,255,255,0.85)" />
+                    <Typography variant="title2" tag="h2" align="center" color="$primaryText">
+                        {t("donations.donate.title")}
+                    </Typography>
+                    <Typography variant="largeRegular" align="center" color="rgba(255,255,255,0.85)" maxWidth={500}>
+                        {t("donations.donate.subtitle")}
+                    </Typography>
 
-                    <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-medium">
-                        <Users className="size-4" />
-                        {t("donations.donate.supporters", { count: 6 })}
-                    </div>
+                    <XStack
+                        alignItems="center"
+                        gap="$xs"
+                        paddingHorizontal="$md"
+                        paddingVertical="$xs"
+                        borderRadius="$full"
+                        backgroundColor="rgba(255,255,255,0.15)"
+                    >
+                        <Users size={16} color="white" />
+                        <Typography variant="smallSemibold" color="$primaryText">
+                            {t("donations.donate.supporters", { count: 6 })}
+                        </Typography>
+                    </XStack>
 
-                    {/* Primary CTA */}
-                    <div className="mt-8">
-                        <a href="https://pomagam.pl/rw9bkc" target="_blank" rel="noopener noreferrer">
-                            <Button
-                                size="lg"
-                                className="gap-2 bg-white text-base font-semibold text-teal-700 shadow-lg hover:bg-white/90"
-                            >
+                    {/* Primary CTA — white pill with teal label */}
+                    <a href={POMAGAM_URL} target="_blank" rel="noopener noreferrer" style={ANCHOR_RESET}>
+                        <XStack
+                            alignItems="center"
+                            gap="$sm"
+                            paddingHorizontal="$xl"
+                            paddingVertical="$md"
+                            borderRadius="$full"
+                            backgroundColor="$background"
+                            hoverStyle={{ backgroundColor: "$backgroundHover" }}
+                        >
+                            <Typography variant="regularSemibold" color="$primary">
                                 {t("donations.donate.cta")}
-                                <ArrowRight className="size-5" />
-                            </Button>
-                        </a>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="mx-auto mt-10 flex max-w-xs items-center gap-3">
-                        <div className="h-px flex-1 bg-white/20" />
-                        <span className="text-sm tracking-wider text-white/50 uppercase">
-                            {t("donations.donate.or")}
-                        </span>
-                        <div className="h-px flex-1 bg-white/20" />
-                    </div>
+                            </Typography>
+                            <ArrowRight size={18} color={icon.primary} />
+                        </XStack>
+                    </a>
 
                     {/* Bank transfer */}
-                    <div className="mx-auto mt-8 max-w-md rounded-2xl bg-white/10 p-6 backdrop-blur-sm">
-                        <p className="mb-3 text-sm font-medium tracking-wider text-white/60 uppercase">
-                            {t("donations.donate.bank_title")}
-                        </p>
-                        <p className="font-mono text-lg font-bold tracking-wider">62 1870 1045 2083 1080 5210 0001</p>
-                        <button
-                            onClick={handleCopyAccount}
-                            className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-white/15 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-white/25"
-                        >
-                            <Copy className="size-3.5" />
-                            {t("donations.donate.copy_account")}
-                        </button>
-                    </div>
-
-                    {/* pomagam.pl link */}
-                    <a
-                        href="https://pomagam.pl/rw9bkc"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-6 inline-flex items-center gap-1.5 text-sm text-white/70 underline-offset-4 transition-colors hover:text-white hover:underline"
+                    <YStack
+                        width="100%"
+                        maxWidth={420}
+                        marginTop="$md"
+                        padding="$lg"
+                        borderRadius="$lg"
+                        backgroundColor="rgba(255,255,255,0.1)"
+                        gap="$sm"
+                        alignItems="center"
                     >
-                        pomagam.pl/rw9bkc
-                        <ExternalLink className="size-3.5" />
+                        <Typography variant="tinySemibold" color="rgba(255,255,255,0.7)">
+                            {t("donations.donate.bank_title").toUpperCase()}
+                        </Typography>
+                        <Typography variant="largeBold" color="$primaryText" style={{ fontFamily: "monospace" }}>
+                            {BANK_ACCOUNT}
+                        </Typography>
+                        <Stack
+                            tag="button"
+                            role="button"
+                            onPress={handleCopyAccount}
+                            flexDirection="row"
+                            alignItems="center"
+                            gap="$xs"
+                            paddingHorizontal="$md"
+                            paddingVertical="$xs"
+                            borderRadius="$sm"
+                            borderWidth={0}
+                            cursor="pointer"
+                            backgroundColor="rgba(255,255,255,0.15)"
+                            hoverStyle={{ backgroundColor: "rgba(255,255,255,0.25)" }}
+                        >
+                            <Copy size={14} color="white" />
+                            <Typography variant="smallSemibold" color="$primaryText">
+                                {t("donations.donate.copy_account")}
+                            </Typography>
+                        </Stack>
+                    </YStack>
+
+                    <a href={POMAGAM_URL} target="_blank" rel="noopener noreferrer" style={ANCHOR_RESET}>
+                        <XStack alignItems="center" gap="$xs">
+                            <Typography variant="smallRegular" color="rgba(255,255,255,0.75)">
+                                pomagam.pl/rw9bkc
+                            </Typography>
+                            <ExternalLink size={14} color="rgba(255,255,255,0.75)" />
+                        </XStack>
                     </a>
-                </div>
-            </section>
-        </div>
+                </PageContainer>
+            </Section>
+        </YStack>
     );
 };
 
