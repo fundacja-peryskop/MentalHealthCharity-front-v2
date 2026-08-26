@@ -1,5 +1,6 @@
-import { cn } from "@/lib/utils";
-import { AnimatePresence, motion } from "framer-motion";
+import { Stack, Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
+import { motion } from "framer-motion";
+import { useIconColor } from "../../../layout/useIconColor";
 
 interface Props {
     progress: number;
@@ -8,30 +9,35 @@ interface Props {
     stepIndicator?: string;
     children?: React.ReactNode;
     direction?: number;
+    /**
+     * Distinct key per step — drives the slide animation on step change. Using
+     * an explicit key (instead of the title, which can repeat across steps)
+     * guarantees the content re-mounts to the current step.
+     */
+    stepKey?: string | number;
 }
 
 const slideVariants = {
-    enter: (direction: number) => ({
-        x: direction > 0 ? 60 : -60,
-        opacity: 0,
-    }),
-    center: {
-        x: 0,
-        opacity: 1,
-    },
-    exit: (direction: number) => ({
-        x: direction < 0 ? 60 : -60,
-        opacity: 0,
-    }),
+    enter: (direction: number) => ({ x: direction > 0 ? 60 : -60, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
 };
 
-const FormWrapper = ({ progress, subtitle, title, stepIndicator, children, direction = 1 }: Props) => {
+const FormWrapper = ({ progress, subtitle, title, stepIndicator, children, direction = 1, stepKey }: Props) => {
+    const icon = useIconColor();
+
     return (
-        <div className="bg-card flex w-full max-w-[560px] flex-col overflow-hidden rounded-2xl shadow-lg">
+        <YStack
+            width="100%"
+            maxWidth={560}
+            borderRadius="$lg"
+            overflow="hidden"
+            backgroundColor="$background"
+            {...shadows.medium}
+        >
             {/* Progress line */}
-            <div className="bg-muted/50 relative h-1 w-full overflow-hidden">
+            <Stack height={4} width="100%" backgroundColor="$backgroundHover" position="relative" overflow="hidden">
                 <motion.div
-                    className="bg-primary-brand absolute inset-y-0 left-0"
+                    style={{ position: "absolute", top: 0, bottom: 0, left: 0, backgroundColor: icon.primary }}
                     initial={false}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -40,49 +46,52 @@ const FormWrapper = ({ progress, subtitle, title, stepIndicator, children, direc
                     aria-valuemin={0}
                     aria-valuemax={100}
                 />
-            </div>
+            </Stack>
 
-            <div className="flex flex-col px-6 pt-8 pb-6 md:px-10 md:pt-10 md:pb-8">
-                {/* Step indicator pill */}
-                {stepIndicator && (
-                    <span className="text-primary-brand bg-primary-brand/10 mb-4 w-fit rounded-full px-3 py-1 text-xs font-semibold">
-                        {stepIndicator}
-                    </span>
-                )}
-
-                {/* Animated header */}
-                <AnimatePresence mode="wait" custom={direction}>
-                    <motion.div
-                        key={title}
-                        custom={direction}
-                        variants={slideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="mb-8"
+            <YStack paddingHorizontal="$xl" paddingTop="$xxl" paddingBottom="$xl">
+                {stepIndicator ? (
+                    <XStack
+                        alignSelf="flex-start"
+                        marginBottom="$lg"
+                        paddingHorizontal="$md"
+                        paddingVertical="$xs"
+                        borderRadius="$full"
+                        backgroundColor="$primarySoft"
                     >
-                        <h1 className={cn("text-foreground text-2xl font-bold md:text-3xl")}>{title}</h1>
-                        <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed">{subtitle}</p>
-                    </motion.div>
-                </AnimatePresence>
+                        <Typography variant="tinyBold" color="$primaryTextSoft">
+                            {stepIndicator}
+                        </Typography>
+                    </XStack>
+                ) : null}
 
-                {/* Animated content */}
-                <AnimatePresence mode="wait" custom={direction}>
-                    <motion.div
-                        key={title + "-content"}
-                        custom={direction}
-                        variants={slideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0.3, ease: "easeInOut", delay: 0.05 }}
-                    >
+                <motion.div
+                    key={stepKey ?? title}
+                    custom={direction}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                    <YStack gap="$xl">
+                        {title || subtitle ? (
+                            <YStack gap="$sm">
+                                {title ? (
+                                    <Typography variant="title2" tag="h1" width="100%">
+                                        {title}
+                                    </Typography>
+                                ) : null}
+                                {subtitle ? (
+                                    <Typography variant="regularRegular" muted width="100%">
+                                        {subtitle}
+                                    </Typography>
+                                ) : null}
+                            </YStack>
+                        ) : null}
                         {children}
-                    </motion.div>
-                </AnimatePresence>
-            </div>
-        </div>
+                    </YStack>
+                </motion.div>
+            </YStack>
+        </YStack>
     );
 };
 

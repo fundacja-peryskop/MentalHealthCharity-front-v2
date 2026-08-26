@@ -1,21 +1,20 @@
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { Button, Checkbox, Input, Select, Stack, Textarea, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { useFormik } from "formik";
-import { ArrowLeft, ArrowRight, CheckCircle, Clock3, Home, Mail, Phone, ShieldAlert } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock3, Home, Mail, ShieldAlert } from "lucide-react";
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { useUser } from "../../../auth/components/AuthProvider";
-import InternalLink from "../../../shared/components/InternalLink";
+import { AppLink } from "../../../layout/AppLink";
+import { useIconColor } from "../../../layout/useIconColor";
 import Loader from "../../../shared/components/Loader";
 import { validation } from "../../../shared/constants";
 import { MenteeFormValues } from "../../types";
 import FormWrapper from "../FormWrapper";
+
+/** Marks a `<button>` as non-submitting; DS Button/Stack don't type `type`. */
+const NON_SUBMIT = { type: "button" } as object;
 
 interface Props {
     onSubmit: (values: MenteeFormValues) => void;
@@ -26,6 +25,8 @@ interface Props {
 
 const MenteeForm = ({ onSubmit, setStep, step, isLoading }: Props) => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
+    const icon = useIconColor();
     const { user, isFetchingUser: isLoadingUserSession } = useUser();
     const isFormDataLoading = (isLoadingUserSession && !user) || isLoading;
     const [direction, setDirection] = useState(1);
@@ -74,7 +75,6 @@ const MenteeForm = ({ onSubmit, setStep, step, isLoading }: Props) => {
                 onSubmit(values);
                 return;
             }
-
             setDirection(1);
             prevStepRef.current = step;
             setStep((prev) => prev + 1);
@@ -87,22 +87,17 @@ const MenteeForm = ({ onSubmit, setStep, step, isLoading }: Props) => {
         setStep((prev) => (prev > 0 ? prev - 1 : prev));
     };
 
-    const handleAgeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const text = e.target.value;
-        const formattedText = text.replace(/[^0-9]/g, "");
-        formik.setFieldValue("age", formattedText);
-    };
+    const errorFor = (name: keyof MenteeFormValues) =>
+        formik.touched[name] && formik.errors[name] ? String(formik.errors[name]) : undefined;
 
     const ageNum = Number(formik.values.age);
     const isUnder18 = formik.values.age !== "" && ageNum > 0 && ageNum < 18;
+
     const referralSourceOptions = [
         { value: "friend", label: t("form.referral_source_options.friend") },
         { value: "socialMedia", label: t("form.referral_source_options.social_media") },
         { value: "google", label: t("form.referral_source_options.google") },
     ];
-    const selectedReferralSourceLabel = referralSourceOptions.find(
-        (option) => option.value === formik.values.source
-    )?.label;
 
     // Success state
     if (step > LAST_STEP) {
@@ -125,41 +120,64 @@ const MenteeForm = ({ onSubmit, setStep, step, isLoading }: Props) => {
         ];
 
         return (
-            <FormWrapper subtitle="" title="" progress={100} direction={direction}>
-                <div className="flex flex-col items-center py-6 text-center">
-                    <div className="bg-primary-brand/10 mb-5 flex size-16 items-center justify-center rounded-full">
-                        <CheckCircle className="text-primary-brand size-8" />
-                    </div>
-                    <h2 className="text-foreground text-2xl font-bold">
+            <FormWrapper subtitle="" title="" progress={100} direction={direction} stepKey="success">
+                <YStack alignItems="center" gap="$md" paddingVertical="$md">
+                    <Stack
+                        width={64}
+                        height={64}
+                        borderRadius="$full"
+                        alignItems="center"
+                        justifyContent="center"
+                        backgroundColor="$primarySoft"
+                    >
+                        <CheckCircle size={32} color={icon.primary} />
+                    </Stack>
+                    <Typography variant="title3" tag="h2" align="center">
                         {t("form.mentee.title.5", { defaultValue: "Dziękujemy!" })}
-                    </h2>
-                    <p className="text-muted-foreground mt-3 max-w-2xl text-[15px] leading-relaxed">
+                    </Typography>
+                    <Typography variant="regularRegular" muted align="center" width="100%">
                         {t("form.mentee.success.lead")}
-                    </p>
-                    <div className="mt-8 grid w-full gap-3 text-left">
-                        {successCards.map(({ icon: Icon, title, body }) => (
-                            <div
+                    </Typography>
+
+                    <YStack gap="$sm" width="100%" marginTop="$md">
+                        {successCards.map(({ icon: CardIcon, title, body }) => (
+                            <XStack
                                 key={title}
-                                className="border-border bg-muted/30 flex items-start gap-3 rounded-2xl border px-4 py-4"
+                                gap="$md"
+                                alignItems="flex-start"
+                                padding="$md"
+                                borderRadius="$md"
+                                borderWidth={1}
+                                borderColor="$borderColor"
+                                backgroundColor="$backgroundHover"
                             >
-                                <div className="bg-primary-brand/10 mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full">
-                                    <Icon className="text-primary-brand size-4.5" />
-                                </div>
-                                <div>
-                                    <p className="text-foreground text-sm font-semibold">{title}</p>
-                                    <p className="text-muted-foreground mt-1 text-sm leading-relaxed">{body}</p>
-                                </div>
-                            </div>
+                                <Stack
+                                    width={40}
+                                    height={40}
+                                    borderRadius="$full"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    backgroundColor="$primarySoft"
+                                >
+                                    <CardIcon size={18} color={icon.primary} />
+                                </Stack>
+                                <YStack flex={1} gap="$xs">
+                                    <Typography variant="smallBold">{title}</Typography>
+                                    <Typography variant="smallRegular" muted width="100%">
+                                        {body}
+                                    </Typography>
+                                </YStack>
+                            </XStack>
                         ))}
-                    </div>
-                    <p className="text-foreground mt-5 text-sm font-semibold">{t("form.mentee.success.closing")}</p>
-                    <div className="mt-8 flex w-full flex-col gap-2.5">
-                        <Button className="w-full gap-2" render={<Link to="/" />}>
-                            <Home className="size-4" />
-                            {t("form.homepage")}
-                        </Button>
-                    </div>
-                </div>
+                    </YStack>
+
+                    <Typography variant="smallBold" align="center" marginTop="$sm">
+                        {t("form.mentee.success.closing")}
+                    </Typography>
+                    <Button variant="primary" fullWidth onPress={() => navigate("/")}>
+                        {t("form.homepage")}
+                    </Button>
+                </YStack>
             </FormWrapper>
         );
     }
@@ -173,276 +191,196 @@ const MenteeForm = ({ onSubmit, setStep, step, isLoading }: Props) => {
             progress={((step + 1) / (LAST_STEP + 2)) * 100}
             stepIndicator={`${step + 1} / ${validationSchemas.length}`}
             direction={direction}
+            stepKey={step}
         >
-            <form onSubmit={formik.handleSubmit}>
+            <form onSubmit={formik.handleSubmit} noValidate>
                 {/* Step 0: Name + Age */}
-                {step === 0 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="name">{t("form.mentee.name_label")}</Label>
+                {step === 0 ? (
+                    <YStack gap="$lg">
+                        <Input
+                            label={t("form.mentee.name_label")}
+                            autoFocus
+                            value={formik.values.name}
+                            onChangeText={(v) => formik.setFieldValue("name", v)}
+                            onBlur={() => formik.setFieldTouched("name", true)}
+                            error={errorFor("name")}
+                        />
+                        <YStack gap="$sm">
                             <Input
-                                id="name"
-                                name="name"
-                                autoFocus
-                                aria-describedby={formik.touched.name && formik.errors.name ? "name-error" : undefined}
-                                value={formik.values.name}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="h-12"
-                            />
-                            {formik.touched.name && formik.errors.name && (
-                                <p id="name-error" role="alert" className="text-destructive text-sm">
-                                    {formik.errors.name}
-                                </p>
-                            )}
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="age">{t("form.volunteer.age_label")}</Label>
-                            <Input
-                                id="age"
-                                name="age"
-                                type="number"
-                                min={0}
-                                aria-describedby={
-                                    formik.touched.age && formik.errors.age
-                                        ? "age-error"
-                                        : isUnder18
-                                          ? "age-info"
-                                          : undefined
-                                }
+                                label={t("form.volunteer.age_label")}
+                                keyboardType="numeric"
                                 value={formik.values.age}
-                                onChange={handleAgeInputChange}
-                                onBlur={formik.handleBlur}
-                                className="h-12"
+                                onChangeText={(v) => formik.setFieldValue("age", v.replace(/[^0-9]/g, ""))}
+                                onBlur={() => formik.setFieldTouched("age", true)}
+                                error={isUnder18 ? undefined : errorFor("age")}
                             />
-                            {formik.touched.age && formik.errors.age && !isUnder18 && (
-                                <p id="age-error" role="alert" className="text-destructive text-sm">
-                                    {formik.errors.age}
-                                </p>
-                            )}
-                            {isUnder18 && (
-                                <div
-                                    id="age-info"
-                                    className="border-destructive/20 bg-destructive/5 mt-3 flex flex-col gap-2 rounded-xl border p-4"
+                            {isUnder18 ? (
+                                <YStack
+                                    gap="$xs"
+                                    padding="$md"
+                                    borderRadius="$md"
+                                    borderWidth={1}
+                                    borderColor="$danger"
+                                    backgroundColor="$dangerSoft"
                                 >
-                                    <div className="flex items-center gap-2">
-                                        <ShieldAlert className="text-destructive size-5 shrink-0" />
-                                        <p className="text-foreground text-sm font-semibold">
-                                            {t("crisis.under_18_title")}
-                                        </p>
-                                    </div>
-                                    <p className="text-muted-foreground text-sm">{t("crisis.under_18_text")}</p>
-                                    <a
-                                        href="tel:116111"
-                                        className="text-primary-brand mt-1 inline-flex items-center gap-1.5 text-sm font-semibold hover:underline"
-                                    >
-                                        <Phone className="size-3.5" />
+                                    <XStack alignItems="center" gap="$xs">
+                                        <ShieldAlert size={18} color={icon.danger} />
+                                        <Typography variant="smallBold">{t("crisis.under_18_title")}</Typography>
+                                    </XStack>
+                                    <Typography variant="smallRegular" muted width="100%">
+                                        {t("crisis.under_18_text")}
+                                    </Typography>
+                                    <AppLink href="tel:116111" variant="smallSemibold" color="$primary">
                                         116 111 — {t("crisis.youth_helpline")}
-                                    </a>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
+                                    </AppLink>
+                                </YStack>
+                            ) : null}
+                        </YStack>
+                    </YStack>
+                ) : null}
 
                 {/* Step 1: Contact */}
-                {step === 1 && (
-                    <div className="flex flex-col gap-5">
-                        {formik.values.contacts.includes("phone") && (
-                            <div className="space-y-1.5">
-                                <Label htmlFor="phone">{t("form.mentee.contact_detail.phone")}</Label>
-                                <Input
-                                    id="phone"
-                                    name="phone"
-                                    autoFocus
-                                    aria-describedby={
-                                        formik.touched.phone && formik.errors.phone ? "phone-error" : undefined
-                                    }
-                                    value={formik.values.phone}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    className="h-12"
-                                />
-                                {formik.touched.phone && formik.errors.phone && (
-                                    <p id="phone-error" role="alert" className="text-destructive text-sm">
-                                        {formik.errors.phone}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-                        <div className="space-y-1.5">
-                            <Label htmlFor="email">{t("form.mentee.contact_detail.email")}</Label>
+                {step === 1 ? (
+                    <YStack gap="$lg">
+                        {formik.values.contacts.includes("phone") ? (
                             <Input
-                                id="email"
-                                name="email"
-                                autoFocus={!formik.values.contacts.includes("phone")}
-                                aria-describedby={
-                                    formik.touched.email && formik.errors.email ? "email-error" : undefined
-                                }
-                                value={formik.values.email}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="h-12"
+                                label={t("form.mentee.contact_detail.phone")}
+                                autoFocus
+                                keyboardType="phone-pad"
+                                value={formik.values.phone}
+                                onChangeText={(v) => formik.setFieldValue("phone", v)}
+                                onBlur={() => formik.setFieldTouched("phone", true)}
+                                error={errorFor("phone")}
                             />
-                            {formik.touched.email && formik.errors.email && (
-                                <p id="email-error" role="alert" className="text-destructive text-sm">
-                                    {formik.errors.email}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
+                        ) : null}
+                        <Input
+                            label={t("form.mentee.contact_detail.email")}
+                            autoFocus={!formik.values.contacts.includes("phone")}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            value={formik.values.email}
+                            onChangeText={(v) => formik.setFieldValue("email", v)}
+                            onBlur={() => formik.setFieldTouched("email", true)}
+                            error={errorFor("email")}
+                        />
+                    </YStack>
+                ) : null}
 
                 {/* Step 2: Description */}
-                {step === 2 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="description">{t("form.mentee.issue_description_label")}</Label>
-                            <textarea
-                                id="description"
-                                name="description"
-                                autoFocus
-                                aria-describedby={
-                                    formik.touched.description && formik.errors.description
-                                        ? "description-error"
-                                        : undefined
-                                }
-                                value={formik.values.description}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                rows={5}
-                                className="border-input focus-visible:border-ring focus-visible:ring-ring/30 w-full rounded-xl border bg-transparent px-4 py-3 text-sm leading-relaxed transition-colors outline-none focus-visible:ring-2"
-                            />
-                            {formik.touched.description && formik.errors.description && (
-                                <p id="description-error" role="alert" className="text-destructive text-sm">
-                                    {formik.errors.description}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
+                {step === 2 ? (
+                    <Textarea
+                        label={t("form.mentee.issue_description_label")}
+                        rows={5}
+                        value={formik.values.description}
+                        onChangeText={(v) => formik.setFieldValue("description", v)}
+                        onBlur={() => formik.setFieldTouched("description", true)}
+                        error={errorFor("description")}
+                    />
+                ) : null}
 
                 {/* Step 3: Contact preference */}
-                {step === 3 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-2">
-                            <Label>{t("form.mentee.contact_preference_label")}</Label>
-                            <p className="text-muted-foreground text-sm">{t("form.mentee.contact_preference_hint")}</p>
-                        </div>
-
-                        <div className="border-border bg-muted/40 relative grid grid-cols-2 rounded-2xl border p-1">
-                            <div
-                                className={cn(
-                                    "bg-background absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl shadow-sm transition-transform duration-200",
-                                    !formik.values.contact_preference && "opacity-0",
-                                    formik.values.contact_preference === "asynchronous"
-                                        ? "translate-x-[calc(100%+4px)]"
-                                        : "translate-x-0"
-                                )}
-                            />
-                            {(["scheduled", "asynchronous"] as const).map((value) => (
-                                <button
-                                    key={value}
-                                    type="button"
-                                    onClick={() => formik.setFieldValue("contact_preference", value)}
-                                    className="relative z-10 rounded-xl px-4 py-4 text-left transition-colors"
-                                >
-                                    <span className="text-foreground block text-sm font-semibold">
-                                        {t(`form.mentee.contact_preference_options.${value}.title`)}
-                                    </span>
-                                    <span className="text-muted-foreground mt-1 block text-xs leading-relaxed">
-                                        {t(`form.mentee.contact_preference_options.${value}.description`)}
-                                    </span>
-                                </button>
-                            ))}
-                        </div>
-
+                {step === 3 ? (
+                    <YStack gap="$md">
+                        <YStack gap="$xs">
+                            <Typography variant="regularSemibold">
+                                {t("form.mentee.contact_preference_label")}
+                            </Typography>
+                            <Typography variant="smallRegular" muted width="100%">
+                                {t("form.mentee.contact_preference_hint")}
+                            </Typography>
+                        </YStack>
+                        <XStack gap="$sm">
+                            {(["scheduled", "asynchronous"] as const).map((value) => {
+                                const selected = formik.values.contact_preference === value;
+                                return (
+                                    <Stack
+                                        key={value}
+                                        tag="button"
+                                        role="button"
+                                        {...NON_SUBMIT}
+                                        aria-pressed={selected}
+                                        onPress={() => formik.setFieldValue("contact_preference", value)}
+                                        flex={1}
+                                        flexDirection="column"
+                                        alignItems="flex-start"
+                                        gap="$xs"
+                                        padding="$md"
+                                        borderRadius="$md"
+                                        borderWidth={1}
+                                        borderColor={selected ? "$primary" : "$borderColor"}
+                                        backgroundColor={selected ? "$primarySoft" : "$background"}
+                                        cursor="pointer"
+                                    >
+                                        <Typography variant="smallBold">
+                                            {t(`form.mentee.contact_preference_options.${value}.title`)}
+                                        </Typography>
+                                        <Typography variant="tinyRegular" muted width="100%">
+                                            {t(`form.mentee.contact_preference_options.${value}.description`)}
+                                        </Typography>
+                                    </Stack>
+                                );
+                            })}
+                        </XStack>
                         {(formik.touched.contact_preference || formik.submitCount > 0) &&
-                            formik.errors.contact_preference && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.contact_preference}
-                                </p>
-                            )}
-                    </div>
-                )}
+                        formik.errors.contact_preference ? (
+                            <Typography variant="smallRegular" color="$danger">
+                                {formik.errors.contact_preference}
+                            </Typography>
+                        ) : null}
+                    </YStack>
+                ) : null}
 
-                {/* Step 4: Account + Source + TOS */}
-                {step === 4 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="source">{t("form.referral_source_label")}</Label>
-                            <Select
-                                value={formik.values.source}
-                                onValueChange={(value) => formik.setFieldValue("source", value)}
-                                onOpenChange={(open) => {
-                                    if (!open) {
-                                        formik.setFieldTouched("source", true);
-                                    }
-                                }}
-                            >
-                                <SelectTrigger
-                                    id="source"
-                                    aria-describedby={
-                                        formik.touched.source && formik.errors.source ? "source-error" : undefined
-                                    }
-                                    className="h-12 w-full rounded-xl bg-transparent px-4 text-sm"
-                                    onBlur={() => formik.setFieldTouched("source", true)}
-                                >
-                                    <SelectValue>{selectedReferralSourceLabel ?? "---"}</SelectValue>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {referralSourceOptions.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>
-                                            {option.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {formik.touched.source && formik.errors.source && (
-                                <p id="source-error" role="alert" className="text-destructive text-sm">
-                                    {formik.errors.source}
-                                </p>
-                            )}
-                        </div>
-                        <label className="flex cursor-pointer items-start gap-3 rounded-xl p-0">
-                            <Checkbox
-                                id="tos"
-                                checked={formik.values.tos}
-                                onCheckedChange={(checked) => formik.setFieldValue("tos", checked)}
-                                className="mt-0.5"
-                            />
-                            <span className="text-muted-foreground text-sm leading-relaxed">
-                                {t("crisis.tos_label", { defaultValue: "Wyrażam zgodę na" })}{" "}
-                                <InternalLink target="_blank" to="/tos">
-                                    {t("crisis.tos_link", {
-                                        defaultValue: "warunki użytkowania i politykę prywatności",
-                                    })}
-                                </InternalLink>
-                            </span>
-                        </label>
-                        {formik.touched.tos && formik.errors.tos && (
-                            <span role="alert" className="text-danger-brand text-sm">
-                                {formik.errors.tos}
-                            </span>
-                        )}
-                    </div>
-                )}
+                {/* Step 4: Source + TOS */}
+                {step === 4 ? (
+                    <YStack gap="$lg">
+                        <Select
+                            label={t("form.referral_source_label")}
+                            placeholder="---"
+                            options={referralSourceOptions}
+                            value={formik.values.source || undefined}
+                            onValueChange={(v) => {
+                                formik.setFieldValue("source", v);
+                                formik.setFieldTouched("source", true);
+                            }}
+                            error={errorFor("source")}
+                        />
+                        <Checkbox
+                            checked={formik.values.tos}
+                            onCheckedChange={(checked) => formik.setFieldValue("tos", checked)}
+                            error={errorFor("tos")}
+                            size="sm"
+                            label={
+                                <Typography variant="smallRegular">
+                                    {t("crisis.tos_label", { defaultValue: "Wyrażam zgodę na" })}{" "}
+                                    <AppLink href="/tos" external variant="smallSemibold" color="$primary">
+                                        {t("crisis.tos_link", {
+                                            defaultValue: "warunki użytkowania i politykę prywatności",
+                                        })}
+                                    </AppLink>
+                                </Typography>
+                            }
+                        />
+                    </YStack>
+                ) : null}
 
                 {/* Navigation */}
-                <div className="mt-8 flex items-center justify-between gap-3">
-                    <Button variant="ghost" type="button" onClick={handleBack} disabled={step === 0} className="gap-2">
-                        <ArrowLeft className="size-4" />
-                        {t("form.back")}
+                <XStack marginTop="$xl" alignItems="center" justifyContent="space-between" gap="$md">
+                    <Button variant="mutedPrimary" {...NON_SUBMIT} onPress={handleBack} disabled={step === 0}>
+                        <ArrowLeft size={16} color={icon.primary} />
+                        <Typography variant="regularSemibold" color="$primaryDarker">
+                            {t("form.back")}
+                        </Typography>
                     </Button>
-                    <Button type="submit" disabled={isFormDataLoading || isUnder18} className="gap-2">
-                        {step === LAST_STEP ? t("form.submit") : t("form.next")}
+                    <Button variant="primary" disabled={isFormDataLoading || isUnder18}>
                         {isFormDataLoading ? (
                             <Loader variant="small" size={20} />
+                        ) : step === LAST_STEP ? (
+                            t("form.submit")
                         ) : (
-                            step < LAST_STEP && <ArrowRight className="size-4" />
+                            t("form.next")
                         )}
                     </Button>
-                </div>
+                </XStack>
             </form>
         </FormWrapper>
     );
