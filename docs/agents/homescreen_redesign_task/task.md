@@ -125,11 +125,14 @@ content file.
 - ✅ Static: `AboutChatScreen`, `TosScreen`.
 - ✅ Article detail (`ArticleView`) — DS hero/meta/related; keeps Markdown + Videoplayer body.
 - ✅ `DonationsScreen` — full marketing page (hero, mission, goals grid, how-we-work, donate CTA).
+- ✅ DS Formik fields `FormTextareaField` + `FormSelectField` (unblock intake forms).
+- ✅ `MenteeFormGettingStartedScreen` — DS content landing page.
 
 **Roadmap (priority order):**
 - ⬜ `SupportUsScreen` (external iframe widget + share/copy).
 - ⬜ `LeavingScreen` — security-critical external-link interstitial (multiple states); careful pass.
-- ⬜ Forms: mentee (getting-started + form), volunteer — needs DS `FormSelect` / `FormTextarea` fields first.
+- ⬜ Intake forms: `MenteeForm` (~450 lines, uses Input/Select/Checkbox) + `VolunteerForm` (~400 lines) —
+  DS field wrappers now exist (`FormSelectField` / `FormTextareaField` / `FormTextField` / `FormCheckboxField`).
 - ⬜ `ProfileScreen`.
 - ⬜ Authenticated features: Chat, Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) — large; last.
 - ⬜ **Chrome unification** (global DS header/footer/announcement) — dedicated, higher-risk pass;
