@@ -127,12 +127,12 @@ content file.
 - ✅ `DonationsScreen` — full marketing page (hero, mission, goals grid, how-we-work, donate CTA).
 - ✅ DS Formik fields `FormTextareaField` + `FormSelectField` (unblock intake forms).
 - ✅ `MenteeFormGettingStartedScreen` — DS content landing page.
+- ✅ **Intake forms**: `MenteeForm` (5-step) + `VolunteerForm` (7-step) + shared `FormWrapper`
+  (DS card + framer-motion progress + step-keyed slide). Verified wizards end-to-end.
 
 **Roadmap (priority order):**
 - ⬜ `SupportUsScreen` (external iframe widget + share/copy).
 - ⬜ `LeavingScreen` — security-critical external-link interstitial (multiple states); careful pass.
-- ⬜ Intake forms: `MenteeForm` (~450 lines, uses Input/Select/Checkbox) + `VolunteerForm` (~400 lines) —
-  DS field wrappers now exist (`FormSelectField` / `FormTextareaField` / `FormTextField` / `FormCheckboxField`).
 - ⬜ `ProfileScreen`.
 - ⬜ Authenticated features: Chat, Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) — large; last.
 - ⬜ **Chrome unification** (global DS header/footer/announcement) — dedicated, higher-risk pass;
