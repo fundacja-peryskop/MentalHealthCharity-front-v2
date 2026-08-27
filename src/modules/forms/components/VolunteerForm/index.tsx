@@ -1,45 +1,47 @@
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { Button, Checkbox, Input, Select, Stack, Textarea, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { useFormik } from "formik";
-import { ArrowLeft, ArrowRight, CheckCircle, Home } from "lucide-react";
+import { ArrowLeft, Check, CheckCircle } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { useUser } from "../../../auth/components/AuthProvider";
+import { AppLink } from "../../../layout/AppLink";
+import { useIconColor } from "../../../layout/useIconColor";
 import { DateTimePicker } from "../../../shared/components/DatePicker";
-import InternalLink from "../../../shared/components/InternalLink";
 import { VolunteerFormValues } from "../../types";
 import FormWrapper from "../FormWrapper";
+
+/** Marks a `<button>` as non-submitting; DS Button/Stack don't type `type`. */
+const NON_SUBMIT = { type: "button" } as object;
+
+const THEME_OPTIONS = [
+    "no",
+    "depression",
+    "alcoholism",
+    "drug_addiction",
+    "self_harm",
+    "suicidal_thoughts",
+    "eating_disorders",
+    "domestic_violence",
+    "homelessness",
+    "sexual_assault",
+    "grief_loss",
+    "trauma",
+    "anxiety",
+    "burnout",
+    "loneliness",
+];
 
 interface Props {
     onSubmit: (values: VolunteerFormValues) => void;
     initStep?: number;
 }
 
-const THEME_OPTIONS = [
-    { value: "no", key: "no" },
-    { value: "depression", key: "depression" },
-    { value: "alcoholism", key: "alcoholism" },
-    { value: "drug_addiction", key: "drug_addiction" },
-    { value: "self_harm", key: "self_harm" },
-    { value: "suicidal_thoughts", key: "suicidal_thoughts" },
-    { value: "eating_disorders", key: "eating_disorders" },
-    { value: "domestic_violence", key: "domestic_violence" },
-    { value: "homelessness", key: "homelessness" },
-    { value: "sexual_assault", key: "sexual_assault" },
-    { value: "grief_loss", key: "grief_loss" },
-    { value: "trauma", key: "trauma" },
-    { value: "anxiety", key: "anxiety" },
-    { value: "burnout", key: "burnout" },
-    { value: "loneliness", key: "loneliness" },
-];
-
 const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
+    const icon = useIconColor();
     const { user } = useUser();
 
     const [step, setStep] = useState(initStep);
@@ -61,12 +63,8 @@ const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
     };
 
     const validationSchemas = [
-        Yup.object({
-            age: Yup.number().min(18, t("validation.age.min")).required(t("validation.required")),
-        }),
-        Yup.object({
-            education: Yup.string().required(t("validation.required")),
-        }),
+        Yup.object({ age: Yup.number().min(18, t("validation.age.min")).required(t("validation.required")) }),
+        Yup.object({ education: Yup.string().required(t("validation.required")) }),
         Yup.object({
             phone: Yup.string()
                 .matches(/^[0-9]+$/, t("validation.phone"))
@@ -76,9 +74,7 @@ const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
         Yup.object({
             description: Yup.string().min(10, t("validation.description.tooShort")).required(t("validation.required")),
         }),
-        Yup.object({
-            interview_meeting_dates: Yup.array().min(1, t("validation.required")),
-        }),
+        Yup.object({ interview_meeting_dates: Yup.array().min(1, t("validation.required")) }),
         Yup.object({
             source: Yup.string().required(t("validation.required")),
             did_help: Yup.string().required(t("validation.required")),
@@ -97,28 +93,21 @@ const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
         onSubmit: (values) => {
             if (step === LAST_STEP) {
                 onSubmit(values);
-                setDirection(1);
-                prevStepRef.current = step;
-                setStep(validationSchemas.length);
-            } else {
-                setDirection(1);
-                prevStepRef.current = step;
-                setStep((prevStep) => prevStep + 1);
             }
+            setDirection(1);
+            prevStepRef.current = step;
+            setStep((prev) => prev + 1);
         },
     });
 
     const handleBack = () => {
         setDirection(-1);
         prevStepRef.current = step;
-        setStep((prevStep) => (prevStep > 0 ? prevStep - 1 : prevStep));
+        setStep((prev) => (prev > 0 ? prev - 1 : prev));
     };
 
-    const handleAgeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const text = e.target.value;
-        const formattedText = text.replace(/[^0-9]/g, "");
-        formik.setFieldValue("age", formattedText);
-    };
+    const errorFor = (name: keyof VolunteerFormValues) =>
+        formik.touched[name] && formik.errors[name] ? String(formik.errors[name]) : undefined;
 
     const handleThemeToggle = (value: string) => {
         const current = formik.values.themes;
@@ -126,29 +115,47 @@ const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
         formik.setFieldValue("themes", next);
     };
 
+    const educationOptions = ["elementary", "high_school", "bachelor", "master", "phd"].map((k) => ({
+        value: k,
+        label: t(`form.volunteer.education.${k}`),
+    }));
+    const sourceOptions = [
+        { value: "friend", label: t("form.referral_source_options.friend") },
+        { value: "socialMedia", label: t("form.referral_source_options.social_media") },
+        { value: "google", label: t("form.referral_source_options.google") },
+    ];
+    const experienceOptions = ["yes_professional", "yes_personal", "no"].map((k) => ({
+        value: k,
+        label: t(`form.volunteer.prior_experience.${k}`),
+    }));
+
     // Success state
     if (step > LAST_STEP) {
         return (
-            <FormWrapper subtitle="" title="" progress={100} direction={direction}>
-                <div className="flex flex-col items-center py-6 text-center">
-                    <div className="bg-primary-brand/10 mb-5 flex size-16 items-center justify-center rounded-full">
-                        <CheckCircle className="text-primary-brand size-8" />
-                    </div>
-                    <h2 className="text-foreground text-2xl font-bold">
+            <FormWrapper subtitle="" title="" progress={100} direction={direction} stepKey="success">
+                <YStack alignItems="center" gap="$md" paddingVertical="$md">
+                    <Stack
+                        width={64}
+                        height={64}
+                        borderRadius="$full"
+                        alignItems="center"
+                        justifyContent="center"
+                        backgroundColor="$primarySoft"
+                    >
+                        <CheckCircle size={32} color={icon.primary} />
+                    </Stack>
+                    <Typography variant="title3" tag="h2" align="center">
                         {t("form.volunteer.title.7", { defaultValue: "Dziękujemy!" })}
-                    </h2>
-                    <p className="text-muted-foreground mt-2 max-w-sm text-[15px]">
+                    </Typography>
+                    <Typography variant="regularRegular" muted align="center" width="100%">
                         {t("form.volunteer.subtitle.7", {
                             defaultValue: "Twoje zgłoszenie zostało wysłane. Skontaktujemy się z Tobą wkrótce.",
                         })}
-                    </p>
-                    <div className="mt-8 flex w-full flex-col gap-2.5">
-                        <Button className="w-full gap-2" render={<Link to="/" />}>
-                            <Home className="size-4" />
-                            {t("form.homepage")}
-                        </Button>
-                    </div>
-                </div>
+                    </Typography>
+                    <Button variant="primary" fullWidth onPress={() => navigate("/")}>
+                        {t("form.homepage")}
+                    </Button>
+                </YStack>
             </FormWrapper>
         );
     }
@@ -160,242 +167,179 @@ const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
             progress={((step + 1) / (LAST_STEP + 2)) * 100}
             stepIndicator={`${step + 1} / ${validationSchemas.length}`}
             direction={direction}
+            stepKey={step}
         >
-            <form onSubmit={formik.handleSubmit}>
-                {/* Step 0: Age */}
-                {step === 0 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="age">{t("form.volunteer.age_label")}</Label>
-                            <Input
-                                id="age"
-                                name="age"
-                                type="number"
-                                min={0}
-                                autoFocus
-                                value={formik.values.age}
-                                onChange={handleAgeInputChange}
-                                onBlur={formik.handleBlur}
-                                className="h-12"
-                            />
-                            {formik.touched.age && formik.errors.age && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.age}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
+            <form onSubmit={formik.handleSubmit} noValidate>
+                {step === 0 ? (
+                    <Input
+                        label={t("form.volunteer.age_label")}
+                        keyboardType="numeric"
+                        autoFocus
+                        value={formik.values.age}
+                        onChangeText={(v) => formik.setFieldValue("age", v.replace(/[^0-9]/g, ""))}
+                        onBlur={() => formik.setFieldTouched("age", true)}
+                        error={errorFor("age")}
+                    />
+                ) : null}
 
-                {/* Step 1: Education */}
-                {step === 1 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="education">{t("form.volunteer.education_label")}</Label>
-                            <select
-                                id="education"
-                                name="education"
-                                autoFocus
-                                value={formik.values.education}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="border-input focus-visible:border-ring focus-visible:ring-ring/30 h-12 w-full rounded-xl border bg-transparent px-3 py-1 text-sm transition-colors outline-none focus-visible:ring-2"
-                            >
-                                <option value="">---</option>
-                                <option value="elementary">{t("form.volunteer.education.elementary")}</option>
-                                <option value="high_school">{t("form.volunteer.education.high_school")}</option>
-                                <option value="bachelor">{t("form.volunteer.education.bachelor")}</option>
-                                <option value="master">{t("form.volunteer.education.master")}</option>
-                                <option value="phd">{t("form.volunteer.education.phd")}</option>
-                            </select>
-                            {formik.touched.education && formik.errors.education && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.education}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
+                {step === 1 ? (
+                    <Select
+                        label={t("form.volunteer.education_label")}
+                        placeholder="---"
+                        options={educationOptions}
+                        value={formik.values.education || undefined}
+                        onValueChange={(v) => {
+                            formik.setFieldValue("education", v);
+                            formik.setFieldTouched("education", true);
+                        }}
+                        error={errorFor("education")}
+                    />
+                ) : null}
 
-                {/* Step 2: Phone */}
-                {step === 2 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="phone">{t("form.volunteer.phone_number_label")}</Label>
-                            <Input
-                                id="phone"
-                                name="phone"
-                                autoFocus
-                                value={formik.values.phone}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="h-12"
-                            />
-                            {formik.touched.phone && formik.errors.phone && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.phone}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
+                {step === 2 ? (
+                    <Input
+                        label={t("form.volunteer.phone_number_label")}
+                        keyboardType="phone-pad"
+                        autoFocus
+                        value={formik.values.phone}
+                        onChangeText={(v) => formik.setFieldValue("phone", v)}
+                        onBlur={() => formik.setFieldTouched("phone", true)}
+                        error={errorFor("phone")}
+                    />
+                ) : null}
 
-                {/* Step 3: Description / Motivation */}
-                {step === 3 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="description">{t("form.volunteer.reason_label")}</Label>
-                            <textarea
-                                id="description"
-                                name="description"
-                                autoFocus
-                                autoComplete="off"
-                                value={formik.values.description}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                rows={5}
-                                className="border-input focus-visible:border-ring focus-visible:ring-ring/30 w-full rounded-xl border bg-transparent px-4 py-3 text-sm leading-relaxed transition-colors outline-none focus-visible:ring-2"
-                            />
-                            {formik.touched.description && formik.errors.description && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.description}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
+                {step === 3 ? (
+                    <Textarea
+                        label={t("form.volunteer.reason_label")}
+                        rows={5}
+                        value={formik.values.description}
+                        onChangeText={(v) => formik.setFieldValue("description", v)}
+                        onBlur={() => formik.setFieldTouched("description", true)}
+                        error={errorFor("description")}
+                    />
+                ) : null}
 
-                {/* Step 4: Interview dates */}
-                {step === 4 && (
-                    <div className="flex w-full flex-col items-center gap-5">
+                {step === 4 ? (
+                    <YStack alignItems="center" gap="$md" width="100%">
                         <DateTimePicker
                             values={formik.values.interview_meeting_dates}
                             onChange={(newValue) => formik.setFieldValue("interview_meeting_dates", newValue)}
                         />
-                        {formik.touched.interview_meeting_dates && formik.errors.interview_meeting_dates && (
-                            <span role="alert" className="text-destructive text-sm">
-                                {formik.errors.interview_meeting_dates as string}
-                            </span>
-                        )}
-                    </div>
-                )}
+                        {errorFor("interview_meeting_dates") ? (
+                            <Typography variant="smallRegular" color="$danger">
+                                {errorFor("interview_meeting_dates")}
+                            </Typography>
+                        ) : null}
+                    </YStack>
+                ) : null}
 
-                {/* Step 5: Source + Experience */}
-                {step === 5 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="source">{t("form.referral_source_label")}</Label>
-                            <select
-                                id="source"
-                                name="source"
-                                autoFocus
-                                value={formik.values.source}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="border-input focus-visible:border-ring focus-visible:ring-ring/30 h-12 w-full rounded-xl border bg-transparent px-3 py-1 text-sm transition-colors outline-none focus-visible:ring-2"
-                            >
-                                <option value="">---</option>
-                                <option value="friend">{t("form.referral_source_options.friend")}</option>
-                                <option value="socialMedia">{t("form.referral_source_options.social_media")}</option>
-                                <option value="google">{t("form.referral_source_options.google")}</option>
-                            </select>
-                            {formik.touched.source && formik.errors.source && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.source}
-                                </p>
-                            )}
-                        </div>
+                {step === 5 ? (
+                    <YStack gap="$lg">
+                        <Select
+                            label={t("form.referral_source_label")}
+                            placeholder="---"
+                            options={sourceOptions}
+                            value={formik.values.source || undefined}
+                            onValueChange={(v) => {
+                                formik.setFieldValue("source", v);
+                                formik.setFieldTouched("source", true);
+                            }}
+                            error={errorFor("source")}
+                        />
+                        <Select
+                            label={t("form.volunteer.prior_experience_label")}
+                            placeholder="---"
+                            options={experienceOptions}
+                            value={formik.values.did_help || undefined}
+                            onValueChange={(v) => {
+                                formik.setFieldValue("did_help", v);
+                                formik.setFieldTouched("did_help", true);
+                            }}
+                            error={errorFor("did_help")}
+                        />
+                    </YStack>
+                ) : null}
 
-                        <div className="space-y-1.5">
-                            <Label htmlFor="did_help">{t("form.volunteer.prior_experience_label")}</Label>
-                            <select
-                                id="did_help"
-                                name="did_help"
-                                value={formik.values.did_help}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="border-input focus-visible:border-ring focus-visible:ring-ring/30 h-12 w-full rounded-xl border bg-transparent px-3 py-1 text-sm transition-colors outline-none focus-visible:ring-2"
-                            >
-                                <option value="">---</option>
-                                <option value="yes_professional">
-                                    {t("form.volunteer.prior_experience.yes_professional")}
-                                </option>
-                                <option value="yes_personal">
-                                    {t("form.volunteer.prior_experience.yes_personal")}
-                                </option>
-                                <option value="no">{t("form.volunteer.prior_experience.no")}</option>
-                            </select>
-                            {formik.touched.did_help && formik.errors.did_help && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.did_help as string}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
+                {step === 6 ? (
+                    <YStack gap="$lg">
+                        <YStack gap="$sm">
+                            <Typography variant="regularSemibold">
+                                {t("form.volunteer.issues_to_avoid_label")}
+                            </Typography>
+                            <XStack flexWrap="wrap" gap="$sm">
+                                {THEME_OPTIONS.map((value) => {
+                                    const selected = formik.values.themes.includes(value);
+                                    return (
+                                        <Stack
+                                            key={value}
+                                            tag="button"
+                                            role="button"
+                                            aria-pressed={selected}
+                                            {...NON_SUBMIT}
+                                            onPress={() => handleThemeToggle(value)}
+                                            flexDirection="row"
+                                            alignItems="center"
+                                            gap="$sm"
+                                            width="100%"
+                                            $sm={{ width: "48%" }}
+                                            paddingHorizontal="$md"
+                                            paddingVertical="$sm"
+                                            borderRadius="$md"
+                                            borderWidth={1}
+                                            borderColor={selected ? "$primary" : "$borderColor"}
+                                            backgroundColor={selected ? "$primarySoft" : "$background"}
+                                            cursor="pointer"
+                                        >
+                                            <Stack
+                                                width={20}
+                                                height={20}
+                                                borderRadius="$xs"
+                                                alignItems="center"
+                                                justifyContent="center"
+                                                borderWidth={1}
+                                                borderColor={selected ? "$primary" : "$borderColor"}
+                                                backgroundColor={selected ? "$primary" : "$background"}
+                                            >
+                                                {selected ? <Check size={14} color={icon.inverse} /> : null}
+                                            </Stack>
+                                            <Typography variant="smallRegular" flex={1}>
+                                                {t(`form.volunteer.issues_to_avoid.${value}`)}
+                                            </Typography>
+                                        </Stack>
+                                    );
+                                })}
+                            </XStack>
+                        </YStack>
 
-                {/* Step 6: Themes to avoid + TOS */}
-                {step === 6 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-3">
-                            <Label>{t("form.volunteer.issues_to_avoid_label")}</Label>
-                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                                {THEME_OPTIONS.map((opt) => (
-                                    <label
-                                        key={opt.value}
-                                        className={cn(
-                                            "border-border hover:bg-muted/50 flex cursor-pointer items-center gap-2.5 rounded-xl border px-3.5 py-3 transition-all",
-                                            formik.values.themes.includes(opt.value) &&
-                                                "border-primary-brand bg-primary-brand/5 ring-primary-brand/20 ring-1"
-                                        )}
-                                    >
-                                        <Checkbox
-                                            checked={formik.values.themes.includes(opt.value)}
-                                            onCheckedChange={() => handleThemeToggle(opt.value)}
-                                        />
-                                        <span className="text-sm">
-                                            {t(`form.volunteer.issues_to_avoid.${opt.key}`)}
-                                        </span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        <label className="flex cursor-pointer items-start gap-3 rounded-xl p-0">
-                            <Checkbox
-                                id="tos"
-                                checked={formik.values.tos}
-                                onCheckedChange={(checked) => formik.setFieldValue("tos", checked)}
-                                className="mt-0.5"
-                            />
-                            <span className="text-muted-foreground text-sm leading-relaxed">
-                                {t("crisis.tos_label", { defaultValue: "Wyrażam zgodę na" })}{" "}
-                                <InternalLink target="_blank" to="/tos">
-                                    {t("crisis.tos_link", {
-                                        defaultValue: "warunki użytkowania i politykę prywatności",
-                                    })}
-                                </InternalLink>
-                            </span>
-                        </label>
-                        {formik.touched.tos && formik.errors.tos && (
-                            <span role="alert" className="text-destructive text-sm">
-                                {formik.errors.tos}
-                            </span>
-                        )}
-                    </div>
-                )}
+                        <Checkbox
+                            checked={formik.values.tos}
+                            onCheckedChange={(checked) => formik.setFieldValue("tos", checked)}
+                            error={errorFor("tos")}
+                            size="sm"
+                            label={
+                                <Typography variant="smallRegular">
+                                    {t("crisis.tos_label", { defaultValue: "Wyrażam zgodę na" })}{" "}
+                                    <AppLink href="/tos" external variant="smallSemibold" color="$primary">
+                                        {t("crisis.tos_link", {
+                                            defaultValue: "warunki użytkowania i politykę prywatności",
+                                        })}
+                                    </AppLink>
+                                </Typography>
+                            }
+                        />
+                    </YStack>
+                ) : null}
 
                 {/* Navigation */}
-                <div className="mt-8 flex items-center justify-between gap-3">
-                    <Button variant="ghost" type="button" onClick={handleBack} disabled={step === 0} className="gap-2">
-                        <ArrowLeft className="size-4" />
-                        {t("form.back")}
+                <XStack marginTop="$xl" alignItems="center" justifyContent="space-between" gap="$md">
+                    <Button variant="mutedPrimary" {...NON_SUBMIT} onPress={handleBack} disabled={step === 0}>
+                        <ArrowLeft size={16} color={icon.primary} />
+                        <Typography variant="regularSemibold" color="$primaryDarker">
+                            {t("form.back")}
+                        </Typography>
                     </Button>
-                    <Button type="submit" className="gap-2">
-                        {step === LAST_STEP ? t("form.submit") : t("form.next")}
-                        {step < LAST_STEP && <ArrowRight className="size-4" />}
-                    </Button>
-                </div>
+                    <Button variant="primary">{step === LAST_STEP ? t("form.submit") : t("form.next")}</Button>
+                </XStack>
             </form>
         </FormWrapper>
     );
