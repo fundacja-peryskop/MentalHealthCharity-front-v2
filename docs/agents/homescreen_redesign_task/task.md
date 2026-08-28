@@ -129,6 +129,9 @@ content file.
 - ✅ `MenteeFormGettingStartedScreen` — DS content landing page.
 - ✅ **Intake forms**: `MenteeForm` (5-step) + `VolunteerForm` (7-step) + shared `FormWrapper`
   (DS card + framer-motion progress + step-keyed slide). Verified wizards end-to-end.
+- ✅ `SupportUsScreen` — clean DS layout (heading, pomagam widget, share + bank-transfer cards).
+- ✅ `ProfileScreen` + sub-components (`Profile` heading, `UserProfileArticles` → DsArticleCard,
+  `UserProfileDescription`) and the shared `SimpleCard` → minimalist DS surfaces.
 - ✅ **Global chrome unification**: DS `AppHeader` (auth/permission-aware, **sticky**, theme toggle,
   account + logout / Dołącz, mobile drawer, chat unread dot) + global DS `AnnouncementBar` +
   `SiteFooter`, wired in `Layout` for all non-admin/non-chat routes. Removed the old Tailwind
@@ -136,10 +139,13 @@ content file.
   sticks on scroll, no double chrome, prod build green.
 
 **Roadmap (priority order):**
-- ⬜ `SupportUsScreen` (external iframe widget + share/copy).
 - ⬜ `LeavingScreen` — security-critical external-link interstitial (multiple states); careful pass.
-- ⬜ `ProfileScreen`.
-- ⬜ Authenticated features: Chat, Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) — large; last.
+- ⬜ `TrainingsScreen`, `MenteeFormPreviewModal`, misc modals.
+- ⬜ Authenticated features: Chat, Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) —
+  many use the DS `SimpleCard` (now migrated) as their surface; bodies still Tailwind. Large; last.
+
+Aesthetic direction: minimalist, friendly, clear ("Google-ish") — generous whitespace, soft
+surfaces, minimal borders, one brand accent, strong type hierarchy.
 
 ## Changelog
 - _(setup)_ Branch `redesign/homepage-peryskop-ui` created; research notes + status log added.

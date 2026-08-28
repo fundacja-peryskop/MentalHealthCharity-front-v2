@@ -1,32 +1,53 @@
-import { cn } from "@/lib/utils";
+import { Typography, YStack, shadows } from "@fundacja-peryskop/ui";
+import type { ReactNode } from "react";
 
-interface Props extends React.HTMLAttributes<HTMLElement> {
+interface Props {
     subtitle?: string;
     title?: string;
     text?: string;
+    children?: ReactNode;
+    /** Kept for call-site compatibility; the DS card owns its styling now. */
+    className?: string;
     titleClassName?: string;
     textAlign?: "left" | "center" | "right" | "justify";
 }
 
-const SimpleCard = ({ text, title, subtitle, className, titleClassName, textAlign, children, ...props }: Props) => {
+/**
+ * Minimal content card on the design system — a soft-rounded surface with an
+ * optional accent subtitle, heading and lead, plus arbitrary content below.
+ */
+const SimpleCard = ({ text, title, subtitle, children }: Props) => {
     return (
-        <article
-            className={cn(
-                "bg-card border-border/50 flex flex-col gap-4 rounded-xl border px-5 py-5 shadow-sm md:px-10 md:py-7",
-                className
-            )}
-            style={{ textAlign }}
-            {...props}
+        <YStack
+            tag="article"
+            width="100%"
+            gap="$lg"
+            padding="$xl"
+            borderRadius="$lg"
+            backgroundColor="$background"
+            {...shadows.small}
         >
-            <div className="flex w-full flex-col gap-2.5">
-                {subtitle && <p className="text-primary-brand text-lg font-semibold">{subtitle}</p>}
-                {title && (
-                    <p className={cn("text-foreground text-xl font-semibold md:text-2xl", titleClassName)}>{title}</p>
-                )}
-                {text && <p className="text-muted-foreground text-base leading-relaxed md:text-lg">{text}</p>}
-            </div>
+            {subtitle || title || text ? (
+                <YStack gap="$sm" width="100%">
+                    {subtitle ? (
+                        <Typography variant="regularSemibold" color="$primary">
+                            {subtitle}
+                        </Typography>
+                    ) : null}
+                    {title ? (
+                        <Typography variant="title3" tag="h2" width="100%">
+                            {title}
+                        </Typography>
+                    ) : null}
+                    {text ? (
+                        <Typography variant="regularRegular" muted width="100%">
+                            {text}
+                        </Typography>
+                    ) : null}
+                </YStack>
+            ) : null}
             {children}
-        </article>
+        </YStack>
     );
 };
 

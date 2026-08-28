@@ -1,3 +1,4 @@
+import { Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { Roles, translatedRoles } from "../../constants";
 import ChangeAvatar from "../ChangeAvatar";
 
@@ -11,15 +12,17 @@ interface Props {
 
 const UserProfileHeading = ({ role, username, avatar_url, isOwner, onSubmit }: Props) => {
     return (
-        <div>
-            <div className="flex flex-row items-end gap-5">
-                <ChangeAvatar disabled={!isOwner} avatar={avatar_url} username={username} onSubmit={onSubmit} />
-                <div>
-                    <p className="text-muted-foreground text-2xl font-bold uppercase">{username}</p>
-                    <p className="text-muted-foreground text-xl font-bold uppercase">{translatedRoles[role]}</p>
-                </div>
-            </div>
-        </div>
+        <XStack alignItems="flex-end" gap="$lg" flexWrap="wrap">
+            <ChangeAvatar disabled={!isOwner} avatar={avatar_url} username={username} onSubmit={onSubmit} />
+            <YStack gap="$xs" paddingBottom="$xs">
+                <Typography variant="title2" tag="h1">
+                    {username}
+                </Typography>
+                <Typography variant="largeSemibold" color="$primary">
+                    {translatedRoles[role]}
+                </Typography>
+            </YStack>
+        </XStack>
     );
 };
 

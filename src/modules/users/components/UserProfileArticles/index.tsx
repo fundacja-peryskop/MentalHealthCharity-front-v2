@@ -1,5 +1,6 @@
+import { Stack, XStack } from "@fundacja-peryskop/ui";
 import { useTranslation } from "react-i18next";
-import ArticleCard from "../../../articles/components/ArticleCard";
+import { DsArticleCard } from "../../../articles/components/DsArticleCard";
 import { Article } from "../../../articles/types";
 import SimpleCard from "../../../shared/components/SimpleCard";
 
@@ -11,11 +12,13 @@ const UserProfileArticles = ({ articles }: Props) => {
     const { t } = useTranslation();
     return (
         <SimpleCard subtitle={t("profile.articles_subtitle")}>
-            <div className="mt-2.5 flex flex-wrap justify-between gap-2.5">
+            <XStack flexWrap="wrap" gap="$lg">
                 {articles.map((article) => (
-                    <ArticleCard key={article.id} article={article} />
+                    <Stack key={article.id} width="100%" $sm={{ width: "48%" }} $md={{ width: "31.5%" }}>
+                        <DsArticleCard article={article} />
+                    </Stack>
                 ))}
-            </div>
+            </XStack>
         </SimpleCard>
     );
 };
