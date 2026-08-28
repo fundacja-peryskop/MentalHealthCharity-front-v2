@@ -144,14 +144,7 @@ export function AppHeader() {
     );
 
     return (
-        <Header
-            tag="header"
-            width="100%"
-            backgroundColor="$background"
-            borderBottomWidth={1}
-            borderColor="$borderColor"
-            style={STICKY}
-        >
+        <Header tag="header" width="100%" backgroundColor="$background" style={STICKY}>
             <XStack
                 width="100%"
                 maxWidth={1200}
