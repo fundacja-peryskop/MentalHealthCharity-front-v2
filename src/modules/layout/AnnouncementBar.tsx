@@ -1,7 +1,7 @@
 import { Stack, Typography, XStack } from "@fundacja-peryskop/ui";
 import { Phone } from "lucide-react";
-import { announcement } from "../content";
-import { PageContainer } from "../../layout/PageContainer";
+import { announcement } from "./content";
+import { PageContainer } from "./PageContainer";
 
 const ANCHOR_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
 

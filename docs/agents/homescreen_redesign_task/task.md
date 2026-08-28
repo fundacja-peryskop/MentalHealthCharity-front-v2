@@ -129,15 +129,17 @@ content file.
 - ✅ `MenteeFormGettingStartedScreen` — DS content landing page.
 - ✅ **Intake forms**: `MenteeForm` (5-step) + `VolunteerForm` (7-step) + shared `FormWrapper`
   (DS card + framer-motion progress + step-keyed slide). Verified wizards end-to-end.
+- ✅ **Global chrome unification**: DS `AppHeader` (auth/permission-aware, **sticky**, theme toggle,
+  account + logout / Dołącz, mobile drawer, chat unread dot) + global DS `AnnouncementBar` +
+  `SiteFooter`, wired in `Layout` for all non-admin/non-chat routes. Removed the old Tailwind
+  `Navbar`/`CrisisBar`/`Footer` and the homepage-only chrome. Verified: one sticky header everywhere,
+  sticks on scroll, no double chrome, prod build green.
 
 **Roadmap (priority order):**
 - ⬜ `SupportUsScreen` (external iframe widget + share/copy).
 - ⬜ `LeavingScreen` — security-critical external-link interstitial (multiple states); careful pass.
 - ⬜ `ProfileScreen`.
 - ⬜ Authenticated features: Chat, Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) — large; last.
-- ⬜ **Chrome unification** (global DS header/footer/announcement) — dedicated, higher-risk pass;
-  the `Navbar` carries auth/permissions/dropdowns/drawer/theme/chat logic. Until then, migrated
-  non-home views keep the existing global chrome (DS body sandwiched in the Tailwind chrome).
 
 ## Changelog
 - _(setup)_ Branch `redesign/homepage-peryskop-ui` created; research notes + status log added.

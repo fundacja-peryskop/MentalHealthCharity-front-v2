@@ -3,9 +3,10 @@ import { Toaster } from "react-hot-toast";
 import { useLocation } from "react-router-dom";
 import MenteeRematchPrompt from "../../../matching/components/MenteeRematchPrompt";
 import VolunteerAvailabilityPrompt from "../../../matching/components/VolunteerAvailabilityPrompt";
+import { AnnouncementBar } from "../../../layout/AnnouncementBar";
+import { AppHeader } from "../../../layout/AppHeader";
+import { SiteFooter } from "../../../layout/SiteFooter";
 import CookiesBar from "../CookiesBar";
-import CrisisBar from "../CrisisBar";
-import Footer from "../Footer";
 
 interface Props {
     children: React.ReactNode;
@@ -15,10 +16,9 @@ const Layout = ({ children }: Props) => {
     const { pathname } = useLocation();
     const isAdminScreen = pathname.includes("/admin");
     const isChatScreen = pathname.startsWith("/chat");
-    // The redesigned homepage owns its own chrome (announcement bar + footer),
-    // so the global CrisisBar / Footer are suppressed on "/".
-    const isHomeScreen = pathname === "/";
-    const showGlobalChrome = !isAdminScreen && !isChatScreen && !isHomeScreen;
+    // The admin panel has its own sidebar layout, and the chat screen is a
+    // full-height app view — both skip the global marketing chrome.
+    const showGlobalChrome = !isAdminScreen && !isChatScreen;
 
     useEffect(() => {
         document.documentElement.classList.toggle("chat-route", isChatScreen);
@@ -40,7 +40,8 @@ const Layout = ({ children }: Props) => {
             >
                 Skip to main content
             </a>
-            {showGlobalChrome && <CrisisBar />}
+            {showGlobalChrome && <AnnouncementBar />}
+            {showGlobalChrome && <AppHeader />}
             <Toaster
                 toastOptions={{
                     style: {
@@ -56,7 +57,7 @@ const Layout = ({ children }: Props) => {
             </main>
             <VolunteerAvailabilityPrompt />
             <MenteeRematchPrompt />
-            {showGlobalChrome && <Footer />}
+            {showGlobalChrome && <SiteFooter />}
             <CookiesBar />
         </div>
     );
