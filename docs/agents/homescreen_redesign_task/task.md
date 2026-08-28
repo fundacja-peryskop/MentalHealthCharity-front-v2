@@ -129,6 +129,8 @@ content file.
 - ✅ `MenteeFormGettingStartedScreen` — DS content landing page.
 - ✅ **Intake forms**: `MenteeForm` (5-step) + `VolunteerForm` (7-step) + shared `FormWrapper`
   (DS card + framer-motion progress + step-keyed slide). Verified wizards end-to-end.
+- ✅ `LeavingScreen` — external-link safety interstitial (invalid / blocked / donation / normal),
+  restyled to clean DS with all safety logic intact (blocked links offer no "proceed"). Verified.
 - ✅ `SupportUsScreen` — clean DS layout (heading, pomagam widget, share + bank-transfer cards).
 - ✅ `ProfileScreen` + sub-components (`Profile` heading, `UserProfileArticles` → DsArticleCard,
   `UserProfileDescription`) and the shared `SimpleCard` → minimalist DS surfaces.
@@ -139,7 +141,6 @@ content file.
   sticks on scroll, no double chrome, prod build green.
 
 **Roadmap (priority order):**
-- ⬜ `LeavingScreen` — security-critical external-link interstitial (multiple states); careful pass.
 - ⬜ `TrainingsScreen`, `MenteeFormPreviewModal`, misc modals.
 - ⬜ Authenticated features: Chat, Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) —
   many use the DS `SimpleCard` (now migrated) as their surface; bodies still Tailwind. Large; last.

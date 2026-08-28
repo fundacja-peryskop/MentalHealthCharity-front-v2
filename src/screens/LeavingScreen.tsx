@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button, Section, Stack, Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
 import {
     ArrowLeft,
     ExternalLink,
@@ -9,10 +9,13 @@ import {
     ScanEye,
     ShieldAlert,
     ShieldX,
+    type LucideIcon,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Container from "../modules/shared/components/Container";
+import { PageContainer } from "../modules/layout/PageContainer";
+import { useIconColor } from "../modules/layout/useIconColor";
 import {
     assessUrlThreats,
     isDonationPlatformUrl,
@@ -24,6 +27,9 @@ import {
 
 const officialFundraiser = parseSafeHttpUrl(OFFICIAL_FUNDRAISER_URL);
 
+/** Marks a `<button>` as non-submitting; DS Button doesn't type `type`. */
+const NON_SUBMIT = { type: "button" } as object;
+
 // Maps each detected threat to a plain-language explanation shown to the user.
 const THREAT_LABEL_KEYS: Record<UrlThreat, string> = {
     insecure: "chat.leaving.reason_insecure",
@@ -34,10 +40,83 @@ const THREAT_LABEL_KEYS: Record<UrlThreat, string> = {
     "suspicious-tld": "chat.leaving.reason_suspicious_tld",
 };
 
+/** Centered card shell used by every state. */
+function Shell({ children }: { children: ReactNode }) {
+    return (
+        <Section alignItems="center" paddingVertical="$xxxl">
+            <PageContainer alignItems="center">
+                <YStack
+                    width="100%"
+                    maxWidth={520}
+                    borderRadius="$lg"
+                    overflow="hidden"
+                    backgroundColor="$background"
+                    {...shadows.medium}
+                >
+                    {children}
+                </YStack>
+            </PageContainer>
+        </Section>
+    );
+}
+
+function IconTile({ bg, icon: Icon, color }: { bg: string; icon: LucideIcon; color: string }) {
+    return (
+        <Stack
+            alignSelf="center"
+            width={64}
+            height={64}
+            borderRadius="$lg"
+            alignItems="center"
+            justifyContent="center"
+            backgroundColor={bg as never}
+        >
+            <Icon size={30} color={color} strokeWidth={2.25} />
+        </Stack>
+    );
+}
+
+function DestinationRow({ hostname, href, iconColor }: { hostname: string; href: string; iconColor: string }) {
+    return (
+        <XStack
+            alignItems="center"
+            gap="$md"
+            padding="$md"
+            borderRadius="$md"
+            borderWidth={1}
+            borderColor="$borderColor"
+            backgroundColor="$backgroundHover"
+            width="100%"
+        >
+            <Stack
+                width={44}
+                height={44}
+                borderRadius="$md"
+                alignItems="center"
+                justifyContent="center"
+                backgroundColor="$background"
+                borderWidth={1}
+                borderColor="$borderColor"
+            >
+                <Globe size={20} color={iconColor} />
+            </Stack>
+            <YStack flex={1} minWidth={0}>
+                <Typography variant="regularBold" numberOfLines={1}>
+                    {hostname}
+                </Typography>
+                <Typography variant="tinyRegular" muted numberOfLines={1}>
+                    {href}
+                </Typography>
+            </YStack>
+        </XStack>
+    );
+}
+
 const LeavingScreen = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [params] = useSearchParams();
+    const c = useIconColor();
 
     const rawUrl = params.get(LEAVING_URL_PARAM) ?? "";
     const url = parseSafeHttpUrl(rawUrl);
@@ -51,8 +130,6 @@ const LeavingScreen = () => {
         // Never follow an unparseable or dangerous link, even if this is somehow
         // reached (the dangerous branch below has no "continue" button at all).
         if (!url || assessUrlThreats(url).length > 0) return;
-        // Open the external destination in a new tab, fully isolated from the app,
-        // then return the user to where they came from (the chat).
         window.open(url.href, "_blank", "noopener,noreferrer");
         goBack();
     };
@@ -62,185 +139,229 @@ const LeavingScreen = () => {
         goBack();
     };
 
+    const backButton = (
+        <Button variant="primary" fullWidth onPress={goBack}>
+            <ArrowLeft size={16} color={c.inverse} />
+            <Typography variant="regularSemibold" color="$primaryText">
+                {t("chat.leaving.back")}
+            </Typography>
+        </Button>
+    );
+
+    const sectionLabel = (text: string) => (
+        <Typography
+            variant="tinySemibold"
+            color="$colorMuted"
+            style={{ textTransform: "uppercase", letterSpacing: 0.5 }}
+        >
+            {text}
+        </Typography>
+    );
+
     // Malformed or unsafe link — never offer a way to follow it.
     if (!url) {
         return (
-            <Container className="flex flex-col items-center py-12 md:py-20">
-                <div className="bg-card border-border/60 w-full max-w-lg rounded-3xl border p-8 text-center shadow-xl sm:p-10">
-                    <div className="bg-danger-brand/10 mx-auto flex size-16 items-center justify-center rounded-2xl">
-                        <ShieldAlert className="text-danger-brand size-8" />
-                    </div>
-                    <h1 className="mt-5 text-2xl font-semibold">{t("chat.leaving.invalid_title")}</h1>
-                    <p className="text-muted-foreground mt-2 leading-relaxed">
+            <Shell>
+                <YStack padding="$xl" gap="$md" alignItems="center">
+                    <IconTile bg="$dangerSoft" icon={ShieldAlert} color={c.danger ?? ""} />
+                    <Typography variant="title3" tag="h1" align="center">
+                        {t("chat.leaving.invalid_title")}
+                    </Typography>
+                    <Typography variant="regularRegular" muted align="center" width="100%">
                         {t("chat.leaving.invalid_description")}
-                    </p>
-                    <Button className="mt-7 w-full sm:w-auto" size="lg" onClick={goBack}>
-                        <ArrowLeft className="size-4" />
-                        {t("chat.leaving.back")}
-                    </Button>
-                </div>
-            </Container>
+                    </Typography>
+                    <Stack width="100%" paddingTop="$sm">
+                        {backButton}
+                    </Stack>
+                </YStack>
+            </Shell>
         );
     }
 
-    // Dangerous links (unencrypted http, spoofed or suspicious domains, hidden
-    // credentials, ...) are blocked outright — there is no "continue anyway".
+    // Dangerous links are blocked outright — there is no "continue anyway".
     const threats = assessUrlThreats(url);
     if (threats.length > 0) {
         return (
-            <Container className="flex flex-col items-center py-12 md:py-20">
-                <div className="bg-card border-border/60 w-full max-w-lg overflow-hidden rounded-3xl border shadow-xl">
-                    {/* Danger header */}
-                    <div className="bg-danger-brand/10 px-6 pt-10 pb-8 text-center sm:px-8">
-                        <div className="bg-danger-brand shadow-danger-brand/30 mx-auto flex size-16 items-center justify-center rounded-2xl text-white shadow-lg">
-                            <ShieldX className="size-8" strokeWidth={2.25} />
-                        </div>
-                        <span className="bg-danger-brand/15 text-danger-brand mt-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase">
-                            <ShieldAlert className="size-3.5" />
+            <Shell>
+                <YStack
+                    backgroundColor="$dangerSoft"
+                    paddingHorizontal="$xl"
+                    paddingTop="$xl"
+                    paddingBottom="$lg"
+                    gap="$sm"
+                    alignItems="center"
+                >
+                    <IconTile bg="$danger" icon={ShieldX} color={c.inverse ?? "white"} />
+                    <XStack
+                        alignItems="center"
+                        gap="$xs"
+                        paddingHorizontal="$md"
+                        paddingVertical={2}
+                        borderRadius="$full"
+                        backgroundColor="$background"
+                    >
+                        <ShieldAlert size={13} color={c.danger} />
+                        <Typography variant="tinyBold" color="$dangerTextSoft">
                             {t("chat.leaving.blocked_badge")}
-                        </span>
-                        <h1 className="mt-3 text-2xl font-semibold text-balance">{t("chat.leaving.blocked_title")}</h1>
-                        <p className="text-muted-foreground mx-auto mt-2 leading-relaxed">
-                            {t("chat.leaving.blocked_description")}
-                        </p>
-                    </div>
+                        </Typography>
+                    </XStack>
+                    <Typography variant="title3" tag="h1" align="center">
+                        {t("chat.leaving.blocked_title")}
+                    </Typography>
+                    <Typography variant="regularRegular" muted align="center" width="100%">
+                        {t("chat.leaving.blocked_description")}
+                    </Typography>
+                </YStack>
 
-                    <div className="space-y-6 px-6 pt-3 pb-8 sm:px-10">
-                        {/* Blocked destination */}
-                        <div>
-                            <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                                {t("chat.leaving.destination_blocked")}
-                            </span>
-                            <div className="bg-danger-brand/5 border-danger-brand/30 mt-2 flex items-center gap-3 rounded-2xl border p-3.5">
-                                <div className="bg-card border-danger-brand/30 flex size-11 shrink-0 items-center justify-center rounded-xl border">
-                                    <Globe className="text-danger-brand size-5" />
-                                </div>
-                                <div className="min-w-0 flex-1 text-left">
-                                    <p className="truncate text-base font-semibold" title={url.hostname}>
-                                        {url.hostname}
-                                    </p>
-                                    <p className="text-muted-foreground truncate text-xs" title={url.href}>
-                                        {url.href}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                <YStack padding="$xl" gap="$lg">
+                    <YStack gap="$sm">
+                        {sectionLabel(t("chat.leaving.destination_blocked"))}
+                        <DestinationRow hostname={url.hostname} href={url.href} iconColor={c.danger ?? ""} />
+                    </YStack>
 
-                        {/* Why it was blocked */}
-                        <div>
-                            <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                                {t("chat.leaving.blocked_reasons_heading")}
-                            </span>
-                            <ul className="mt-3 space-y-2.5">
-                                {threats.map((threat) => (
-                                    <li key={threat} className="flex items-start gap-3">
-                                        <span className="bg-danger-brand/10 text-danger-brand mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg">
-                                            <ShieldX className="size-4" />
-                                        </span>
-                                        <span className="text-foreground/90 text-sm leading-relaxed">
-                                            {t(THREAT_LABEL_KEYS[threat])}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                    <YStack gap="$sm">
+                        {sectionLabel(t("chat.leaving.blocked_reasons_heading"))}
+                        <YStack gap="$sm">
+                            {threats.map((threat) => (
+                                <XStack key={threat} alignItems="flex-start" gap="$sm">
+                                    <Stack
+                                        marginTop={2}
+                                        width={28}
+                                        height={28}
+                                        borderRadius="$sm"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                        backgroundColor="$dangerSoft"
+                                    >
+                                        <ShieldX size={15} color={c.danger} />
+                                    </Stack>
+                                    <Typography variant="smallRegular" flex={1}>
+                                        {t(THREAT_LABEL_KEYS[threat])}
+                                    </Typography>
+                                </XStack>
+                            ))}
+                        </YStack>
+                    </YStack>
 
-                        {/* Only a safe way back — never a way forward. */}
-                        <Button className="w-full" size="lg" onClick={goBack}>
-                            <ArrowLeft className="size-4" />
-                            {t("chat.leaving.back")}
-                        </Button>
-                    </div>
-                </div>
-            </Container>
+                    {backButton}
+                </YStack>
+            </Shell>
         );
     }
 
-    // Links to donation platforms other than our own fundraiser: warn that it is
-    // an unofficial collection and steer the user to the official one.
+    // Donation platforms other than our own fundraiser: warn and steer to the official one.
     if (isDonationPlatformUrl(url)) {
         return (
-            <Container className="flex flex-col items-center py-12 md:py-20">
-                <div className="bg-card border-border/60 w-full max-w-lg overflow-hidden rounded-3xl border shadow-xl">
-                    {/* Caution header */}
-                    <div className="from-warning-brand/15 to-accent-brand/10 bg-gradient-to-br px-6 pt-10 pb-8 text-center sm:px-8">
-                        <div className="from-warning-brand to-accent-brand shadow-warning-brand/30 mx-auto flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg">
-                            <HeartHandshake className="size-8" strokeWidth={2.25} />
-                        </div>
-                        <span className="bg-warning-brand/15 text-warning-brand mt-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase">
-                            <ShieldAlert className="size-3.5" />
+            <Shell>
+                <YStack
+                    backgroundColor="$secondarySoft"
+                    paddingHorizontal="$xl"
+                    paddingTop="$xl"
+                    paddingBottom="$lg"
+                    gap="$sm"
+                    alignItems="center"
+                >
+                    <IconTile bg="$secondary" icon={HeartHandshake} color={c.color ?? ""} />
+                    <XStack
+                        alignItems="center"
+                        gap="$xs"
+                        paddingHorizontal="$md"
+                        paddingVertical={2}
+                        borderRadius="$full"
+                        backgroundColor="$background"
+                    >
+                        <ShieldAlert size={13} color={c.secondary} />
+                        <Typography variant="tinyBold" color="$secondaryTextSoft">
                             {t("chat.leaving.donation_badge")}
-                        </span>
-                        <h1 className="mt-3 text-2xl font-semibold text-balance">{t("chat.leaving.donation_title")}</h1>
-                        <p className="text-muted-foreground mx-auto mt-2 leading-relaxed">
-                            {t("chat.leaving.donation_description")}
-                        </p>
-                    </div>
+                        </Typography>
+                    </XStack>
+                    <Typography variant="title3" tag="h1" align="center">
+                        {t("chat.leaving.donation_title")}
+                    </Typography>
+                    <Typography variant="regularRegular" muted align="center" width="100%">
+                        {t("chat.leaving.donation_description")}
+                    </Typography>
+                </YStack>
 
-                    <div className="space-y-6 px-6 pt-3 pb-8 sm:px-10">
-                        {/* The link that was posted */}
-                        <div>
-                            <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                                {t("chat.leaving.donation_detected")}
-                            </span>
-                            <div className="bg-muted/60 border-border/50 mt-2 flex items-center gap-3 rounded-2xl border p-3.5">
-                                <div className="bg-card border-border/60 flex size-11 shrink-0 items-center justify-center rounded-xl border">
-                                    <Globe className="text-muted-foreground size-5" />
-                                </div>
-                                <div className="min-w-0 flex-1 text-left">
-                                    <p className="truncate text-base font-semibold" title={url.hostname}>
-                                        {url.hostname}
-                                    </p>
-                                    <p className="text-muted-foreground truncate text-xs" title={url.href}>
-                                        {url.href}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                <YStack padding="$xl" gap="$lg">
+                    <YStack gap="$sm">
+                        {sectionLabel(t("chat.leaving.donation_detected"))}
+                        <DestinationRow hostname={url.hostname} href={url.href} iconColor={c.muted ?? ""} />
+                    </YStack>
 
-                        {/* The official fundraiser to donate through instead */}
-                        {officialFundraiser && (
-                            <div>
-                                <span className="text-primary-brand text-xs font-semibold tracking-wide uppercase">
-                                    {t("chat.leaving.donation_official_heading")}
-                                </span>
-                                <div className="border-primary-brand/40 bg-primary-brand-light mt-2 flex items-center gap-3 rounded-2xl border p-3.5">
-                                    <div className="bg-primary-brand flex size-11 shrink-0 items-center justify-center rounded-xl text-white">
-                                        <HeartHandshake className="size-5" />
-                                    </div>
-                                    <div className="min-w-0 flex-1 text-left">
-                                        <p className="text-primary-brand-dark truncate text-base font-semibold">
-                                            {officialFundraiser.hostname}
-                                            {officialFundraiser.pathname}
-                                        </p>
-                                        <p className="text-primary-brand-dark/70 truncate text-xs">
-                                            {t("chat.leaving.donation_official_heading")}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Actions: official fundraiser first, then a muted way out. */}
-                        <div className="space-y-2.5 pt-1">
-                            <Button className="w-full" size="lg" onClick={openOfficialFundraiser}>
-                                <HeartHandshake className="size-4" />
-                                {t("chat.leaving.donation_official_cta")}
-                            </Button>
-                            <Button variant="outline" className="w-full" size="lg" onClick={goBack}>
-                                <ArrowLeft className="size-4" />
-                                {t("chat.leaving.back")}
-                            </Button>
-                            <button
-                                onClick={proceed}
-                                className="text-muted-foreground hover:text-foreground mx-auto block cursor-pointer text-xs underline underline-offset-2"
+                    {officialFundraiser ? (
+                        <YStack gap="$sm">
+                            <Typography
+                                variant="tinySemibold"
+                                color="$primary"
+                                style={{ textTransform: "uppercase", letterSpacing: 0.5 }}
                             >
+                                {t("chat.leaving.donation_official_heading")}
+                            </Typography>
+                            <XStack
+                                alignItems="center"
+                                gap="$md"
+                                padding="$md"
+                                borderRadius="$md"
+                                borderWidth={1}
+                                borderColor="$primaryBorder"
+                                backgroundColor="$primarySoft"
+                                width="100%"
+                            >
+                                <Stack
+                                    width={44}
+                                    height={44}
+                                    borderRadius="$md"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    backgroundColor="$primary"
+                                >
+                                    <HeartHandshake size={20} color={c.inverse} />
+                                </Stack>
+                                <YStack flex={1} minWidth={0}>
+                                    <Typography variant="regularBold" color="$primaryTextSoft" numberOfLines={1}>
+                                        {officialFundraiser.hostname}
+                                        {officialFundraiser.pathname}
+                                    </Typography>
+                                    <Typography variant="tinyRegular" color="$primaryTextSoft" numberOfLines={1}>
+                                        {t("chat.leaving.donation_official_heading")}
+                                    </Typography>
+                                </YStack>
+                            </XStack>
+                        </YStack>
+                    ) : null}
+
+                    <YStack gap="$sm">
+                        <Button variant="primary" fullWidth onPress={openOfficialFundraiser}>
+                            <HeartHandshake size={16} color={c.inverse} />
+                            <Typography variant="regularSemibold" color="$primaryText">
+                                {t("chat.leaving.donation_official_cta")}
+                            </Typography>
+                        </Button>
+                        <Button variant="mutedPrimary" fullWidth {...NON_SUBMIT} onPress={goBack}>
+                            <ArrowLeft size={16} color={c.primary} />
+                            <Typography variant="regularSemibold" color="$primaryDarker">
+                                {t("chat.leaving.back")}
+                            </Typography>
+                        </Button>
+                        <Stack
+                            tag="button"
+                            role="button"
+                            {...NON_SUBMIT}
+                            onPress={proceed}
+                            alignSelf="center"
+                            borderWidth={0}
+                            backgroundColor="$backgroundTransparent"
+                            cursor="pointer"
+                            paddingVertical="$xs"
+                        >
+                            <Typography variant="tinyRegular" muted style={{ textDecorationLine: "underline" }}>
                                 {t("chat.leaving.donation_proceed")}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </Container>
+                            </Typography>
+                        </Stack>
+                    </YStack>
+                </YStack>
+            </Shell>
         );
     }
 
@@ -251,82 +372,84 @@ const LeavingScreen = () => {
         { icon: ShieldX, text: t("chat.leaving.tip_impersonation") },
     ];
 
+    // Normal external link.
     return (
-        <Container className="flex flex-col items-center py-12 md:py-20">
-            <div className="bg-card border-border/60 w-full max-w-lg overflow-hidden rounded-3xl border shadow-xl">
-                {/* Accent header with the caution icon */}
-                <div className="from-warning-brand/15 to-accent-brand/10 relative bg-gradient-to-br px-6 pt-10 pb-8 text-center sm:px-8">
-                    <div className="from-warning-brand to-accent-brand shadow-warning-brand/30 mx-auto flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg">
-                        <ExternalLink className="size-8" strokeWidth={2.25} />
-                    </div>
-                    <span className="bg-warning-brand/15 text-warning-brand mt-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase">
-                        <ShieldAlert className="size-3.5" />
+        <Shell>
+            <YStack
+                backgroundColor="$secondarySoft"
+                paddingHorizontal="$xl"
+                paddingTop="$xl"
+                paddingBottom="$lg"
+                gap="$sm"
+                alignItems="center"
+            >
+                <IconTile bg="$secondary" icon={ExternalLink} color={c.color ?? ""} />
+                <XStack
+                    alignItems="center"
+                    gap="$xs"
+                    paddingHorizontal="$md"
+                    paddingVertical={2}
+                    borderRadius="$full"
+                    backgroundColor="$background"
+                >
+                    <ShieldAlert size={13} color={c.secondary} />
+                    <Typography variant="tinyBold" color="$secondaryTextSoft">
                         {t("chat.leaving.badge")}
-                    </span>
-                    <h1 className="mt-3 text-2xl font-semibold text-balance">{t("chat.leaving.title")}</h1>
-                    <p className="text-muted-foreground mx-auto mt-2 leading-relaxed">
-                        <Trans
-                            i18nKey="chat.leaving.subtitle"
-                            values={{ host: url.hostname }}
-                            components={{
-                                strong: <strong className="text-foreground font-semibold [overflow-wrap:anywhere]" />,
-                            }}
-                        />
-                    </p>
-                </div>
+                    </Typography>
+                </XStack>
+                <Typography variant="title3" tag="h1" align="center">
+                    {t("chat.leaving.title")}
+                </Typography>
+                <Typography variant="regularRegular" muted align="center" width="100%">
+                    <Trans
+                        i18nKey="chat.leaving.subtitle"
+                        values={{ host: url.hostname }}
+                        components={{ strong: <strong /> }}
+                    />
+                </Typography>
+            </YStack>
 
-                <div className="space-y-6 px-8 pt-3 pb-8 sm:px-10">
-                    {/* Destination — hostname emphasised so the user can spot spoofing. */}
-                    <div>
-                        <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                            {t("chat.leaving.destination")}
-                        </span>
-                        <div className="bg-muted/60 border-border/50 mt-2 flex items-center gap-3 rounded-2xl border p-3.5">
-                            <div className="bg-card border-border/60 flex size-11 shrink-0 items-center justify-center rounded-xl border">
-                                <Globe className="text-primary-brand size-5" />
-                            </div>
-                            <div className="min-w-0 flex-1 text-left">
-                                <p className="truncate text-base font-semibold" title={url.hostname}>
-                                    {url.hostname}
-                                </p>
-                                <p className="text-muted-foreground truncate text-xs" title={url.href}>
-                                    {url.href}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+            <YStack padding="$xl" gap="$lg">
+                <YStack gap="$sm">
+                    {sectionLabel(t("chat.leaving.destination"))}
+                    <DestinationRow hostname={url.hostname} href={url.href} iconColor={c.primary ?? ""} />
+                </YStack>
 
-                    {/* Safety tips */}
-                    <div>
-                        <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                            {t("chat.leaving.tips_heading")}
-                        </span>
-                        <ul className="mt-3 space-y-2.5">
-                            {tips.map(({ icon: Icon, text }, i) => (
-                                <li key={i} className="flex items-start gap-3">
-                                    <span className="bg-warning-brand/10 text-warning-brand mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg">
-                                        <Icon className="size-4" />
-                                    </span>
-                                    <span className="text-foreground/90 text-sm leading-relaxed">{text}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                <YStack gap="$sm">
+                    {sectionLabel(t("chat.leaving.tips_heading"))}
+                    <YStack gap="$sm">
+                        {tips.map(({ icon: Icon, text }, i) => (
+                            <XStack key={i} alignItems="flex-start" gap="$sm">
+                                <Stack
+                                    marginTop={2}
+                                    width={28}
+                                    height={28}
+                                    borderRadius="$sm"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    backgroundColor="$secondarySoft"
+                                >
+                                    <Icon size={15} color={c.secondary} />
+                                </Stack>
+                                <Typography variant="smallRegular" flex={1}>
+                                    {text}
+                                </Typography>
+                            </XStack>
+                        ))}
+                    </YStack>
+                </YStack>
 
-                    {/* Actions */}
-                    <div className="flex flex-col gap-2.5 pt-1 sm:flex-row-reverse">
-                        <Button className="w-full sm:flex-1" size="lg" onClick={goBack}>
-                            <ArrowLeft className="size-4" />
-                            {t("chat.leaving.back")}
-                        </Button>
-                        <Button variant="outline" className="w-full sm:flex-1" size="lg" onClick={proceed}>
-                            <ExternalLink className="size-4" />
+                <XStack gap="$sm" flexDirection="column" $sm={{ flexDirection: "row-reverse" }}>
+                    <Stack flex={1}>{backButton}</Stack>
+                    <Button variant="mutedPrimary" flex={1} {...NON_SUBMIT} onPress={proceed}>
+                        <ExternalLink size={16} color={c.primary} />
+                        <Typography variant="regularSemibold" color="$primaryDarker">
                             {t("chat.leaving.proceed")}
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        </Container>
+                        </Typography>
+                    </Button>
+                </XStack>
+            </YStack>
+        </Shell>
     );
 };
 
