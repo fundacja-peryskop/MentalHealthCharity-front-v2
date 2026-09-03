@@ -140,10 +140,35 @@ content file.
   `Navbar`/`CrisisBar`/`Footer` and the homepage-only chrome. Verified: one sticky header everywhere,
   sticks on scroll, no double chrome, prod build green.
 
-**Roadmap (priority order):**
-- ⬜ `TrainingsScreen`, `MenteeFormPreviewModal`, misc modals.
-- ⬜ Authenticated features: Chat, Dashboards & admin (`Manage*`, `Matching*`, Reports, Users) —
-  many use the DS `SimpleCard` (now migrated) as their surface; bodies still Tailwind. Large; last.
+**Done (admin area):**
+- ✅ Shared DS admin primitives in `src/modules/layout/admin.tsx`: `AdminPageHeader`,
+  `FilterPills`, `StatusPill`, `PillButton`, `DataTable` (scrollable flex-grid table on DS tokens).
+- ✅ `TrainingsScreen` — DS resource grid.
+- ✅ Admin `Dashboard` — DS metric cards, action list, matching summary + capacity bar,
+  alerts/reports/forms panels (all query/compute logic preserved; `useIconColor` gained `success`).
+- ✅ Matching screens: `MatchingMenteesScreen` (+ DS paused-decision modal content),
+  `MatchingVolunteersScreen`, `MatchingAlertsScreen`, `MatchingUserHistoryScreen` — all on `DataTable`.
+- ✅ `ManageMenteeFormsScreen`, `ManageVolunteerFormsScreen`, `ManageArticlesScreen` — DS header +
+  `FilterPills` + DS `Select` toolbars (data tables themselves left intact).
+- ✅ `ReportsScreen` + `ReportItem` — DS card + DS modal content (fixed a no-op modal Cancel button).
+- ✅ `AdminSettingsScreen` — DS toggle switch + DS number inputs.
+- ✅ `VolunteerAvailabilityScreen` — DS metric tiles, `Select`, alert boxes.
+- ✅ `ManageChatsScreen` — DS header/search/`FilterPills` (chat list + modals unchanged).
+- ✅ `ArticlesDashboardScreen` — DS layout; also fixed a rules-of-hooks violation (per-status
+  `useQuery` extracted into `ArticleStatusSection` instead of being called inside a `.map()`).
+
+**Remaining (deep shared components — Tailwind bodies, large & data-heavy):**
+- ⬜ Rich editor host: `ArticleEditor` (+ thin `CreateArticleScreen`/`EditArticleScreen` wrappers),
+  `ArticleCard`, `ArticlesManager`.
+- ⬜ Data tables: `MenteeFormsTable`, `FormsTable`.
+- ⬜ Real-time chat: `ChatWindow`, `ChatManager`, `ChatScreen`, `ChatInfoModal`.
+- ⬜ Users admin: `UserEditorScreen` → `UsersList`, `EditUserModal`, `SearchUser`.
+- ⬜ Misc modals: `ManualPairModal`, `MenteeFormPreviewModal`, `CreateChatModal`, `EditChatModal`,
+  `AddParticipantModal`.
+
+> Note: the admin/matching/settings/chat screens are auth-gated and their API is CORS-blocked from
+> localhost, so they can't be exercised in the local browser preview. They were migrated against the
+> proven DS patterns and verified via `tsc` (0 errors) + `eslint` (clean) rather than in-browser.
 
 Aesthetic direction: minimalist, friendly, clear ("Google-ish") — generous whitespace, soft
 surfaces, minimal borders, one brand accent, strong type hierarchy.
@@ -162,3 +187,9 @@ surfaces, minimal borders, one brand accent, strong type hierarchy.
 - _(phase 5)_ Extracted shared `layout` module; added DS Formik fields + `AuthShell`; migrated
   `NotFoundScreen`, `LoginScreen`, `RegisterScreen` (+ forms) to the DS. Typecheck 0 errors,
   lint clean; verified in-browser.
+- _(admin sweep)_ Added `src/modules/layout/admin.tsx` DS primitives and migrated the whole admin
+  area: Dashboard, all four Matching screens, the Manage-forms/articles toolbars, Reports (+ card),
+  Settings (toggle + number inputs), Volunteer availability, Manage-chats header, and the Articles
+  dashboard (also fixing its rules-of-hooks bug). Each step: `tsc` 0 errors + `eslint` clean, then
+  committed and pushed. Deep shared components (rich editor, data tables, real-time chat, users
+  admin, misc modals) remain on Tailwind — tracked above.
