@@ -1,11 +1,7 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Section, Select, Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Loader2, RefreshCw, Save } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import {
@@ -16,8 +12,53 @@ import {
 } from "../modules/matching/constants";
 import updateVolunteerAvailabilityMutation from "../modules/matching/queries/updateVolunteerAvailabilityMutation";
 import { volunteerAvailabilityQueryOptions } from "../modules/matching/queries/volunteerAvailabilityQueryOptions";
-import Container from "../modules/shared/components/Container";
+import { PageContainer } from "../modules/layout/PageContainer";
+import { PillButton, StatusPill, type PillTone } from "../modules/layout/admin";
+import { useIconColor } from "../modules/layout/useIconColor";
 import formatDate from "../modules/shared/helpers/formatDate";
+
+const MetricTile = ({ label, value }: { label: string; value: string | number }) => (
+    <YStack
+        flex={1}
+        minWidth={180}
+        gap="$xs"
+        padding="$lg"
+        borderRadius="$lg"
+        backgroundColor="$background"
+        {...shadows.small}
+    >
+        <Typography variant="smallRegular" muted>
+            {label}
+        </Typography>
+        <Typography variant="title2" tag="span">
+            {value}
+        </Typography>
+    </YStack>
+);
+
+const AlertBox = ({ tone, title, children }: { tone: "danger" | "info"; title: string; children: React.ReactNode }) => {
+    const c = useIconColor();
+    return (
+        <XStack
+            gap="$sm"
+            padding="$lg"
+            borderRadius="$md"
+            borderWidth={1}
+            borderColor={tone === "danger" ? "$danger" : "$borderColor"}
+            backgroundColor={tone === "danger" ? "$dangerSoft" : "$backgroundHover"}
+        >
+            {tone === "danger" ? <AlertTriangle size={18} color={c.danger} /> : null}
+            <YStack gap="$xs" flex={1}>
+                <Typography variant="regularSemibold" color={tone === "danger" ? "$dangerTextSoft" : "$color"}>
+                    {title}
+                </Typography>
+                <Typography variant="smallRegular" muted width="100%" style={{ whiteSpace: "pre-line" }}>
+                    {children}
+                </Typography>
+            </YStack>
+        </XStack>
+    );
+};
 
 const VolunteerAvailabilityScreen = () => {
     const { t } = useTranslation();
@@ -52,165 +93,131 @@ const VolunteerAvailabilityScreen = () => {
     const selectedBelowCurrentAssignments = selectedCapacity < activeChatCount;
     const blockedUntil = data?.blocked_until ? formatDate(data.blocked_until) : null;
 
-    const statusBadge = useMemo(() => {
+    const status = useMemo<{ tone: PillTone; label: string }>(() => {
         if (!data || declaredCapacity === null) {
-            return (
-                <Badge variant="warning">
-                    {t("matching.availability_not_declared", { defaultValue: "Brak deklaracji" })}
-                </Badge>
-            );
+            return {
+                tone: "warning",
+                label: t("matching.availability_not_declared", { defaultValue: "Brak deklaracji" }),
+            };
         }
-
         if (data.is_full) {
-            return <Badge variant="warning">{t("matching.availability_full", { defaultValue: "Pełny" })}</Badge>;
+            return { tone: "warning", label: t("matching.availability_full", { defaultValue: "Pełny" }) };
         }
-
-        return (
-            <Badge variant="success">{t("matching.availability_available", { defaultValue: "Dyspozycyjny" })}</Badge>
-        );
+        return { tone: "success", label: t("matching.availability_available", { defaultValue: "Dyspozycyjny" }) };
     }, [data, declaredCapacity, t]);
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const handleSave = () => {
         if (!Number.isInteger(selectedCapacity) || isPending) return;
-
         mutate({ declared_capacity: selectedCapacity });
     };
 
     if (isLoading) {
         return (
-            <Container className="min-h-[50vh] items-center justify-center">
-                <Loader2 className="text-muted-foreground size-6 animate-spin" />
-            </Container>
+            <Section paddingVertical="$xxxl" alignItems="center" justifyContent="center" minHeight="50vh">
+                <Loader2 className="animate-spin" size={28} />
+            </Section>
         );
     }
 
     return (
-        <Container className="gap-6 pb-12">
-            <header className="flex flex-col gap-2">
-                <div className="flex flex-wrap items-center gap-3">
-                    <h1 className="text-foreground text-3xl font-semibold">
+        <Section paddingVertical="$xxxl" alignItems="center">
+            <PageContainer maxWidth={960} gap="$lg">
+                <XStack flexWrap="wrap" alignItems="center" gap="$md">
+                    <Typography variant="title2" tag="h1">
                         {t("matching.availability_page_title", { defaultValue: "Dyspozycyjność" })}
-                    </h1>
-                    {statusBadge}
-                </div>
-            </header>
+                    </Typography>
+                    <StatusPill tone={status.tone}>{status.label}</StatusPill>
+                </XStack>
 
-            {isError && (
-                <Alert variant="destructive">
-                    <AlertTriangle />
-                    <AlertTitle>{t("common.error", { defaultValue: "Błąd" })}</AlertTitle>
-                    <AlertDescription>
+                {isError && (
+                    <AlertBox tone="danger" title={t("common.error", { defaultValue: "Błąd" })}>
                         {t("matching.availability_fetch_error", {
                             defaultValue: "Nie udało się pobrać Twojej dyspozycyjności.",
                         })}
-                    </AlertDescription>
-                </Alert>
-            )}
+                    </AlertBox>
+                )}
 
-            <section className="grid gap-3 md:grid-cols-3">
-                <div className="border-border bg-card flex flex-col gap-1 rounded-lg border p-4">
-                    <span className="text-muted-foreground text-sm">
-                        {t("matching.availability_declared_capacity", { defaultValue: "Zadeklarowana liczba" })}
-                    </span>
-                    <strong className="text-foreground text-2xl">{declaredCapacity ?? "-"}</strong>
-                </div>
-                <div className="border-border bg-card flex flex-col gap-1 rounded-lg border p-4">
-                    <span className="text-muted-foreground text-sm">
-                        {t("matching.availability_active_chats", { defaultValue: "Aktywne rozmowy" })}
-                    </span>
-                    <strong className="text-foreground text-2xl">{activeChatCount}</strong>
-                </div>
-                <div className="border-border bg-card flex flex-col gap-1 rounded-lg border p-4">
-                    <span className="text-muted-foreground text-sm">
-                        {t("matching.availability_free_slots", { defaultValue: "Wolne miejsca" })}
-                    </span>
-                    <strong className="text-foreground text-2xl">{Math.max(freeSlots, 0)}</strong>
-                </div>
-            </section>
+                <XStack flexWrap="wrap" gap="$md">
+                    <MetricTile
+                        label={t("matching.availability_declared_capacity", { defaultValue: "Zadeklarowana liczba" })}
+                        value={declaredCapacity ?? "-"}
+                    />
+                    <MetricTile
+                        label={t("matching.availability_active_chats", { defaultValue: "Aktywne rozmowy" })}
+                        value={activeChatCount}
+                    />
+                    <MetricTile
+                        label={t("matching.availability_free_slots", { defaultValue: "Wolne miejsca" })}
+                        value={Math.max(freeSlots, 0)}
+                    />
+                </XStack>
 
-            <section className="border-border bg-card rounded-lg border p-5">
-                <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-                    <div className="grid gap-4 md:grid-cols-[minmax(240px,320px)_1fr] md:items-end">
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="availability-capacity">
-                                {t("matching.availability_capacity", { defaultValue: "Liczba osób" })}
-                            </Label>
+                <YStack gap="$lg" padding="$xl" borderRadius="$lg" backgroundColor="$background" {...shadows.small}>
+                    <XStack flexWrap="wrap" alignItems="flex-end" justifyContent="space-between" gap="$md">
+                        <YStack gap="$xs" width={280} maxWidth="100%">
                             <Select
+                                label={t("matching.availability_capacity", { defaultValue: "Liczba osób" })}
                                 value={capacity}
                                 onValueChange={(value) => {
                                     if (value) setCapacity(value);
                                 }}
                                 disabled={isPending}
-                            >
-                                <SelectTrigger id="availability-capacity" className="h-10 w-full bg-transparent">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {AVAILABILITY_CAPACITY_OPTIONS.map((option) => (
-                                        <SelectItem key={option} value={option}>
-                                            {option}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                                options={AVAILABILITY_CAPACITY_OPTIONS.map((option) => ({
+                                    value: option,
+                                    label: option,
+                                }))}
+                            />
+                        </YStack>
 
-                        <div className="flex flex-wrap gap-2 md:justify-end">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => refetch()}
+                        <XStack flexWrap="wrap" gap="$sm">
+                            <PillButton
+                                icon={RefreshCw}
+                                spinning={isFetching}
                                 disabled={isFetching || isPending}
+                                onPress={() => refetch()}
                             >
-                                <RefreshCw className={isFetching ? "animate-spin" : undefined} />
                                 {t("common.refresh", { defaultValue: "Odśwież" })}
-                            </Button>
-                            <Button type="submit" disabled={isPending}>
-                                {isPending ? <Loader2 className="animate-spin" /> : <Save />}
+                            </PillButton>
+                            <PillButton
+                                icon={isPending ? Loader2 : Save}
+                                spinning={isPending}
+                                variant="solid"
+                                disabled={isPending}
+                                onPress={handleSave}
+                            >
                                 {t("common.save")}
-                            </Button>
-                        </div>
-                    </div>
+                            </PillButton>
+                        </XStack>
+                    </XStack>
 
-                    <p className="text-muted-foreground text-sm">
-                        {t("matching.availability_weekly_time_hint", {
-                            defaultValue: AVAILABILITY_WEEKLY_TIME_HINT,
+                    <Typography variant="smallRegular" muted width="100%">
+                        {t("matching.availability_weekly_time_hint", { defaultValue: AVAILABILITY_WEEKLY_TIME_HINT })}
+                    </Typography>
+                </YStack>
+
+                {(data?.below_current_assignments || selectedBelowCurrentAssignments) && (
+                    <AlertBox tone="danger" title={t("matching.availability_warning_title", { defaultValue: "Uwaga" })}>
+                        {t("matching.availability_below_assignments_warning", {
+                            defaultValue: LOW_AVAILABILITY_WARNING,
                         })}
-                    </p>
-                </form>
-            </section>
+                    </AlertBox>
+                )}
 
-            {(data?.below_current_assignments || selectedBelowCurrentAssignments) && (
-                <Alert variant="destructive">
-                    <AlertTriangle />
-                    <AlertTitle>{t("matching.availability_warning_title", { defaultValue: "Uwaga" })}</AlertTitle>
-                    <AlertDescription>
-                        <span className="whitespace-pre-line">
-                            {t("matching.availability_below_assignments_warning", {
-                                defaultValue: LOW_AVAILABILITY_WARNING,
-                            })}
-                        </span>
-                    </AlertDescription>
-                </Alert>
-            )}
-
-            {blockedUntil && (
-                <Alert>
-                    <AlertTitle>
-                        {t("matching.availability_blocked_title", {
+                {blockedUntil && (
+                    <AlertBox
+                        tone="info"
+                        title={t("matching.availability_blocked_title", {
                             defaultValue: "Automatyzacja chwilowo wstrzymana",
                         })}
-                    </AlertTitle>
-                    <AlertDescription>
+                    >
                         {t("matching.availability_blocked_description", {
                             defaultValue: "Nowe automatyczne przypisanie będzie możliwe po: {{date}}.",
                             date: blockedUntil,
                         })}
-                    </AlertDescription>
-                </Alert>
-            )}
-        </Container>
+                    </AlertBox>
+                )}
+            </PageContainer>
+        </Section>
     );
 };
 
