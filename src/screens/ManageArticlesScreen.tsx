@@ -1,19 +1,18 @@
-import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Typography, YStack } from "@fundacja-peryskop/ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Filter, Plus } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import ArticlesManager from "../modules/articles/components/ArticlesManager";
 import { ArticleStatus, translatedAdminArticleStatus } from "../modules/articles/constants";
 import changeStatusMutation from "../modules/articles/queries/changeStatusMutation";
 import { readPublicArticlesQueryOptions } from "../modules/articles/queries/readPublicArticlesQueryOptions";
 import { UpdateStatusFormValues } from "../modules/articles/types";
+import { AdminPageHeader, FilterPills, PillButton } from "../modules/layout/admin";
 import AdminLayout from "../modules/shared/components/AdminLayout";
 import Loader from "../modules/shared/components/Loader";
-import SimpleCard from "../modules/shared/components/SimpleCard";
 import SearchUser from "../modules/users/components/SearchUser";
 
 const ManageArticlesScreen = () => {
@@ -49,40 +48,48 @@ const ManageArticlesScreen = () => {
 
     return (
         <AdminLayout>
-            <SimpleCard title={t("manage_articles.title")} subtitle={t("manage_articles.subtitle")}>
-                <div className="mb-5 flex justify-end">
-                    <Button className="gap-2.5" render={<Link to="/articles/create" />}>
-                        <Plus className="size-4" />
-                        {t("articles.add_article")}
-                    </Button>
-                </div>
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger render={<div />}>
-                            <SearchUser disabled onChange={(user) => setFilterByUser(user?.id)} />
-                        </TooltipTrigger>
-                        <TooltipContent>{t("common.unavailable_in_beta")}</TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-                <div className="mt-5 flex flex-wrap gap-2.5">
-                    {Object.keys(ArticleStatus).map((option) => (
-                        <Button
-                            key={option}
-                            className="text-white"
-                            style={{ opacity: option === status ? 1 : 0.5 }}
-                            onClick={() => setStatus(option as ArticleStatus)}
-                        >
-                            <Filter className="size-4" />
-                            {translatedAdminArticleStatus[option as ArticleStatus]}
-                        </Button>
-                    ))}
-                </div>
-            </SimpleCard>
-            {isLoading && <Loader />}
-            {data && data.total === 0 && (
-                <p className="text-foreground my-4 text-center text-lg">{t("common.not_found")}</p>
-            )}
-            {data && data.items && <ArticlesManager onChangeStatus={handleChangeStatus} articles={data.items} />}
+            <YStack width="100%" gap="$lg">
+                <AdminPageHeader
+                    icon={FileText}
+                    tone="primary"
+                    title={t("manage_articles.title")}
+                    subtitle={t("manage_articles.subtitle")}
+                    actions={
+                        <PillButton icon={Plus} variant="solid" to="/articles/create">
+                            {t("articles.add_article")}
+                        </PillButton>
+                    }
+                />
+
+                <YStack gap="$md">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger render={<div />}>
+                                <SearchUser disabled onChange={(user) => setFilterByUser(user?.id)} />
+                            </TooltipTrigger>
+                            <TooltipContent>{t("common.unavailable_in_beta")}</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+
+                    <FilterPills
+                        ariaLabel={t("common.status", { defaultValue: "Status" })}
+                        value={status}
+                        onChange={(value) => setStatus(value as ArticleStatus)}
+                        options={Object.keys(ArticleStatus).map((option) => ({
+                            value: option,
+                            label: translatedAdminArticleStatus[option as ArticleStatus],
+                        }))}
+                    />
+                </YStack>
+
+                {isLoading && <Loader />}
+                {data && data.total === 0 && (
+                    <Typography variant="regularRegular" muted align="center" width="100%">
+                        {t("common.not_found")}
+                    </Typography>
+                )}
+                {data && data.items && <ArticlesManager onChangeStatus={handleChangeStatus} articles={data.items} />}
+            </YStack>
         </AdminLayout>
     );
 };
