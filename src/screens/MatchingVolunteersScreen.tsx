@@ -1,17 +1,22 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Loader2, UserCheck, UserX, Users } from "lucide-react";
-import toast from "react-hot-toast";
 import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useUser } from "../modules/auth/components/AuthProvider";
+import {
+    AdminPageHeader,
+    type Column,
+    DataTable,
+    FilterPills,
+    type PillTone,
+    PillButton,
+    StatusPill,
+} from "../modules/layout/admin";
 import updateUserAutomationExclusionMutation from "../modules/matching/queries/updateUserAutomationExclusionMutation";
 import { volunteerCapacityQueryOptions } from "../modules/matching/queries/volunteerCapacityQueryOptions";
 import { VolunteerCapacityItem } from "../modules/matching/types";
-import { useUser } from "../modules/auth/components/AuthProvider";
 import AdminLayout from "../modules/shared/components/AdminLayout";
 import { isApiDateInFuture } from "../modules/shared/helpers/dateTime";
 import formatDate from "../modules/shared/helpers/formatDate";
@@ -55,198 +60,193 @@ const MatchingVolunteersScreen = () => {
     const fullVolunteers = useMemo(() => volunteers.filter((item) => !isAvailableForMatching(item)), [volunteers]);
     const items = viewMode === "available" ? availableVolunteers : fullVolunteers;
 
-    const getStatus = ({ availability }: VolunteerCapacityItem) => {
+    const getStatus = ({ availability }: VolunteerCapacityItem): { label: string; tone: PillTone } => {
         if (isBlocked(availability.blocked_until)) {
-            return {
-                label: t("matching.volunteer_status.blocked", { defaultValue: "Zablokowany" }),
-                className: "bg-orange-500/15 text-orange-700 dark:text-orange-400",
-            };
+            return { label: t("matching.volunteer_status.blocked", { defaultValue: "Zablokowany" }), tone: "warning" };
         }
-
         if (availability.declared_capacity === null) {
             return {
                 label: t("matching.volunteer_status.no_declaration", { defaultValue: "Brak deklaracji" }),
-                className: "bg-slate-500/15 text-slate-700 dark:text-slate-400",
+                tone: "neutral",
             };
         }
-
         if (availability.is_full) {
-            return {
-                label: t("matching.volunteer_status.full", { defaultValue: "Pelny" }),
-                className: "bg-destructive/15 text-destructive",
-            };
+            return { label: t("matching.volunteer_status.full", { defaultValue: "Pełny" }), tone: "danger" };
         }
-
-        return {
-            label: t("matching.volunteer_status.available", { defaultValue: "Dyspozycyjny" }),
-            className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-        };
+        return { label: t("matching.volunteer_status.available", { defaultValue: "Dyspozycyjny" }), tone: "success" };
     };
 
-    const renderRows = (rows: VolunteerCapacityItem[]) =>
-        rows.map((item) => {
-            const { volunteer, availability } = item;
-            const status = getStatus(item);
-            const isUpdatingAutomationExclusion = isAutomationExclusionPending;
-
-            return (
-                <TableRow key={volunteer.id}>
-                    <TableCell>
-                        <div className="flex min-w-[180px] flex-col">
-                            <span className="text-foreground font-medium">
-                                {volunteer.full_name || volunteer.email}
-                            </span>
-                            <span className="text-muted-foreground text-xs">ID: {volunteer.id}</span>
-                        </div>
-                    </TableCell>
-                    <TableCell>{volunteer.email}</TableCell>
-                    <TableCell>
-                        <Badge className={cn("border-0", status.className)}>{status.label}</Badge>
-                    </TableCell>
-                    <TableCell>{availability.declared_capacity ?? "-"}</TableCell>
-                    <TableCell>{availability.active_chat_count}</TableCell>
-                    <TableCell>{availability.free_slots}</TableCell>
-                    <TableCell>
-                        {availability.blocked_until && isBlocked(availability.blocked_until)
-                            ? formatDate(availability.blocked_until)
-                            : "-"}
-                    </TableCell>
-                    <TableCell>
-                        <Badge variant={volunteer.excluded_from_automation ? "destructive" : "secondary"}>
+    const columns: Column<VolunteerCapacityItem>[] = [
+        {
+            key: "name",
+            header: t("common.name", { defaultValue: "Imię" }),
+            flex: 2,
+            render: ({ volunteer }) => (
+                <YStack gap="$xs" minWidth={0}>
+                    <Typography variant="regularSemibold">{volunteer.full_name || volunteer.email}</Typography>
+                    <Typography variant="tinyRegular" muted>
+                        ID: {volunteer.id}
+                    </Typography>
+                </YStack>
+            ),
+        },
+        {
+            key: "email",
+            header: t("common.email", { defaultValue: "Email" }),
+            flex: 2,
+            render: ({ volunteer }) => (
+                <Typography variant="smallRegular" muted width="100%">
+                    {volunteer.email}
+                </Typography>
+            ),
+        },
+        {
+            key: "status",
+            header: t("common.status", { defaultValue: "Status" }),
+            width: 150,
+            render: (item) => {
+                const status = getStatus(item);
+                return <StatusPill tone={status.tone}>{status.label}</StatusPill>;
+            },
+        },
+        {
+            key: "capacity",
+            header: t("matching.declared_capacity", { defaultValue: "Deklaracja" }),
+            width: 120,
+            align: "center",
+            render: ({ availability }) => (
+                <Typography variant="smallRegular">{availability.declared_capacity ?? "-"}</Typography>
+            ),
+        },
+        {
+            key: "active",
+            header: t("matching.active_chats", { defaultValue: "Aktywne czaty" }),
+            width: 130,
+            align: "center",
+            render: ({ availability }) => (
+                <Typography variant="smallRegular">{availability.active_chat_count}</Typography>
+            ),
+        },
+        {
+            key: "free",
+            header: t("matching.free_slots", { defaultValue: "Wolne miejsca" }),
+            width: 130,
+            align: "center",
+            render: ({ availability }) => <Typography variant="smallRegular">{availability.free_slots}</Typography>,
+        },
+        {
+            key: "blocked",
+            header: t("matching.blocked_until", { defaultValue: "Blokada do" }),
+            width: 150,
+            render: ({ availability }) => (
+                <Typography variant="smallRegular" muted>
+                    {availability.blocked_until && isBlocked(availability.blocked_until)
+                        ? formatDate(availability.blocked_until)
+                        : "-"}
+                </Typography>
+            ),
+        },
+        {
+            key: "automation",
+            header: t("matching.automation", { defaultValue: "Automatyzacja" }),
+            width: 140,
+            render: ({ volunteer }) => (
+                <StatusPill tone={volunteer.excluded_from_automation ? "danger" : "success"}>
+                    {volunteer.excluded_from_automation
+                        ? t("matching.excluded", { defaultValue: "Wykluczony" })
+                        : t("matching.included", { defaultValue: "Aktywny" })}
+                </StatusPill>
+            ),
+        },
+        {
+            key: "actions",
+            header: t("common.actions", { defaultValue: "Akcje" }),
+            width: 230,
+            render: ({ volunteer }) => (
+                <XStack flexWrap="wrap" alignItems="center" gap="$sm">
+                    {canManageAutomationExclusion && (
+                        <PillButton
+                            icon={isAutomationExclusionPending ? Loader2 : UserX}
+                            spinning={isAutomationExclusionPending}
+                            disabled={isAutomationExclusionPending}
+                            tone={volunteer.excluded_from_automation ? "primary" : "danger"}
+                            onPress={() =>
+                                updateAutomationExclusion({
+                                    userId: volunteer.id,
+                                    excluded_from_automation: !volunteer.excluded_from_automation,
+                                })
+                            }
+                        >
                             {volunteer.excluded_from_automation
-                                ? t("matching.excluded", { defaultValue: "Wykluczony" })
-                                : t("matching.included", { defaultValue: "Aktywny" })}
-                        </Badge>
-                    </TableCell>
-                    <TableCell>
-                        <div className="flex flex-wrap items-center gap-2">
-                            {canManageAutomationExclusion && (
-                                <Button
-                                    size="sm"
-                                    variant={volunteer.excluded_from_automation ? "outline" : "destructive"}
-                                    onClick={() =>
-                                        updateAutomationExclusion({
-                                            userId: volunteer.id,
-                                            excluded_from_automation: !volunteer.excluded_from_automation,
-                                        })
-                                    }
-                                    disabled={isUpdatingAutomationExclusion}
-                                >
-                                    {isUpdatingAutomationExclusion ? (
-                                        <Loader2 className="size-4 animate-spin" />
-                                    ) : (
-                                        <UserX className="size-4" />
-                                    )}
-                                    {volunteer.excluded_from_automation
-                                        ? t("matching.include_in_automation", { defaultValue: "Przywróć" })
-                                        : t("matching.exclude_from_automation", { defaultValue: "Wyklucz" })}
-                                </Button>
-                            )}
-                            <Link
-                                to={`/profile/${volunteer.id}`}
-                                className="hover:bg-muted inline-flex h-8 items-center gap-1 rounded-md px-3 text-sm font-medium no-underline"
-                            >
-                                {t("common.go_to_profile", { defaultValue: "Profil" })}
-                            </Link>
-                        </div>
-                    </TableCell>
-                </TableRow>
-            );
-        });
+                                ? t("matching.include_in_automation", { defaultValue: "Przywróć" })
+                                : t("matching.exclude_from_automation", { defaultValue: "Wyklucz" })}
+                        </PillButton>
+                    )}
+                    <PillButton to={`/profile/${volunteer.id}`}>
+                        {t("common.go_to_profile", { defaultValue: "Profil" })}
+                    </PillButton>
+                </XStack>
+            ),
+        },
+    ];
 
     return (
         <AdminLayout>
-            <div className="bg-card border-border/50 rounded-xl border p-6 shadow-sm">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-primary-brand/10 flex size-11 items-center justify-center rounded-lg">
-                            <Users className="text-primary-brand size-5" />
-                        </div>
-                        <div>
-                            <h1 className="text-foreground text-xl font-bold">
-                                {t("matching.volunteers_title", { defaultValue: "Wolontariusze" })}
-                            </h1>
-                            <p className="text-muted-foreground text-sm">
-                                {t("matching.volunteers_subtitle", {
-                                    defaultValue: "Dyspozycyjnosc wolontariuszy w automatycznym parowaniu.",
-                                })}
-                            </p>
-                        </div>
-                    </div>
+            <YStack width="100%" gap="$lg">
+                <AdminPageHeader
+                    icon={Users}
+                    tone="primary"
+                    title={t("matching.volunteers_title", { defaultValue: "Wolontariusze" })}
+                    subtitle={t("matching.volunteers_subtitle", {
+                        defaultValue: "Dyspozycyjność wolontariuszy w automatycznym parowaniu.",
+                    })}
+                    actions={
+                        <FilterPills
+                            ariaLabel={t("matching.volunteers_title", { defaultValue: "Wolontariusze" })}
+                            value={viewMode}
+                            onChange={(value) => setViewMode(value as ViewMode)}
+                            options={[
+                                {
+                                    value: "available",
+                                    label: t("matching.volunteers_available", { defaultValue: "Dyspozycyjni" }),
+                                    icon: UserCheck,
+                                    count: availableVolunteers.length,
+                                },
+                                {
+                                    value: "full",
+                                    label: t("matching.volunteers_full", { defaultValue: "Pełni" }),
+                                    icon: AlertTriangle,
+                                    count: fullVolunteers.length,
+                                },
+                            ]}
+                        />
+                    }
+                />
 
-                    <div className="flex flex-wrap gap-2">
-                        <Button
-                            variant={viewMode === "available" ? "default" : "outline"}
-                            onClick={() => setViewMode("available")}
-                        >
-                            <UserCheck className="size-4" />
-                            {t("matching.volunteers_available", { defaultValue: "Dyspozycyjni" })}
-                            <Badge variant="secondary" className="ml-1">
-                                {availableVolunteers.length}
-                            </Badge>
-                        </Button>
-                        <Button
-                            variant={viewMode === "full" ? "default" : "outline"}
-                            onClick={() => setViewMode("full")}
-                        >
-                            <AlertTriangle className="size-4" />
-                            {t("matching.volunteers_full", { defaultValue: "Pelni" })}
-                            <Badge variant="secondary" className="ml-1">
-                                {fullVolunteers.length}
-                            </Badge>
-                        </Button>
-                    </div>
-                </div>
-            </div>
+                <DataTable
+                    columns={columns}
+                    rows={items}
+                    rowKey={({ volunteer }) => volunteer.id}
+                    isLoading={isLoading}
+                    loadingText={t("common.loading", { defaultValue: "Ładowanie..." })}
+                    emptyText={
+                        viewMode === "available"
+                            ? t("matching.no_available_volunteers", {
+                                  defaultValue: "Brak dyspozycyjnych wolontariuszy.",
+                              })
+                            : t("matching.no_full_volunteers", {
+                                  defaultValue: "Brak pełnych lub niedostępnych wolontariuszy.",
+                              })
+                    }
+                    minWidth={1180}
+                />
 
-            <div className="mt-5 w-full min-w-0">
-                <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-sm">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{t("common.name", { defaultValue: "Imie" })}</TableHead>
-                                <TableHead>{t("common.email", { defaultValue: "Email" })}</TableHead>
-                                <TableHead>{t("common.status", { defaultValue: "Status" })}</TableHead>
-                                <TableHead>{t("matching.declared_capacity", { defaultValue: "Deklaracja" })}</TableHead>
-                                <TableHead>{t("matching.active_chats", { defaultValue: "Aktywne czaty" })}</TableHead>
-                                <TableHead>{t("matching.free_slots", { defaultValue: "Wolne miejsca" })}</TableHead>
-                                <TableHead>{t("matching.blocked_until", { defaultValue: "Blokada do" })}</TableHead>
-                                <TableHead>{t("matching.automation", { defaultValue: "Automatyzacja" })}</TableHead>
-                                <TableHead>{t("common.actions", { defaultValue: "Akcje" })}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isLoading ? (
-                                <TableRow>
-                                    <TableCell colSpan={9} className="text-muted-foreground h-24 text-center">
-                                        {t("common.loading", { defaultValue: "Ladowanie..." })}
-                                    </TableCell>
-                                </TableRow>
-                            ) : items.length > 0 ? (
-                                renderRows(items)
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={9} className="text-muted-foreground h-24 text-center">
-                                        {viewMode === "available"
-                                            ? t("matching.no_available_volunteers", {
-                                                  defaultValue: "Brak dyspozycyjnych wolontariuszy.",
-                                              })
-                                            : t("matching.no_full_volunteers", {
-                                                  defaultValue: "Brak pelnych lub niedostepnych wolontariuszy.",
-                                              })}
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-            </div>
-
-            {isError && (
-                <p className="text-destructive mt-3">
-                    {t("common.no_data", { defaultValue: "Nie udalo sie pobrac danych." })}
-                </p>
-            )}
+                {isError && (
+                    <Typography variant="smallRegular" color="$danger">
+                        {t("common.no_data", { defaultValue: "Nie udało się pobrać danych." })}
+                    </Typography>
+                )}
+            </YStack>
         </AdminLayout>
     );
 };

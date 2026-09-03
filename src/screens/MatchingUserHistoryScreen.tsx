@@ -1,13 +1,18 @@
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
 import { useQuery } from "@tanstack/react-query";
 import { FileText, History, Loader2, MessageCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import type { User } from "../modules/auth/types";
+import {
+    AdminPageHeader,
+    type Column,
+    DataTable,
+    type PillTone,
+    PillButton,
+    StatusPill,
+} from "../modules/layout/admin";
 import MenteeFormPreviewModal from "../modules/forms/components/MenteeFormPreviewModal";
 import { userTimelineQueryOptions } from "../modules/matching/queries/userTimelineQueryOptions";
 import { MenteeMatchingStatus, UserTimelineEvent } from "../modules/matching/types";
@@ -17,23 +22,48 @@ import { ApiError } from "../modules/shared/types";
 import SearchUser from "../modules/users/components/SearchUser";
 import { Roles } from "../modules/users/constants";
 
-const sourceVariant: Record<UserTimelineEvent["source"], "destructive" | "info" | "outline" | "secondary" | "warning"> =
-    {
-        automatic: "info",
-        manual: "warning",
-        mail: "secondary",
-        error: "destructive",
-        system: "outline",
-    };
+const sourceTone: Record<UserTimelineEvent["source"], PillTone> = {
+    automatic: "info",
+    manual: "warning",
+    mail: "neutral",
+    error: "danger",
+    system: "neutral",
+};
 
-const statusVariant: Record<MenteeMatchingStatus, "destructive" | "outline" | "secondary" | "success" | "warning"> = {
+const statusTone: Record<MenteeMatchingStatus, PillTone> = {
     [MenteeMatchingStatus.WAITING]: "warning",
     [MenteeMatchingStatus.REMATCH_REQUESTED]: "warning",
     [MenteeMatchingStatus.MATCHED]: "success",
-    [MenteeMatchingStatus.PAUSED]: "secondary",
-    [MenteeMatchingStatus.DECLINED]: "destructive",
-    [MenteeMatchingStatus.CLOSED]: "outline",
+    [MenteeMatchingStatus.PAUSED]: "neutral",
+    [MenteeMatchingStatus.DECLINED]: "danger",
+    [MenteeMatchingStatus.CLOSED]: "neutral",
 };
+
+const InfoCard = ({ children }: { children: React.ReactNode }) => (
+    <YStack padding="$xl" borderRadius="$lg" backgroundColor="$background" {...shadows.small}>
+        {children}
+    </YStack>
+);
+
+const SummaryItem = ({ label, value }: { label: string; value: string }) => (
+    <YStack
+        flex={1}
+        minWidth={190}
+        gap="$xs"
+        padding="$md"
+        borderRadius="$md"
+        borderWidth={1}
+        borderColor="$borderColor"
+        backgroundColor="$backgroundHover"
+    >
+        <Typography variant="tinyRegular" muted>
+            {label}
+        </Typography>
+        <Typography variant="smallSemibold" numberOfLines={1}>
+            {value}
+        </Typography>
+    </YStack>
+);
 
 const MatchingUserHistoryScreen = () => {
     const { t } = useTranslation();
@@ -92,195 +122,204 @@ const MatchingUserHistoryScreen = () => {
         }
     };
 
+    const columns: Column<UserTimelineEvent>[] = [
+        {
+            key: "date",
+            header: t("common.date", { defaultValue: "Data" }),
+            width: 160,
+            render: (event) => (
+                <Typography variant="smallRegular" muted>
+                    {formatDate(event.occurred_at)}
+                </Typography>
+            ),
+        },
+        {
+            key: "action",
+            header: t("common.action", { defaultValue: "Akcja" }),
+            flex: 1,
+            render: (event) => (
+                <Typography variant="smallSemibold" width="100%">
+                    {event.label}
+                </Typography>
+            ),
+        },
+        {
+            key: "detail",
+            header: t("common.details", { defaultValue: "Szczegóły" }),
+            flex: 2,
+            render: (event) => (
+                <Typography variant="smallRegular" muted width="100%">
+                    {event.detail}
+                </Typography>
+            ),
+        },
+        {
+            key: "source",
+            header: t("matching.source", { defaultValue: "Źródło" }),
+            width: 130,
+            render: (event) => <StatusPill tone={sourceTone[event.source]}>{sourceLabels[event.source]}</StatusPill>,
+        },
+        {
+            key: "form",
+            header: t("matching.form", { defaultValue: "Formularz" }),
+            width: 120,
+            render: (event) =>
+                event.form_id ? (
+                    <PillButton icon={FileText} onPress={() => setPreviewFormId(event.form_id)}>
+                        #{event.form_id}
+                    </PillButton>
+                ) : (
+                    <Typography variant="smallRegular" muted>
+                        -
+                    </Typography>
+                ),
+        },
+        {
+            key: "chat",
+            header: t("matching.chat", { defaultValue: "Czat" }),
+            width: 120,
+            render: (event) =>
+                event.chat_id && existingChatIds.has(event.chat_id) ? (
+                    <PillButton icon={MessageCircle} to={`/chat/${event.chat_id}`}>
+                        #{event.chat_id}
+                    </PillButton>
+                ) : (
+                    <Typography variant="smallRegular" muted>
+                        {event.chat_id ? `#${event.chat_id}` : "-"}
+                    </Typography>
+                ),
+        },
+        {
+            key: "volunteer",
+            header: t("matching.volunteer", { defaultValue: "Wolontariusz" }),
+            flex: 1,
+            render: (event) => (
+                <Typography variant="smallRegular" muted width="100%">
+                    {event.volunteer?.email ?? "-"}
+                </Typography>
+            ),
+        },
+        {
+            key: "actor",
+            header: t("matching.actor", { defaultValue: "Wykonał" }),
+            flex: 1,
+            render: (event) => (
+                <Typography variant="smallRegular" muted width="100%">
+                    {event.actor?.email ?? "-"}
+                </Typography>
+            ),
+        },
+    ];
+
     return (
         <AdminLayout>
-            <div className="bg-card border-border/50 rounded-xl border p-6 shadow-sm">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-primary-brand/10 flex size-11 items-center justify-center rounded-lg">
-                            <History className="text-primary-brand size-5" />
-                        </div>
-                        <div>
-                            <h1 className="text-foreground text-xl font-bold">
-                                {t("matching.user_history_title", { defaultValue: "Historia obsługi" })}
-                            </h1>
-                            <p className="text-muted-foreground text-sm">
-                                {t("matching.user_history_subtitle", {
-                                    defaultValue:
-                                        "Wyszukaj osobę w kryzysie po imieniu, nazwisku albo emailu i sprawdź przebieg obsługi.",
-                                })}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <YStack width="100%" gap="$lg">
+                <AdminPageHeader
+                    icon={History}
+                    tone="primary"
+                    title={t("matching.user_history_title", { defaultValue: "Historia obsługi" })}
+                    subtitle={t("matching.user_history_subtitle", {
+                        defaultValue:
+                            "Wyszukaj osobę w kryzysie po imieniu, nazwisku albo emailu i sprawdź przebieg obsługi.",
+                    })}
+                />
 
-                <div className="mt-5 max-w-3xl">
-                    <SearchUser
-                        value={selectedUser}
-                        onChange={handleUserChange}
-                        allowedRoles={[Roles.USER]}
-                        disabled={timelineQuery.isFetching}
-                        hideRoleFilter
-                    />
-                </div>
-            </div>
+                <InfoCard>
+                    <YStack maxWidth={768} width="100%">
+                        <SearchUser
+                            value={selectedUser}
+                            onChange={handleUserChange}
+                            allowedRoles={[Roles.USER]}
+                            disabled={timelineQuery.isFetching}
+                            hideRoleFilter
+                        />
+                    </YStack>
+                </InfoCard>
 
-            {timelineQuery.isLoading && (
-                <div className="border-border/50 bg-card mt-5 rounded-xl border p-8 text-center">
-                    <Loader2 className="text-primary-brand mx-auto mb-3 size-6 animate-spin" />
-                    <p className="text-muted-foreground text-sm">
-                        {t("common.loading", { defaultValue: "Ładowanie..." })}
-                    </p>
-                </div>
-            )}
+                {timelineQuery.isLoading && (
+                    <InfoCard>
+                        <YStack alignItems="center" gap="$sm" paddingVertical="$lg">
+                            <Loader2 className="animate-spin" size={24} />
+                            <Typography variant="smallRegular" muted>
+                                {t("common.loading", { defaultValue: "Ładowanie..." })}
+                            </Typography>
+                        </YStack>
+                    </InfoCard>
+                )}
 
-            {isNotFound && (
-                <div className="border-border/50 bg-card mt-5 rounded-xl border p-6">
-                    <p className="text-foreground font-medium">
-                        {t("matching.user_history_not_found", {
-                            defaultValue: "Nie znaleziono wybranej osoby.",
-                        })}
-                    </p>
-                </div>
-            )}
+                {isNotFound && (
+                    <InfoCard>
+                        <Typography variant="regularSemibold">
+                            {t("matching.user_history_not_found", { defaultValue: "Nie znaleziono wybranej osoby." })}
+                        </Typography>
+                    </InfoCard>
+                )}
 
-            {isWrongRole && (
-                <div className="border-border/50 bg-card mt-5 rounded-xl border p-6">
-                    <p className="text-foreground font-medium">
-                        {t("matching.user_history_wrong_role", {
-                            defaultValue: "Historia obsługi jest dostępna tylko dla osób w kryzysie.",
-                        })}
-                    </p>
-                </div>
-            )}
+                {isWrongRole && (
+                    <InfoCard>
+                        <Typography variant="regularSemibold">
+                            {t("matching.user_history_wrong_role", {
+                                defaultValue: "Historia obsługi jest dostępna tylko dla osób w kryzysie.",
+                            })}
+                        </Typography>
+                    </InfoCard>
+                )}
 
-            {timeline && (
-                <>
-                    <div className="border-border/50 bg-card mt-5 rounded-xl border p-6 shadow-sm">
-                        <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div>
-                                <h2 className="text-foreground text-lg font-semibold">
-                                    {timeline.user.full_name || timeline.user.email}
-                                </h2>
-                                <p className="text-muted-foreground text-sm">{timeline.user.email}</p>
-                            </div>
-                            {timeline.summary.matching_status && (
-                                <Badge variant={statusVariant[timeline.summary.matching_status]}>
-                                    {statusLabels[timeline.summary.matching_status]}
-                                </Badge>
-                            )}
-                        </div>
+                {timeline && (
+                    <>
+                        <InfoCard>
+                            <XStack flexWrap="wrap" alignItems="flex-start" justifyContent="space-between" gap="$sm">
+                                <YStack gap="$xs" flex={1} minWidth={0}>
+                                    <Typography variant="largeBold" tag="h2">
+                                        {timeline.user.full_name || timeline.user.email}
+                                    </Typography>
+                                    <Typography variant="smallRegular" muted>
+                                        {timeline.user.email}
+                                    </Typography>
+                                </YStack>
+                                {timeline.summary.matching_status && (
+                                    <StatusPill tone={statusTone[timeline.summary.matching_status]}>
+                                        {statusLabels[timeline.summary.matching_status]}
+                                    </StatusPill>
+                                )}
+                            </XStack>
 
-                        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                            <SummaryItem
-                                label={t("matching.latest_form", { defaultValue: "Formularz" })}
-                                value={timeline.summary.latest_form ? `#${timeline.summary.latest_form.id}` : "-"}
-                            />
-                            <SummaryItem
-                                label={t("matching.latest_chat", { defaultValue: "Czat" })}
-                                value={timeline.summary.latest_chat ? `#${timeline.summary.latest_chat.id}` : "-"}
-                            />
-                            <SummaryItem
-                                label={t("matching.latest_volunteer", { defaultValue: "Wolontariusz" })}
-                                value={latestVolunteerLabel}
-                            />
-                            <SummaryItem
-                                label={t("matching.chat_closed_at", { defaultValue: "Zamknięcie czatu" })}
-                                value={
-                                    timeline.summary.chat_closed_at ? formatDate(timeline.summary.chat_closed_at) : "-"
-                                }
-                            />
-                        </div>
-                    </div>
+                            <XStack flexWrap="wrap" gap="$sm" marginTop="$lg">
+                                <SummaryItem
+                                    label={t("matching.latest_form", { defaultValue: "Formularz" })}
+                                    value={timeline.summary.latest_form ? `#${timeline.summary.latest_form.id}` : "-"}
+                                />
+                                <SummaryItem
+                                    label={t("matching.latest_chat", { defaultValue: "Czat" })}
+                                    value={timeline.summary.latest_chat ? `#${timeline.summary.latest_chat.id}` : "-"}
+                                />
+                                <SummaryItem
+                                    label={t("matching.latest_volunteer", { defaultValue: "Wolontariusz" })}
+                                    value={latestVolunteerLabel}
+                                />
+                                <SummaryItem
+                                    label={t("matching.chat_closed_at", { defaultValue: "Zamknięcie czatu" })}
+                                    value={
+                                        timeline.summary.chat_closed_at
+                                            ? formatDate(timeline.summary.chat_closed_at)
+                                            : "-"
+                                    }
+                                />
+                            </XStack>
+                        </InfoCard>
 
-                    <div className="mt-5 w-full min-w-0">
-                        <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-sm">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>{t("common.date", { defaultValue: "Data" })}</TableHead>
-                                        <TableHead>{t("common.action", { defaultValue: "Akcja" })}</TableHead>
-                                        <TableHead>{t("common.details", { defaultValue: "Szczegóły" })}</TableHead>
-                                        <TableHead>{t("matching.source", { defaultValue: "Źródło" })}</TableHead>
-                                        <TableHead>{t("matching.form", { defaultValue: "Formularz" })}</TableHead>
-                                        <TableHead>{t("matching.chat", { defaultValue: "Czat" })}</TableHead>
-                                        <TableHead>
-                                            {t("matching.volunteer", { defaultValue: "Wolontariusz" })}
-                                        </TableHead>
-                                        <TableHead>{t("matching.actor", { defaultValue: "Wykonał" })}</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {timeline.events.length > 0 ? (
-                                        timeline.events.map((event) => (
-                                            <TableRow
-                                                key={`${event.event_type}-${event.occurred_at}-${event.chat_id ?? "no-chat"}`}
-                                            >
-                                                <TableCell className="whitespace-nowrap">
-                                                    {formatDate(event.occurred_at)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <span className="text-foreground font-medium">{event.label}</span>
-                                                </TableCell>
-                                                <TableCell className="text-muted-foreground min-w-[240px] text-sm">
-                                                    {event.detail}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant={sourceVariant[event.source]}>
-                                                        {sourceLabels[event.source]}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {event.form_id ? (
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => setPreviewFormId(event.form_id)}
-                                                        >
-                                                            <FileText className="size-4" />#{event.form_id}
-                                                        </Button>
-                                                    ) : (
-                                                        "-"
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {event.chat_id && existingChatIds.has(event.chat_id) ? (
-                                                        <Link
-                                                            to={`/chat/${event.chat_id}`}
-                                                            className={cn(
-                                                                buttonVariants({ variant: "outline", size: "sm" }),
-                                                                "no-underline"
-                                                            )}
-                                                        >
-                                                            <MessageCircle className="size-4" />#{event.chat_id}
-                                                        </Link>
-                                                    ) : event.chat_id ? (
-                                                        <span className="text-muted-foreground text-sm">
-                                                            #{event.chat_id}
-                                                        </span>
-                                                    ) : (
-                                                        "-"
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>{event.volunteer?.email ?? "-"}</TableCell>
-                                                <TableCell>{event.actor?.email ?? "-"}</TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell colSpan={8} className="text-muted-foreground h-24 text-center">
-                                                {t("matching.user_history_no_events", {
-                                                    defaultValue: "Brak historii operacyjnej dla tej osoby.",
-                                                })}
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </div>
-                </>
-            )}
+                        <DataTable
+                            columns={columns}
+                            rows={timeline.events}
+                            rowKey={(event) => `${event.event_type}-${event.occurred_at}-${event.chat_id ?? "no-chat"}`}
+                            emptyText={t("matching.user_history_no_events", {
+                                defaultValue: "Brak historii operacyjnej dla tej osoby.",
+                            })}
+                            minWidth={1200}
+                        />
+                    </>
+                )}
+            </YStack>
 
             <MenteeFormPreviewModal
                 open={Boolean(previewFormId)}
@@ -290,14 +329,5 @@ const MatchingUserHistoryScreen = () => {
         </AdminLayout>
     );
 };
-
-const SummaryItem = ({ label, value }: { label: string; value: string }) => (
-    <div className="border-border bg-muted/30 rounded-lg border px-3 py-2">
-        <p className="text-muted-foreground text-xs">{label}</p>
-        <p className="text-foreground mt-1 truncate text-sm font-medium" title={value}>
-            {value}
-        </p>
-    </div>
-);
 
 export default MatchingUserHistoryScreen;
