@@ -1,7 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { Stack, Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
 import { useQuery } from "@tanstack/react-query";
 import {
     AlertTriangle,
@@ -11,12 +9,14 @@ import {
     FileText,
     HeartHandshake,
     Inbox,
+    type LucideIcon,
     UserCheck,
     Users,
 } from "lucide-react";
-import { ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import { useIconColor } from "../../../layout/useIconColor";
 import { getFormsQueryOptions } from "../../../forms/queries/getFormsQueryOptions";
 import { formStatus, formTypes } from "../../../forms/types";
 import { adminAlertsQueryOptions } from "../../../matching/queries/adminAlertsQueryOptions";
@@ -31,6 +31,17 @@ import { Report } from "../../../report/types";
 import { isApiDateInFuture, parseApiDate } from "../../helpers/dateTime";
 import formatDate from "../../helpers/formatDate";
 
+type Tone = "primary" | "warning" | "danger" | "success" | "info";
+
+const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "flex", width: "100%" };
+const TILE_BG: Record<Tone, string> = {
+    primary: "$primarySoft",
+    warning: "$secondarySoft",
+    danger: "$dangerSoft",
+    success: "$successSoft",
+    info: "$primarySoft",
+};
+
 type DashboardAction = {
     id: string;
     title: string;
@@ -38,74 +49,34 @@ type DashboardAction = {
     meta: string;
     to: string;
     action: string;
-    icon: ReactNode;
+    icon: LucideIcon;
     tone: "warning" | "danger" | "info";
     sortTime: number;
     priority: number;
 };
 
-type MetricProps = {
-    label: string;
-    value: string | number;
-    detail: string;
-    to: string;
-    icon: ReactNode;
-    tone?: "primary" | "warning" | "danger" | "success";
-    isLoading?: boolean;
-};
-
-const toneClassName = {
-    primary: "bg-primary-brand/10 text-primary-brand",
-    warning: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    danger: "bg-destructive/15 text-destructive",
-    success: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-};
-
-const actionToneClassName = {
-    warning: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    danger: "bg-destructive/15 text-destructive",
-    info: "bg-primary-brand/10 text-primary-brand",
-};
+// --- Pure helpers (unchanged logic) -----------------------------------------
 
 const safeTime = (value?: string | null) => {
-    if (!value) {
-        return 0;
-    }
-
+    if (!value) return 0;
     const date = parseApiDate(value);
     const time = date.getTime();
-
     return Number.isNaN(time) ? 0 : time;
 };
 
 const getWaitingDuration = (queuedAt?: string | null) => {
     const queuedTime = safeTime(queuedAt);
-
-    if (!queuedTime) {
-        return "-";
-    }
-
+    if (!queuedTime) return "-";
     const diffMinutes = Math.max(0, Math.floor((Date.now() - queuedTime) / 60000));
-
-    if (diffMinutes < 60) {
-        return `${diffMinutes} min`;
-    }
-
+    if (diffMinutes < 60) return `${diffMinutes} min`;
     const diffHours = Math.floor(diffMinutes / 60);
-
-    if (diffHours < 24) {
-        return `${diffHours} h`;
-    }
-
+    if (diffHours < 24) return `${diffHours} h`;
     return `${Math.floor(diffHours / 24)} d`;
 };
 
 const getOldestWaitingItem = (items: MenteeMatchingItem[]) =>
     items.reduce<MenteeMatchingItem | null>((oldestItem, item) => {
-        if (!oldestItem) {
-            return item;
-        }
-
+        if (!oldestItem) return item;
         return safeTime(item.state.queued_at) < safeTime(oldestItem.state.queued_at) ? item : oldestItem;
     }, null);
 
@@ -123,7 +94,6 @@ const getVolunteerSummary = (items: VolunteerCapacityItem[]) =>
                 !availability.is_full &&
                 !isBlocked &&
                 !volunteer.excluded_from_automation;
-
             return {
                 activeCount: summary.activeCount + availability.active_chat_count,
                 availableCount: summary.availableCount + (isAvailable ? 1 : 0),
@@ -145,80 +115,119 @@ const getVolunteerSummary = (items: VolunteerCapacityItem[]) =>
         }
     );
 
-const Metric = ({ label, value, detail, to, icon, tone = "primary", isLoading }: MetricProps) => (
-    <Link
-        to={to}
-        className="bg-card border-border/50 hover:border-primary-brand/40 flex min-h-[146px] flex-col justify-between rounded-lg border p-4 text-left no-underline shadow-sm transition-colors"
-    >
-        <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-                <p className="text-muted-foreground text-sm font-medium">{label}</p>
-                {isLoading ? (
-                    <Skeleton className="mt-3 h-9 w-20" />
-                ) : (
-                    <p className="text-foreground mt-2 text-3xl font-bold tracking-normal">{value}</p>
-                )}
-            </div>
-            <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-lg", toneClassName[tone])}>
-                {icon}
-            </span>
-        </div>
-        <p className="text-muted-foreground mt-4 text-sm">{detail}</p>
-    </Link>
-);
+// --- Presentational primitives (DS) -----------------------------------------
 
-const Section = ({
+function IconTile({
+    tone,
+    icon: Icon,
+    color,
+    size = 40,
+}: {
+    tone: Tone;
+    icon: LucideIcon;
+    color?: string;
+    size?: number;
+}) {
+    return (
+        <Stack
+            width={size}
+            height={size}
+            borderRadius="$md"
+            alignItems="center"
+            justifyContent="center"
+            backgroundColor={TILE_BG[tone] as never}
+        >
+            <Icon size={size * 0.45} color={color} />
+        </Stack>
+    );
+}
+
+function Panel({
     title,
     subtitle,
     actionLabel,
     actionTo,
     children,
+    primaryColor,
 }: {
     title: string;
     subtitle?: string;
     actionLabel?: string;
     actionTo?: string;
-    children: ReactNode;
-}) => (
-    <section className="bg-card border-border/50 rounded-xl border p-5 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-                <h2 className="text-foreground text-lg font-semibold">{title}</h2>
-                {subtitle && <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>}
-            </div>
-            {actionLabel && actionTo && (
-                <Link
-                    to={actionTo}
-                    className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-2 no-underline")}
-                >
-                    {actionLabel}
-                    <ArrowRight className="size-4" />
-                </Link>
-            )}
-        </div>
-        <div className="mt-5">{children}</div>
-    </section>
-);
+    children: React.ReactNode;
+    primaryColor?: string;
+}) {
+    return (
+        <YStack
+            tag="section"
+            gap="$lg"
+            padding="$xl"
+            borderRadius="$lg"
+            backgroundColor="$background"
+            {...shadows.small}
+            flex={1}
+        >
+            <XStack flexWrap="wrap" alignItems="flex-start" justifyContent="space-between" gap="$sm">
+                <YStack gap="$xs" flex={1}>
+                    <Typography variant="largeBold" tag="h2">
+                        {title}
+                    </Typography>
+                    {subtitle ? (
+                        <Typography variant="smallRegular" muted width="100%">
+                            {subtitle}
+                        </Typography>
+                    ) : null}
+                </YStack>
+                {actionLabel && actionTo ? (
+                    <RouterLink to={actionTo} style={{ textDecoration: "none" }}>
+                        <XStack alignItems="center" gap="$xs">
+                            <Typography variant="smallSemibold" color="$primary">
+                                {actionLabel}
+                            </Typography>
+                            <ArrowRight size={15} color={primaryColor} />
+                        </XStack>
+                    </RouterLink>
+                ) : null}
+            </XStack>
+            {children}
+        </YStack>
+    );
+}
 
-const EmptyState = ({ children }: { children: ReactNode }) => (
-    <div className="border-border/50 bg-muted/20 text-muted-foreground rounded-lg border border-dashed p-5 text-sm">
-        {children}
-    </div>
-);
+function EmptyState({ children }: { children: React.ReactNode }) {
+    return (
+        <YStack
+            padding="$lg"
+            borderRadius="$md"
+            borderWidth={1}
+            borderColor="$borderColor"
+            backgroundColor="$backgroundHover"
+            style={{ borderStyle: "dashed" }}
+        >
+            <Typography variant="smallRegular" muted width="100%">
+                {children}
+            </Typography>
+        </YStack>
+    );
+}
 
 const Dashboard = () => {
     const { t } = useTranslation();
+    const c = useIconColor();
+
+    const toneColor: Record<Tone, string | undefined> = {
+        primary: c.primary,
+        warning: c.secondary,
+        danger: c.danger,
+        success: c.success,
+        info: c.primary,
+    };
+
     const waitingQuery = useQuery(waitingMenteesQueryOptions());
     const matchedQuery = useQuery(matchedMenteesQueryOptions());
     const volunteersQuery = useQuery(volunteerCapacityQueryOptions());
     const alertsQuery = useQuery(adminAlertsQueryOptions());
-    const reportsQuery = useQuery(
-        getReportsQueryOptions({
-            page: 1,
-            size: 5,
-            is_considered: false,
-        })
-    );
+    const reportsQuery = useQuery(getReportsQueryOptions({ page: 1, size: 5, is_considered: false }));
     const menteeFormsQuery = useQuery(
         getFormsQueryOptions({
             page: 1,
@@ -290,7 +299,7 @@ const Dashboard = () => {
                 }),
                 to: "/admin/matching/mentees",
                 action: t("matching.manual_pair_submit", { defaultValue: "Sparuj" }),
-                icon: <HeartHandshake className="size-4" />,
+                icon: HeartHandshake,
                 tone:
                     item.state.status === MenteeMatchingStatus.REMATCH_REQUESTED
                         ? ("danger" as const)
@@ -319,7 +328,7 @@ const Dashboard = () => {
                           action: t("admin.dashboard.actions.view_volunteers", {
                               defaultValue: "Zobacz wolontariuszy",
                           }),
-                          icon: <AlertTriangle className="size-4" />,
+                          icon: AlertTriangle,
                           tone: "danger" as const,
                           sortTime: 0,
                           priority: 0,
@@ -334,7 +343,7 @@ const Dashboard = () => {
             meta: report.created_by.full_name || report.created_by.email,
             to: "/admin/reports",
             action: t("admin.dashboard.resolve", { defaultValue: "Rozpatrz" }),
-            icon: <FileText className="size-4" />,
+            icon: FileText,
             tone: "info" as const,
             sortTime: safeTime(report.creation_date),
             priority: 3,
@@ -345,310 +354,418 @@ const Dashboard = () => {
             .slice(0, 7);
     }, [reports, t, volunteerSummary.availableCount, waitingItems]);
 
+    const metrics = [
+        {
+            label: t("admin.dashboard.metrics.waiting", { defaultValue: "Osoby czekające" }),
+            value: waitingItems.length,
+            detail: t("admin.dashboard.metrics.waiting_detail", {
+                defaultValue: "{{count}} próśb o ponowne parowanie",
+                count: rematchCount,
+            }),
+            to: "/admin/matching/mentees",
+            icon: HeartHandshake,
+            tone: (waitingItems.length > 0 ? "warning" : "success") as Tone,
+            isLoading: waitingQuery.isLoading,
+        },
+        {
+            label: t("admin.dashboard.metrics.longest_wait", { defaultValue: "Najdłużej czeka" }),
+            value: oldestWaitingDuration,
+            detail: oldestWaitingItem
+                ? oldestWaitingItem.user.full_name || oldestWaitingItem.user.email
+                : t("admin.dashboard.metrics.no_waiting", { defaultValue: "Brak osób w kolejce" }),
+            to: "/admin/matching/mentees",
+            icon: Clock,
+            tone: (oldestWaitingItem ? "danger" : "success") as Tone,
+            isLoading: waitingQuery.isLoading,
+        },
+        {
+            label: t("admin.dashboard.metrics.free_slots", { defaultValue: "Wolne miejsca" }),
+            value: volunteerSummary.freeSlots,
+            detail: t("admin.dashboard.metrics.free_slots_detail", {
+                defaultValue: "{{count}} dostępnych wolontariuszy",
+                count: volunteerSummary.availableCount,
+            }),
+            to: "/admin/matching/volunteers",
+            icon: UserCheck,
+            tone: (volunteerSummary.freeSlots > 0 ? "success" : "danger") as Tone,
+            isLoading: volunteersQuery.isLoading,
+        },
+        {
+            label: t("admin.dashboard.metrics.alerts", { defaultValue: "Alerty" }),
+            value: alerts.length,
+            detail: t("admin.dashboard.metrics.alerts_detail", { defaultValue: "Najnowsze sygnały z parowania" }),
+            to: "/admin/matching/alerts",
+            icon: AlertTriangle,
+            tone: (alerts.length > 0 ? "danger" : "success") as Tone,
+            isLoading: alertsQuery.isLoading,
+        },
+        {
+            label: t("admin.dashboard.metrics.reports", { defaultValue: "Otwarte zgłoszenia" }),
+            value: openReportsCount,
+            detail: t("admin.dashboard.metrics.reports_detail", { defaultValue: "Zgłoszenia do rozpatrzenia" }),
+            to: "/admin/reports",
+            icon: Inbox,
+            tone: (openReportsCount > 0 ? "warning" : "success") as Tone,
+            isLoading: reportsQuery.isLoading,
+        },
+    ];
+
+    const capacityPct = Math.min(
+        100,
+        volunteerSummary.declaredCapacity ? (volunteerSummary.activeCount / volunteerSummary.declaredCapacity) * 100 : 0
+    );
+
+    const matchingTiles = [
+        { label: t("admin.dashboard.matching.waiting", { defaultValue: "Czeka" }), value: waitingItems.length },
+        { label: t("admin.dashboard.matching.matched", { defaultValue: "Sparowani" }), value: matchedItems.length },
+        { label: t("admin.dashboard.matching.full", { defaultValue: "Pełni" }), value: volunteerSummary.fullCount },
+        {
+            label: t("admin.dashboard.matching.blocked", { defaultValue: "Zablokowani" }),
+            value: volunteerSummary.blockedCount,
+        },
+    ];
+
     return (
-        <div className="flex w-full flex-col gap-5">
-            <header className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                    <p className="text-primary-brand text-sm font-semibold">
+        <YStack width="100%" gap="$lg">
+            <XStack flexWrap="wrap" alignItems="flex-end" justifyContent="space-between" gap="$sm">
+                <YStack gap="$xs">
+                    <Typography variant="smallSemibold" color="$primary">
                         {t("admin.dashboard.eyebrow", { defaultValue: "Centrum obsługi" })}
-                    </p>
-                    <h1 className="text-foreground mt-1 text-2xl font-bold md:text-3xl">
+                    </Typography>
+                    <Typography variant="title2" tag="h1">
                         {t("admin.dashboard.title", { defaultValue: "Dashboard" })}
-                    </h1>
-                </div>
-                <p className="text-muted-foreground text-sm">
+                    </Typography>
+                </YStack>
+                <Typography variant="smallRegular" muted>
                     {updatedAt
                         ? t("admin.dashboard.last_updated", {
                               defaultValue: "Ostatnia aktualizacja: {{date}}",
                               date: formatDate(new Date(updatedAt)),
                           })
                         : t("admin.dashboard.loading_data", { defaultValue: "Ładowanie danych" })}
-                </p>
-            </header>
+                </Typography>
+            </XStack>
 
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3">
-                <Metric
-                    label={t("admin.dashboard.metrics.waiting", { defaultValue: "Osoby czekające" })}
-                    value={waitingItems.length}
-                    detail={t("admin.dashboard.metrics.waiting_detail", {
-                        defaultValue: "{{count}} próśb o ponowne parowanie",
-                        count: rematchCount,
-                    })}
-                    to="/admin/matching/mentees"
-                    icon={<HeartHandshake className="size-5" />}
-                    tone={waitingItems.length > 0 ? "warning" : "success"}
-                    isLoading={waitingQuery.isLoading}
-                />
-                <Metric
-                    label={t("admin.dashboard.metrics.longest_wait", { defaultValue: "Najdłużej czeka" })}
-                    value={oldestWaitingDuration}
-                    detail={
-                        oldestWaitingItem
-                            ? oldestWaitingItem.user.full_name || oldestWaitingItem.user.email
-                            : t("admin.dashboard.metrics.no_waiting", { defaultValue: "Brak osób w kolejce" })
-                    }
-                    to="/admin/matching/mentees"
-                    icon={<Clock className="size-5" />}
-                    tone={oldestWaitingItem ? "danger" : "success"}
-                    isLoading={waitingQuery.isLoading}
-                />
-                <Metric
-                    label={t("admin.dashboard.metrics.free_slots", { defaultValue: "Wolne miejsca" })}
-                    value={volunteerSummary.freeSlots}
-                    detail={t("admin.dashboard.metrics.free_slots_detail", {
-                        defaultValue: "{{count}} dostępnych wolontariuszy",
-                        count: volunteerSummary.availableCount,
-                    })}
-                    to="/admin/matching/volunteers"
-                    icon={<UserCheck className="size-5" />}
-                    tone={volunteerSummary.freeSlots > 0 ? "success" : "danger"}
-                    isLoading={volunteersQuery.isLoading}
-                />
-                <Metric
-                    label={t("admin.dashboard.metrics.alerts", { defaultValue: "Alerty" })}
-                    value={alerts.length}
-                    detail={t("admin.dashboard.metrics.alerts_detail", {
-                        defaultValue: "Najnowsze sygnały z parowania",
-                    })}
-                    to="/admin/matching/alerts"
-                    icon={<AlertTriangle className="size-5" />}
-                    tone={alerts.length > 0 ? "danger" : "success"}
-                    isLoading={alertsQuery.isLoading}
-                />
-                <Metric
-                    label={t("admin.dashboard.metrics.reports", { defaultValue: "Otwarte zgłoszenia" })}
-                    value={openReportsCount}
-                    detail={t("admin.dashboard.metrics.reports_detail", { defaultValue: "Zgłoszenia do rozpatrzenia" })}
-                    to="/admin/reports"
-                    icon={<Inbox className="size-5" />}
-                    tone={openReportsCount > 0 ? "warning" : "success"}
-                    isLoading={reportsQuery.isLoading}
-                />
-            </div>
+            {/* Metrics */}
+            <XStack flexWrap="wrap" gap="$md">
+                {metrics.map((m) => (
+                    <RouterLink key={m.label} to={m.to} style={{ ...LINK_RESET, flex: "1 1 190px" }}>
+                        <YStack
+                            flex={1}
+                            minHeight={146}
+                            padding="$lg"
+                            borderRadius="$lg"
+                            backgroundColor="$background"
+                            justifyContent="space-between"
+                            {...shadows.small}
+                            hoverStyle={{ borderColor: "$primary" }}
+                            borderWidth={1}
+                            borderColor="$borderColor"
+                        >
+                            <XStack alignItems="flex-start" justifyContent="space-between" gap="$sm">
+                                <YStack minWidth={0} gap="$xs">
+                                    <Typography variant="smallSemibold" muted>
+                                        {m.label}
+                                    </Typography>
+                                    {m.isLoading ? (
+                                        <Skeleton className="mt-1 h-9 w-20" />
+                                    ) : (
+                                        <Typography variant="title2" tag="span">
+                                            {m.value}
+                                        </Typography>
+                                    )}
+                                </YStack>
+                                <IconTile tone={m.tone} icon={m.icon} color={toneColor[m.tone]} />
+                            </XStack>
+                            <Typography variant="smallRegular" muted width="100%">
+                                {m.detail}
+                            </Typography>
+                        </YStack>
+                    </RouterLink>
+                ))}
+            </XStack>
 
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.75fr)]">
-                <Section
-                    title={t("admin.dashboard.actions.title", { defaultValue: "Do obsłużenia teraz" })}
-                    subtitle={t("admin.dashboard.actions.subtitle", {
-                        defaultValue: "Najpilniejsze sprawy ułożone według wpływu na proces wsparcia.",
-                    })}
-                >
-                    {isLoading ? (
-                        <div className="space-y-3">
-                            <Skeleton className="h-20 w-full" />
-                            <Skeleton className="h-20 w-full" />
-                            <Skeleton className="h-20 w-full" />
-                        </div>
-                    ) : actionItems.length > 0 ? (
-                        <div className="divide-border divide-y">
-                            {actionItems.map((item) => (
-                                <div key={item.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
-                                    <div className="flex min-w-0 items-start gap-3">
-                                        <span
-                                            className={cn(
-                                                "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg",
-                                                actionToneClassName[item.tone]
-                                            )}
-                                        >
-                                            {item.icon}
-                                        </span>
-                                        <div className="min-w-0">
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <p className="text-foreground font-medium">{item.title}</p>
-                                                <Badge variant="outline">{item.meta}</Badge>
-                                            </div>
-                                            <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
-                                                {item.description}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Link
-                                        to={item.to}
-                                        className={cn(
-                                            buttonVariants({ variant: "outline", size: "sm" }),
-                                            "gap-2 no-underline"
-                                        )}
+            {/* Actions + matching */}
+            <XStack flexWrap="wrap" gap="$lg" alignItems="stretch">
+                <YStack flex={2} minWidth={320}>
+                    <Panel
+                        title={t("admin.dashboard.actions.title", { defaultValue: "Do obsłużenia teraz" })}
+                        subtitle={t("admin.dashboard.actions.subtitle", {
+                            defaultValue: "Najpilniejsze sprawy ułożone według wpływu na proces wsparcia.",
+                        })}
+                    >
+                        {isLoading ? (
+                            <YStack gap="$sm">
+                                <Skeleton className="h-16 w-full" />
+                                <Skeleton className="h-16 w-full" />
+                                <Skeleton className="h-16 w-full" />
+                            </YStack>
+                        ) : actionItems.length > 0 ? (
+                            <YStack>
+                                {actionItems.map((item, index) => (
+                                    <XStack
+                                        key={item.id}
+                                        flexWrap="wrap"
+                                        alignItems="center"
+                                        justifyContent="space-between"
+                                        gap="$md"
+                                        paddingVertical="$md"
+                                        borderTopWidth={index === 0 ? 0 : 1}
+                                        borderColor="$borderColor"
                                     >
-                                        {item.action}
-                                        <ArrowRight className="size-4" />
-                                    </Link>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <EmptyState>
-                            {t("admin.dashboard.actions.empty", {
-                                defaultValue: "Brak pilnych spraw do obsłużenia.",
-                            })}
-                        </EmptyState>
-                    )}
-                </Section>
+                                        <XStack minWidth={0} flex={1} alignItems="flex-start" gap="$sm">
+                                            <IconTile
+                                                tone={item.tone}
+                                                icon={item.icon}
+                                                color={toneColor[item.tone]}
+                                                size={36}
+                                            />
+                                            <YStack minWidth={0} gap="$xs" flex={1}>
+                                                <XStack flexWrap="wrap" alignItems="center" gap="$sm">
+                                                    <Typography variant="regularSemibold">{item.title}</Typography>
+                                                    <XStack
+                                                        paddingHorizontal="$sm"
+                                                        paddingVertical={2}
+                                                        borderRadius="$full"
+                                                        borderWidth={1}
+                                                        borderColor="$borderColor"
+                                                    >
+                                                        <Typography variant="tinyRegular" muted>
+                                                            {item.meta}
+                                                        </Typography>
+                                                    </XStack>
+                                                </XStack>
+                                                <Typography variant="smallRegular" muted numberOfLines={2}>
+                                                    {item.description}
+                                                </Typography>
+                                            </YStack>
+                                        </XStack>
+                                        <RouterLink to={item.to} style={{ textDecoration: "none" }}>
+                                            <XStack
+                                                alignItems="center"
+                                                gap="$xs"
+                                                paddingHorizontal="$md"
+                                                paddingVertical="$xs"
+                                                borderRadius="$full"
+                                                borderWidth={1}
+                                                borderColor="$borderColor"
+                                                hoverStyle={{ backgroundColor: "$backgroundHover" }}
+                                            >
+                                                <Typography variant="smallSemibold">{item.action}</Typography>
+                                                <ArrowRight size={14} color={c.color} />
+                                            </XStack>
+                                        </RouterLink>
+                                    </XStack>
+                                ))}
+                            </YStack>
+                        ) : (
+                            <EmptyState>
+                                {t("admin.dashboard.actions.empty", {
+                                    defaultValue: "Brak pilnych spraw do obsłużenia.",
+                                })}
+                            </EmptyState>
+                        )}
+                    </Panel>
+                </YStack>
 
-                <Section
-                    title={t("admin.dashboard.matching.title", { defaultValue: "Parowanie" })}
-                    subtitle={t("admin.dashboard.matching.subtitle", {
-                        defaultValue: "Szybki obraz kolejki i pojemności wolontariuszy.",
-                    })}
-                    actionLabel={t("admin.dashboard.check_more", { defaultValue: "Sprawdź więcej" })}
-                    actionTo="/admin/matching/mentees"
-                >
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-muted/30 rounded-lg p-3">
-                            <p className="text-muted-foreground text-sm">
-                                {t("admin.dashboard.matching.waiting", { defaultValue: "Czeka" })}
-                            </p>
-                            <p className="text-foreground mt-1 text-2xl font-bold">{waitingItems.length}</p>
-                        </div>
-                        <div className="bg-muted/30 rounded-lg p-3">
-                            <p className="text-muted-foreground text-sm">
-                                {t("admin.dashboard.matching.matched", { defaultValue: "Sparowani" })}
-                            </p>
-                            <p className="text-foreground mt-1 text-2xl font-bold">{matchedItems.length}</p>
-                        </div>
-                        <div className="bg-muted/30 rounded-lg p-3">
-                            <p className="text-muted-foreground text-sm">
-                                {t("admin.dashboard.matching.full", { defaultValue: "Pełni" })}
-                            </p>
-                            <p className="text-foreground mt-1 text-2xl font-bold">{volunteerSummary.fullCount}</p>
-                        </div>
-                        <div className="bg-muted/30 rounded-lg p-3">
-                            <p className="text-muted-foreground text-sm">
-                                {t("admin.dashboard.matching.blocked", { defaultValue: "Zablokowani" })}
-                            </p>
-                            <p className="text-foreground mt-1 text-2xl font-bold">{volunteerSummary.blockedCount}</p>
-                        </div>
-                    </div>
-                    <div className="border-border/50 mt-4 rounded-lg border p-3">
-                        <div className="mb-2 flex justify-between gap-3 text-sm">
-                            <span className="text-muted-foreground">
-                                {t("admin.dashboard.matching.capacity", { defaultValue: "Wykorzystane miejsca" })}
-                            </span>
-                            <span className="text-foreground font-medium">
-                                {volunteerSummary.activeCount}/{volunteerSummary.declaredCapacity || 0}
-                            </span>
-                        </div>
-                        <div className="bg-muted h-2 overflow-hidden rounded-full">
-                            <div
-                                className="bg-primary-brand h-full rounded-full"
-                                style={{
-                                    width: `${Math.min(
-                                        100,
-                                        volunteerSummary.declaredCapacity
-                                            ? (volunteerSummary.activeCount / volunteerSummary.declaredCapacity) * 100
-                                            : 0
-                                    )}%`,
-                                }}
-                            />
-                        </div>
-                    </div>
-                </Section>
-            </div>
-
-            <div className="grid gap-5 lg:grid-cols-3">
-                <Section
-                    title={t("admin.dashboard.alerts.title", { defaultValue: "Alerty" })}
-                    actionLabel={t("admin.dashboard.check_more", { defaultValue: "Sprawdź więcej" })}
-                    actionTo="/admin/matching/alerts"
-                >
-                    {alerts.length > 0 ? (
-                        <div className="space-y-3">
-                            {alerts.slice(0, 4).map((alert, index) => (
-                                <div
-                                    key={`${alert.created_at}-${index}`}
-                                    className="border-border/50 rounded-lg border p-3"
+                <YStack flex={1} minWidth={300}>
+                    <Panel
+                        title={t("admin.dashboard.matching.title", { defaultValue: "Parowanie" })}
+                        subtitle={t("admin.dashboard.matching.subtitle", {
+                            defaultValue: "Szybki obraz kolejki i pojemności wolontariuszy.",
+                        })}
+                        actionLabel={t("admin.dashboard.check_more", { defaultValue: "Sprawdź więcej" })}
+                        actionTo="/admin/matching/mentees"
+                        primaryColor={c.primary}
+                    >
+                        <XStack flexWrap="wrap" gap="$sm">
+                            {matchingTiles.map((tile) => (
+                                <YStack
+                                    key={tile.label}
+                                    flex={1}
+                                    minWidth={120}
+                                    padding="$md"
+                                    borderRadius="$md"
+                                    backgroundColor="$backgroundHover"
+                                    gap="$xs"
                                 >
-                                    <p className="text-foreground line-clamp-2 text-sm font-medium">{alert.message}</p>
-                                    <p className="text-muted-foreground mt-2 text-xs">{formatDate(alert.created_at)}</p>
-                                </div>
+                                    <Typography variant="smallRegular" muted>
+                                        {tile.label}
+                                    </Typography>
+                                    <Typography variant="title3" tag="span">
+                                        {tile.value}
+                                    </Typography>
+                                </YStack>
                             ))}
-                        </div>
-                    ) : (
-                        <EmptyState>
-                            {t("admin.dashboard.alerts.empty", { defaultValue: "Brak alertów parowania." })}
-                        </EmptyState>
-                    )}
-                </Section>
+                        </XStack>
+                        <YStack padding="$md" borderRadius="$md" borderWidth={1} borderColor="$borderColor" gap="$sm">
+                            <XStack justifyContent="space-between" gap="$sm">
+                                <Typography variant="smallRegular" muted>
+                                    {t("admin.dashboard.matching.capacity", { defaultValue: "Wykorzystane miejsca" })}
+                                </Typography>
+                                <Typography variant="smallSemibold">
+                                    {volunteerSummary.activeCount}/{volunteerSummary.declaredCapacity || 0}
+                                </Typography>
+                            </XStack>
+                            <Stack height={8} borderRadius="$full" backgroundColor="$backgroundHover" overflow="hidden">
+                                <Stack
+                                    height="100%"
+                                    borderRadius="$full"
+                                    backgroundColor="$primary"
+                                    width={`${capacityPct}%`}
+                                />
+                            </Stack>
+                        </YStack>
+                    </Panel>
+                </YStack>
+            </XStack>
 
-                <Section
-                    title={t("admin.dashboard.reports.title", { defaultValue: "Zgłoszenia" })}
-                    actionLabel={t("admin.dashboard.check_more", { defaultValue: "Sprawdź więcej" })}
-                    actionTo="/admin/reports"
-                >
-                    {reports.length > 0 ? (
-                        <div className="space-y-3">
-                            {reports.slice(0, 3).map((report) => (
-                                <Link
-                                    key={report.id}
-                                    to="/admin/reports"
-                                    className="border-border/50 hover:border-primary-brand/40 block rounded-lg border p-3 no-underline transition-colors"
-                                >
-                                    <p className="text-foreground line-clamp-1 text-sm font-medium">{report.subject}</p>
-                                    <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">
-                                        {report.description}
-                                    </p>
-                                    <p className="text-muted-foreground mt-2 text-xs">
-                                        {report.created_by.full_name || report.created_by.email}
-                                    </p>
-                                </Link>
+            {/* Alerts / reports / forms */}
+            <XStack flexWrap="wrap" gap="$lg" alignItems="stretch">
+                <YStack flex={1} minWidth={280}>
+                    <Panel
+                        title={t("admin.dashboard.alerts.title", { defaultValue: "Alerty" })}
+                        actionLabel={t("admin.dashboard.check_more", { defaultValue: "Sprawdź więcej" })}
+                        actionTo="/admin/matching/alerts"
+                        primaryColor={c.primary}
+                    >
+                        {alerts.length > 0 ? (
+                            <YStack gap="$sm">
+                                {alerts.slice(0, 4).map((alert, index) => (
+                                    <YStack
+                                        key={`${alert.created_at}-${index}`}
+                                        padding="$md"
+                                        borderRadius="$md"
+                                        borderWidth={1}
+                                        borderColor="$borderColor"
+                                        gap="$xs"
+                                    >
+                                        <Typography variant="smallSemibold" numberOfLines={2}>
+                                            {alert.message}
+                                        </Typography>
+                                        <Typography variant="tinyRegular" muted>
+                                            {formatDate(alert.created_at)}
+                                        </Typography>
+                                    </YStack>
+                                ))}
+                            </YStack>
+                        ) : (
+                            <EmptyState>
+                                {t("admin.dashboard.alerts.empty", { defaultValue: "Brak alertów parowania." })}
+                            </EmptyState>
+                        )}
+                    </Panel>
+                </YStack>
+
+                <YStack flex={1} minWidth={280}>
+                    <Panel
+                        title={t("admin.dashboard.reports.title", { defaultValue: "Zgłoszenia" })}
+                        actionLabel={t("admin.dashboard.check_more", { defaultValue: "Sprawdź więcej" })}
+                        actionTo="/admin/reports"
+                        primaryColor={c.primary}
+                    >
+                        {reports.length > 0 ? (
+                            <YStack gap="$sm">
+                                {reports.slice(0, 3).map((report) => (
+                                    <RouterLink key={report.id} to="/admin/reports" style={LINK_RESET}>
+                                        <YStack
+                                            width="100%"
+                                            padding="$md"
+                                            borderRadius="$md"
+                                            borderWidth={1}
+                                            borderColor="$borderColor"
+                                            gap="$xs"
+                                            hoverStyle={{ borderColor: "$primary" }}
+                                        >
+                                            <Typography variant="smallSemibold" numberOfLines={1}>
+                                                {report.subject}
+                                            </Typography>
+                                            <Typography variant="tinyRegular" muted numberOfLines={2}>
+                                                {report.description}
+                                            </Typography>
+                                            <Typography variant="tinyRegular" muted>
+                                                {report.created_by.full_name || report.created_by.email}
+                                            </Typography>
+                                        </YStack>
+                                    </RouterLink>
+                                ))}
+                            </YStack>
+                        ) : (
+                            <EmptyState>
+                                {t("admin.dashboard.reports.empty", { defaultValue: "Brak otwartych zgłoszeń." })}
+                            </EmptyState>
+                        )}
+                    </Panel>
+                </YStack>
+
+                <YStack flex={1} minWidth={280}>
+                    <Panel title={t("admin.dashboard.forms.title", { defaultValue: "Formularze" })}>
+                        <YStack gap="$sm">
+                            {[
+                                {
+                                    to: "/admin/forms/mentee",
+                                    icon: ClipboardList,
+                                    tone: "primary" as Tone,
+                                    label: t("admin.dashboard.forms.mentees", {
+                                        defaultValue: "Formularze osób w kryzysie",
+                                    }),
+                                    detail:
+                                        menteeForms[0]?.created_by.email ??
+                                        t("admin.dashboard.forms.no_oldest", { defaultValue: "Brak oczekujących" }),
+                                    count: menteeFormsCount,
+                                },
+                                {
+                                    to: "/admin/forms/volunteer",
+                                    icon: Users,
+                                    tone: "success" as Tone,
+                                    label: t("admin.dashboard.forms.volunteers", {
+                                        defaultValue: "Formularze wolontariuszy",
+                                    }),
+                                    detail:
+                                        volunteerForms[0]?.created_by.email ??
+                                        t("admin.dashboard.forms.no_oldest", { defaultValue: "Brak oczekujących" }),
+                                    count: volunteerFormsCount,
+                                },
+                            ].map((row) => (
+                                <RouterLink key={row.to} to={row.to} style={LINK_RESET}>
+                                    <XStack
+                                        width="100%"
+                                        alignItems="center"
+                                        justifyContent="space-between"
+                                        gap="$sm"
+                                        padding="$md"
+                                        borderRadius="$md"
+                                        borderWidth={1}
+                                        borderColor="$borderColor"
+                                        hoverStyle={{ borderColor: "$primary" }}
+                                    >
+                                        <XStack minWidth={0} alignItems="center" gap="$sm" flex={1}>
+                                            <IconTile
+                                                tone={row.tone}
+                                                icon={row.icon}
+                                                color={toneColor[row.tone]}
+                                                size={36}
+                                            />
+                                            <YStack minWidth={0} gap="$xs">
+                                                <Typography variant="smallSemibold" numberOfLines={1}>
+                                                    {row.label}
+                                                </Typography>
+                                                <Typography variant="tinyRegular" muted numberOfLines={1}>
+                                                    {row.detail}
+                                                </Typography>
+                                            </YStack>
+                                        </XStack>
+                                        <Typography variant="title3" tag="span">
+                                            {row.count}
+                                        </Typography>
+                                    </XStack>
+                                </RouterLink>
                             ))}
-                        </div>
-                    ) : (
-                        <EmptyState>
-                            {t("admin.dashboard.reports.empty", { defaultValue: "Brak otwartych zgłoszeń." })}
-                        </EmptyState>
-                    )}
-                </Section>
-
-                <Section title={t("admin.dashboard.forms.title", { defaultValue: "Formularze" })}>
-                    <div className="space-y-3">
-                        <Link
-                            to="/admin/forms/mentee"
-                            className="border-border/50 hover:border-primary-brand/40 flex items-center justify-between gap-3 rounded-lg border p-3 no-underline transition-colors"
-                        >
-                            <span className="flex min-w-0 items-center gap-3">
-                                <span className="bg-primary-brand/10 text-primary-brand flex size-9 shrink-0 items-center justify-center rounded-lg">
-                                    <ClipboardList className="size-4" />
-                                </span>
-                                <span>
-                                    <span className="text-foreground block text-sm font-medium">
-                                        {t("admin.dashboard.forms.mentees", {
-                                            defaultValue: "Formularze osób w kryzysie",
-                                        })}
-                                    </span>
-                                    <span className="text-muted-foreground text-xs">
-                                        {menteeForms.slice(0, 1)[0]?.created_by.email ??
-                                            t("admin.dashboard.forms.no_oldest", { defaultValue: "Brak oczekujących" })}
-                                    </span>
-                                </span>
-                            </span>
-                            <span className="text-foreground text-2xl font-bold">{menteeFormsCount}</span>
-                        </Link>
-                        <Link
-                            to="/admin/forms/volunteer"
-                            className="border-border/50 hover:border-primary-brand/40 flex items-center justify-between gap-3 rounded-lg border p-3 no-underline transition-colors"
-                        >
-                            <span className="flex min-w-0 items-center gap-3">
-                                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-                                    <Users className="size-4" />
-                                </span>
-                                <span>
-                                    <span className="text-foreground block text-sm font-medium">
-                                        {t("admin.dashboard.forms.volunteers", {
-                                            defaultValue: "Formularze wolontariuszy",
-                                        })}
-                                    </span>
-                                    <span className="text-muted-foreground text-xs">
-                                        {volunteerForms.slice(0, 1)[0]?.created_by.email ??
-                                            t("admin.dashboard.forms.no_oldest", { defaultValue: "Brak oczekujących" })}
-                                    </span>
-                                </span>
-                            </span>
-                            <span className="text-foreground text-2xl font-bold">{volunteerFormsCount}</span>
-                        </Link>
-                    </div>
-                </Section>
-            </div>
-        </div>
+                        </YStack>
+                    </Panel>
+                </YStack>
+            </XStack>
+        </YStack>
     );
 };
 

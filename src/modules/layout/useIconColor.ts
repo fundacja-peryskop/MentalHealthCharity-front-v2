@@ -21,6 +21,7 @@ export function useIconColor() {
         primary: read(theme.primary),
         danger: read(theme.danger),
         secondary: read(theme.secondary),
+        success: read(theme.success),
         inverse: read(theme.colorInverse),
     };
 }
