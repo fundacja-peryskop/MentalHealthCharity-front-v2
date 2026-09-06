@@ -1178,5 +1178,19 @@
         "content_warning": "Poniższa lista zawiera tematy, które mogą być trudne. Zaznacz te, z którymi chcesz uzyskać wsparcie.",
         "under_18_title": "Masz poniżej 18 lat?",
         "under_18_text": "Jeśli masz mniej niż 18 lat, dostępna jest specjalna pomoc dla Ciebie. Zadzwoń na bezpłatny Telefon Zaufania dla Młodzieży: 116 111."
+    },
+    "pinned_forms": {
+        "title": "Przypięte formularze",
+        "empty_hint": "Przypnij formularz ikoną pinezki, aby mieć do niego szybki dostęp niezależnie od filtrów.",
+        "pin": "Przypnij",
+        "unpin": "Odepnij",
+        "unpin_all": "Odepnij wszystkie",
+        "unpin_all_confirm": "Na pewno?",
+        "collapse": "Zwiń",
+        "expand": "Rozwiń",
+        "limit_reached": "Możesz przypiąć maksymalnie {{limit}} formularzy. Odepnij któryś, aby zrobić miejsce.",
+        "all_forms": "Wszystkie formularze",
+        "limit_hint": "Osiągnięto limit przypiętych formularzy",
+        "load_error": "Nie udało się wczytać przypiętego formularza (#{{id}})"
     }
 }

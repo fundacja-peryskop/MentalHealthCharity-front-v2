@@ -1,19 +1,50 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCallback, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
+import { Pin, PinOff, TriangleAlert } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { AutoSizer, InfiniteLoader, List, type ListRowRenderer, WindowScroller } from "react-virtualized";
-import { translatedRoles } from "../../../users/constants";
-import formatDate from "../../../shared/helpers/formatDate";
-import { formNoteFields, FormResponse, MenteeForm, VolunteerForm } from "../../types";
+import { usePinnedForms } from "../../hooks/usePinnedForms";
+import { PinnedFormEntry, usePinnedFormsData } from "../../hooks/usePinnedFormsData";
+import { formNoteFields, FormResponse, formTypes, MenteeForm, VolunteerForm } from "../../types";
+import FormRow, { FORM_ROW_COLUMN_COUNT, FORM_ROW_GRID_TEMPLATE_COLUMNS, FORM_ROW_MIN_WIDTH } from "../FormRow";
+import PinnedFormsHeader from "../PinnedFormsHeader";
 import RecruitmentManagerModal from "../RecruitmentManagerModal";
 
 const ROW_HEIGHT = 50;
-const GRID_TEMPLATE_COLUMNS =
-    "minmax(140px,1fr) minmax(200px,1.2fr) minmax(110px,0.8fr) minmax(110px,0.8fr) minmax(240px,1.4fr)";
-const SKELETON_COLUMN_COUNT = 5;
+const SECTION_ROW_HEIGHT = 42;
+const MESSAGE_ROW_HEIGHT = 56;
+const INITIAL_SKELETON_ROW_COUNT = 6;
+
+type FormItem = FormResponse<MenteeForm | VolunteerForm>;
+
+/**
+ * Pinned forms live in the same virtualized list as the paginated ones — a single row model keeps
+ * both sections column-aligned and sharing one horizontal scroll container.
+ */
+type TableRow =
+    | { kind: "pinned-header" }
+    | { kind: "pinned-hint" }
+    | { kind: "pinned"; entry: PinnedFormEntry }
+    | { kind: "list-header" }
+    | { kind: "form"; form: FormItem }
+    | { kind: "empty" }
+    | { kind: "loading" };
+
+const ROW_HEIGHT_BY_KIND: Record<TableRow["kind"], number> = {
+    "pinned-header": SECTION_ROW_HEIGHT,
+    "pinned-hint": SECTION_ROW_HEIGHT,
+    pinned: ROW_HEIGHT,
+    "list-header": SECTION_ROW_HEIGHT,
+    form: ROW_HEIGHT,
+    empty: MESSAGE_ROW_HEIGHT,
+    loading: ROW_HEIGHT,
+};
 
 interface Props {
-    data: FormResponse<MenteeForm | VolunteerForm>[];
+    data: FormItem[];
     total: number;
     hasNextPage: boolean;
     isFetchingNextPage: boolean;
@@ -22,6 +53,8 @@ interface Props {
     renderStepAddnotation: (step: number) => string;
     onRefetch?: () => void | Promise<unknown>;
     formNoteKeys: formNoteFields[];
+    /** Keeps the pinned board of one list from leaking into another. */
+    pinScope: formTypes;
 }
 
 const FormsTable = ({
@@ -34,14 +67,55 @@ const FormsTable = ({
     renderStepAddnotation,
     onRefetch,
     formNoteKeys,
+    pinScope,
 }: Props) => {
     const { t } = useTranslation();
-    const [selectedForm, setSelectedForm] = useState<FormResponse<MenteeForm | VolunteerForm> | null>(null);
+    const queryClient = useQueryClient();
+    const listRef = useRef<List | null>(null);
+    const [selectedForm, setSelectedForm] = useState<FormItem | null>(null);
+    const [isPinnedCollapsed, setIsPinnedCollapsed] = useState(false);
+    const { pinnedIds, isPinned, togglePin, unpin, unpinAll, isFull, count, limit } = usePinnedForms(pinScope);
+    const pinnedEntries = usePinnedFormsData(pinnedIds);
 
-    const minTableWidth = useMemo(() => 860, []);
-    const rowCount = hasNextPage ? data.length + 1 : data.length;
+    const hasPins = pinnedIds.length > 0;
+    // A pinned form is lifted to the top, so it must not show up a second time further down.
+    const pinnedIdSet = new Set(pinnedIds);
+    const listForms = hasPins ? data.filter((form) => !pinnedIdSet.has(form.id)) : data;
 
-    const isRowLoaded = useCallback(({ index }: { index: number }) => index < data.length, [data.length]);
+    const rows: TableRow[] = [];
+
+    if (hasPins) {
+        rows.push({ kind: "pinned-header" });
+
+        if (!isPinnedCollapsed) {
+            pinnedEntries.forEach((entry) => rows.push({ kind: "pinned", entry }));
+        }
+
+        rows.push({ kind: "list-header" });
+    } else {
+        rows.push({ kind: "pinned-hint" });
+    }
+
+    listForms.forEach((form) => rows.push({ kind: "form", form }));
+
+    if (isInitialLoading) {
+        for (let index = 0; index < INITIAL_SKELETON_ROW_COUNT; index++) {
+            rows.push({ kind: "loading" });
+        }
+    } else if (hasNextPage) {
+        rows.push({ kind: "loading" });
+    } else if (listForms.length === 0) {
+        rows.push({ kind: "empty" });
+    }
+
+    // Row heights depend only on the sequence of row kinds, so that is the exact cache key.
+    const layoutSignature = rows.map((row) => row.kind).join("|");
+
+    useEffect(() => {
+        listRef.current?.recomputeRowHeights();
+    }, [layoutSignature]);
+
+    const isRowLoaded = ({ index }: { index: number }) => rows[index]?.kind !== "loading";
 
     const loadMoreRows = useCallback(
         async (_range: { startIndex: number; stopIndex: number }) => {
@@ -54,91 +128,172 @@ const FormsTable = ({
         [hasNextPage, isFetchingNextPage, loadMore]
     );
 
-    const rowRenderer: ListRowRenderer = ({ index, key, style }) => {
-        if (index >= data.length) {
-            return (
-                <div key={key} style={style} className="px-2 py-1">
+    const handleTogglePin = useCallback(
+        (id: number) => {
+            if (togglePin(id) === "limit-reached") {
+                toast.error(
+                    t("pinned_forms.limit_reached", {
+                        limit,
+                        defaultValue: `Możesz przypiąć maksymalnie ${limit} formularzy. Odepnij któryś, aby zrobić miejsce.`,
+                    })
+                );
+            }
+        },
+        [limit, t, togglePin]
+    );
+
+    // Accepting or rejecting a form has to refresh the pinned rows too, not just the paginated list.
+    const handleRefetch = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ["forms", "detail"] });
+
+        return onRefetch?.();
+    }, [onRefetch, queryClient]);
+
+    const renderRowContent = (row: TableRow) => {
+        switch (row.kind) {
+            case "pinned-header":
+                return (
+                    <PinnedFormsHeader
+                        count={count}
+                        limit={limit}
+                        isCollapsed={isPinnedCollapsed}
+                        onToggleCollapse={() => setIsPinnedCollapsed((previous) => !previous)}
+                        onUnpinAll={unpinAll}
+                    />
+                );
+
+            case "pinned-hint":
+                return (
+                    <div className="text-muted-foreground flex h-full items-center gap-2 text-xs">
+                        <Pin className="size-3.5 shrink-0" />
+                        <p className="truncate">
+                            {t("pinned_forms.empty_hint", {
+                                defaultValue:
+                                    "Przypnij formularz ikoną pinezki, aby mieć do niego szybki dostęp niezależnie od filtrów.",
+                            })}
+                        </p>
+                    </div>
+                );
+
+            case "list-header":
+                return (
+                    <div className="flex h-full items-center">
+                        <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+                            {t("pinned_forms.all_forms", { defaultValue: "Wszystkie formularze" })}
+                        </p>
+                    </div>
+                );
+
+            case "pinned": {
+                if (row.entry.isPending) {
+                    return (
+                        <div
+                            className="bg-card border-border/50 grid items-center gap-2 rounded-lg border p-2.5"
+                            style={{ gridTemplateColumns: FORM_ROW_GRID_TEMPLATE_COLUMNS }}
+                        >
+                            {Array.from({ length: FORM_ROW_COLUMN_COUNT }, (_, columnIndex) => (
+                                <Skeleton key={columnIndex} className="h-5 w-full" />
+                            ))}
+                        </div>
+                    );
+                }
+
+                if (!row.entry.form) {
+                    return (
+                        <div className="bg-card border-border/50 text-muted-foreground flex items-center gap-2 rounded-lg border p-2.5 text-xs">
+                            <TriangleAlert className="size-3.5 shrink-0" />
+                            <p className="truncate">
+                                {t("pinned_forms.load_error", {
+                                    id: row.entry.id,
+                                    defaultValue: "Nie udało się wczytać przypiętego formularza",
+                                })}
+                            </p>
+                            <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                className="ml-auto"
+                                aria-label={t("pinned_forms.unpin", { defaultValue: "Odepnij" })}
+                                title={t("pinned_forms.unpin", { defaultValue: "Odepnij" })}
+                                onClick={() => unpin(row.entry.id)}
+                            >
+                                <PinOff className="size-3.5" />
+                            </Button>
+                        </div>
+                    );
+                }
+
+                const pinnedForm = row.entry.form;
+
+                return (
+                    <FormRow
+                        form={pinnedForm}
+                        renderStepAddnotation={renderStepAddnotation}
+                        onOpen={() => setSelectedForm(pinnedForm)}
+                        isPinned
+                        canPin
+                        onTogglePin={() => unpin(pinnedForm.id)}
+                        showStatus
+                    />
+                );
+            }
+
+            case "form":
+                return (
+                    <FormRow
+                        form={row.form}
+                        renderStepAddnotation={renderStepAddnotation}
+                        onOpen={() => setSelectedForm(row.form)}
+                        isPinned={isPinned(row.form.id)}
+                        canPin={!isFull}
+                        onTogglePin={() => handleTogglePin(row.form.id)}
+                    />
+                );
+
+            case "empty":
+                return (
+                    <div className="text-muted-foreground flex h-full items-center justify-center rounded-lg border border-dashed text-sm">
+                        {t("common.no_data", { defaultValue: "No data" })}
+                    </div>
+                );
+
+            case "loading":
+                return (
                     <div
-                        className="bg-card border-border/50 grid gap-2 rounded-lg border p-2"
-                        style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}
+                        className="bg-card border-border/50 grid items-center gap-2 rounded-lg border p-2.5"
+                        style={{ gridTemplateColumns: FORM_ROW_GRID_TEMPLATE_COLUMNS }}
                     >
-                        {Array.from({ length: SKELETON_COLUMN_COUNT }, (_, skeletonIdx) => (
-                            <Skeleton key={skeletonIdx} className="h-7 w-full" />
+                        {Array.from({ length: FORM_ROW_COLUMN_COUNT }, (_, columnIndex) => (
+                            <Skeleton key={columnIndex} className="h-5 w-full" />
                         ))}
                     </div>
-                </div>
-            );
+                );
         }
+    };
 
-        const form = data[index];
+    const rowRenderer: ListRowRenderer = ({ index, key, style }) => {
+        const row = rows[index];
+
+        if (!row) {
+            return null;
+        }
 
         return (
             <div key={key} style={style} className="px-2 py-1">
-                <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setSelectedForm(form)}
-                    onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            setSelectedForm(form);
-                        }
-                    }}
-                    className="bg-card border-border/50 hover:border-primary-brand/40 hover:bg-muted/20 grid cursor-pointer items-center gap-2 rounded-lg border p-2.5 text-left shadow-sm transition-colors"
-                    style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}
-                >
-                    <div className="min-w-0">
-                        <p className="text-foreground truncate text-sm font-medium">
-                            {form.created_by.full_name || t("forms_fields.unknown_name", { defaultValue: "Unknown" })}
-                        </p>
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-foreground truncate text-xs">{form.created_by.email}</p>
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-foreground truncate text-xs">{translatedRoles[form.created_by.user_role]}</p>
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-foreground truncate text-xs">
-                            {formatDate(form.creation_date, "dd/MM/yyyy")}
-                        </p>
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-primary-brand truncate text-xs font-medium">
-                            {`${renderStepAddnotation(form.current_step)} (${form.current_step}/${form.form_type.max_step})`}
-                        </p>
-                    </div>
-                </div>
+                {renderRowContent(row)}
             </div>
         );
     };
 
-    if (isInitialLoading && data.length === 0) {
-        return (
-            <div className="flex flex-col gap-3 p-2">
-                {Array.from({ length: 6 }, (_, idx) => (
-                    <div key={idx} className="bg-card border-border/50 rounded-xl border p-4">
-                        <Skeleton className="h-8 w-full" />
-                    </div>
-                ))}
-            </div>
-        );
-    }
-
-    if (!isInitialLoading && data.length === 0) {
-        return (
-            <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed">
-                <p className="text-muted-foreground text-sm">{t("common.no_data", { defaultValue: "No data" })}</p>
-            </div>
-        );
-    }
-
     return (
         <div className="w-full">
             <div className="border-border/50 overflow-x-auto rounded-xl border">
-                <div style={{ minWidth: minTableWidth }}>
+                <div style={{ minWidth: FORM_ROW_MIN_WIDTH }}>
                     <div className="bg-muted/60 border-border/60 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-20 border-b px-2 py-2 backdrop-blur">
-                        <div className="grid items-center gap-2" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
+                        {/* The transparent border mirrors the row card's border so columns line up exactly. */}
+                        <div
+                            className="grid items-center gap-2 border border-transparent px-2.5"
+                            style={{ gridTemplateColumns: FORM_ROW_GRID_TEMPLATE_COLUMNS }}
+                        >
                             <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                                 {t("forms_fields.name")}
                             </p>
@@ -154,13 +309,19 @@ const FormsTable = ({
                             <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                                 {t("forms_fields.progress")}
                             </p>
+                            <div
+                                className="text-muted-foreground flex justify-end pr-1"
+                                title={t("pinned_forms.title", { defaultValue: "Przypięte formularze" })}
+                            >
+                                <Pin className="size-3.5" />
+                            </div>
                         </div>
                     </div>
 
                     <InfiniteLoader
                         isRowLoaded={isRowLoaded}
                         loadMoreRows={loadMoreRows}
-                        rowCount={Math.max(rowCount, 1)}
+                        rowCount={rows.length}
                         threshold={4}
                         minimumBatchSize={10}
                     >
@@ -173,16 +334,19 @@ const FormsTable = ({
                                                 <List
                                                     autoHeight
                                                     height={height}
-                                                    width={Math.max(width, minTableWidth)}
+                                                    width={Math.max(width, FORM_ROW_MIN_WIDTH)}
                                                     isScrolling={isScrolling}
                                                     onScroll={onChildScroll}
                                                     onRowsRendered={onRowsRendered}
-                                                    rowCount={rowCount}
-                                                    rowHeight={ROW_HEIGHT}
+                                                    rowCount={rows.length}
+                                                    rowHeight={({ index }) =>
+                                                        ROW_HEIGHT_BY_KIND[rows[index]?.kind ?? "form"]
+                                                    }
                                                     rowRenderer={rowRenderer}
                                                     overscanRowCount={5}
                                                     scrollTop={scrollTop}
                                                     ref={(ref) => {
+                                                        listRef.current = ref;
                                                         registerChild(ref);
                                                     }}
                                                 />
@@ -201,7 +365,7 @@ const FormsTable = ({
                 form={selectedForm}
                 onClose={() => setSelectedForm(null)}
                 renderStepAddnotation={renderStepAddnotation}
-                onRefetch={onRefetch}
+                onRefetch={handleRefetch}
                 formNoteKeys={formNoteKeys}
             />
 

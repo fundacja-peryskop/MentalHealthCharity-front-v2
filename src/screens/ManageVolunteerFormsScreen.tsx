@@ -70,6 +70,7 @@ const ManageVolunteerFormsScreen = () => {
                             formNoteFields.WORK_AREA,
                         ]}
                         renderStepAddnotation={(id) => t(`manage_volunteer_forms.steps.${id - 1}`)}
+                        pinScope={formTypes.VOLUNTEER}
                     />
                 </div>
             </div>

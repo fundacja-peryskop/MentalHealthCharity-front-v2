@@ -582,5 +582,19 @@
                 }
             }
         }
+    },
+    "pinned_forms": {
+        "title": "Pinned forms",
+        "empty_hint": "Pin a form with the pin icon to keep it within reach no matter which filter is active.",
+        "pin": "Pin",
+        "unpin": "Unpin",
+        "unpin_all": "Unpin all",
+        "unpin_all_confirm": "Are you sure?",
+        "collapse": "Collapse",
+        "expand": "Expand",
+        "limit_reached": "You can pin up to {{limit}} forms. Unpin one to make room.",
+        "all_forms": "All forms",
+        "limit_hint": "Pinned forms limit reached",
+        "load_error": "Could not load the pinned form (#{{id}})"
     }
 }
