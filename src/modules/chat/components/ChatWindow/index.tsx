@@ -1,3 +1,4 @@
+import getChatName from "../../helpers/getChatName";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -36,10 +37,16 @@ const ChatWindow = () => {
     const parsedChatId = id ? Number(id) : Number.NaN;
     const chatId = Number.isInteger(parsedChatId) && parsedChatId > 0 ? parsedChatId : undefined;
     const [chatFilter, setChatFilter] = useState<"active" | "closed">("active");
-    const { data, aggregatedData, loadNextPage, searchQuery, setSearchQuery, isSearching } = useChatListLoader(
-        100,
-        chatFilter
-    );
+    const {
+        data,
+        aggregatedData,
+        loadNextPage,
+        searchQuery,
+        setSearchQuery,
+        isSearching,
+        isError: isListError,
+        refetch: refetchList,
+    } = useChatListLoader(100, chatFilter);
     const effectiveData = aggregatedData || data;
     const isMobile = useIsMobile();
     const [showDetails, setShowDetails] = useState(!isMobile);
@@ -106,8 +113,9 @@ const ChatWindow = () => {
 
     const canCloseChat =
         selectedChat &&
-        !selectedChat.is_supervisor_chat &&
+        selectedChat.chat_type !== "SUPERVISION" &&
         selectedChat.is_active &&
+        selectedChat.status === "ACTIVE" &&
         (hasPermissions(Permissions.EDIT_CHAT_DATA) || hasPermissions(Permissions.MANAGE_CHATS));
     const canUseChatAttachments = selectedChat ? !selectedChat.is_group_chat : false;
     const canSnoozeAutoClose = Boolean(
@@ -301,6 +309,9 @@ const ChatWindow = () => {
             <div className="flex h-full flex-1">
                 {/* Left: sidebar */}
                 <ChatSidebar
+                    listVersion={effectiveData?.revision}
+                    isError={isListError}
+                    onRetry={() => void refetchList()}
                     handleDrawerToggle={() => setShowSidebar((prev) => !prev)}
                     showSidebar={showSidebar}
                     data={effectiveData}
@@ -329,10 +340,10 @@ const ChatWindow = () => {
                             {selectedChat ? (
                                 <div className="flex items-center gap-3">
                                     <div className="bg-primary-brand/20 text-primary-brand flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold">
-                                        {selectedChat.name.charAt(0).toUpperCase()}
+                                        {getChatName(selectedChat).charAt(0).toUpperCase()}
                                     </div>
                                     <h2 className="text-foreground truncate text-sm font-semibold">
-                                        {selectedChat.name}
+                                        {getChatName(selectedChat)}
                                     </h2>
                                 </div>
                             ) : (

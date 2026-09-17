@@ -25,7 +25,7 @@ const EditChatModal = ({ onSubmit, chat, ...props }: Props) => {
 
     const formik = useFormik<EditChatPayload>({
         initialValues: {
-            name: chat.name,
+            name: chat.name ?? "",
             is_active: chat.is_active,
             id: chat.id,
         },

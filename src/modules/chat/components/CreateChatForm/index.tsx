@@ -21,11 +21,12 @@ const validationSchema = Yup.object({
 });
 
 interface Props {
+    isPending?: boolean;
     onSubmit: (values: CreateChatFormValues) => void;
     allowedAutoGroupRoles?: Roles[];
 }
 
-const CreateChatForm = ({ onSubmit, allowedAutoGroupRoles }: Props) => {
+const CreateChatForm = ({ onSubmit, allowedAutoGroupRoles, isPending = false }: Props) => {
     const { t } = useTranslation();
     const roleOptions = allowedAutoGroupRoles ?? Object.values(Roles);
     const formik = useFormik<CreateChatFormValues>({
@@ -102,7 +103,9 @@ const CreateChatForm = ({ onSubmit, allowedAutoGroupRoles }: Props) => {
                 </div>
             )}
 
-            <Button type="submit">{t("common.create")}</Button>
+            <Button disabled={isPending} type="submit">
+                {t("common.create")}
+            </Button>
         </form>
     );
 };

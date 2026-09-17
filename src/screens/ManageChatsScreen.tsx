@@ -40,7 +40,7 @@ const ManageChatsScreen = () => {
     const [showCreateChatModal, setShowCreateChatModal] = useState(false);
     const [selectedChatToEdit, setSelectedChatToEdit] = useState<Chat | null>(null);
     const [selectedChatToAddParticipant, setSelectedChatToAddParticipant] = useState<Chat | null>(null);
-    const { chats, handleLoadChats, handleRefetch } = useChatList(debouncedQuery, chatFilter);
+    const { chats, isError, handleLoadChats, handleRefetch } = useChatList(debouncedQuery, chatFilter);
 
     const { mutate: editChat } = useMutation({
         mutationFn: editChatMutation,
@@ -143,6 +143,14 @@ const ManageChatsScreen = () => {
             </div>
 
             {/* Chat list */}
+            {isError && (
+                <div role="alert" className="my-3 text-sm">
+                    <p>{t("chat.list_error")}</p>
+                    <button type="button" className="underline" onClick={() => void handleRefetch()}>
+                        {t("chat.retry_list")}
+                    </button>
+                </div>
+            )}
             <ChatManager
                 onLoadMore={handleLoadChats}
                 onAddParticipant={(chat) => setSelectedChatToAddParticipant(chat)}
@@ -160,7 +168,7 @@ const ManageChatsScreen = () => {
                         : editChat({
                               id: chat.id,
                               is_active: true,
-                              name: chat.name,
+                              name: chat.name ?? "",
                           })
                 }
                 onEditChat={(chat) => setSelectedChatToEdit(chat)}

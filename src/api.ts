@@ -137,6 +137,9 @@ export const url = {
             const query = buildQuery(options);
             return `${websocketUrl}/ws-chat?${query}`;
         },
+        connectChatList(options: ConnectUnreadMessagesOptions) {
+            return `${websocketUrl}/ws-chat-list?${buildQuery(options)}`;
+        },
         connectUnreadMessages(options: ConnectUnreadMessagesOptions) {
             const query = buildQuery(options);
             return `${websocketUrl}/ws-unread-chats?${query}`;

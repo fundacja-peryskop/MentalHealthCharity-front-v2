@@ -19,6 +19,7 @@ import Logo from "../../../../assets/static/logo_small.webp";
 import { useIsMobile, useIsTablet } from "../../../../hooks/useBreakpoint";
 import { useTheme } from "../../../../hooks/useTheme";
 import { useUser } from "../../../auth/components/AuthProvider";
+import useChatListSync from "../../../chat/hooks/useChatListSync";
 import { getChatsQueryOptions } from "../../../chat/queries/getChatsQueryOptions";
 import { Roles } from "../../../users/constants";
 import { Permissions } from "../../constants";
@@ -31,6 +32,7 @@ const Navbar = () => {
     const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
     const location = useLocation();
     const { user, logout } = useUser();
+    useChatListSync();
     const isAdminPanel = location.pathname.includes("/admin");
     const isChatScreen = location.pathname.startsWith("/chat");
     const { data: chats } = useQuery(
@@ -38,7 +40,7 @@ const Navbar = () => {
             { size: 50, page: 1 },
             {
                 enabled: !!user,
-                queryKey: ["chats"],
+                queryKey: ["chats", "navigation", user?.id],
             }
         )
     );
@@ -71,16 +73,16 @@ const Navbar = () => {
             { name: t("common.navigation.donations"), to: "/donations" },
         ];
 
-        if (chats && chats.total > 0) {
+        if (user) {
             basePages.push({
                 name: t("common.navigation.chat"),
                 to: "/chat",
-                indicator: chats.items.some((chat) => chat.unread_count > 0),
+                indicator: chats?.items.some((chat) => chat.unread_count > 0),
             });
         }
 
         return basePages;
-    }, [chats, isVolunteer, t]);
+    }, [chats, isVolunteer, t, user]);
 
     const volunteerPages: NavlinkProps[] = useMemo(() => {
         if (!isVolunteer) return [];

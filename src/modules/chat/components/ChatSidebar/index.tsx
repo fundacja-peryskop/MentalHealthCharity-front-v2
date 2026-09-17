@@ -10,6 +10,9 @@ import { Chat } from "../../types";
 import ChatItem from "../ChatItem";
 
 interface Props {
+    listVersion?: string;
+    isError?: boolean;
+    onRetry?: () => void;
     data?: Pagination<Chat>;
     currentChatId?: number;
     showSidebar?: boolean;
@@ -25,6 +28,9 @@ interface Props {
 
 const ChatSidebar = ({
     data,
+    isError,
+    listVersion,
+    onRetry,
     currentChatId,
     showSidebar,
     handleDrawerToggle,
@@ -110,10 +116,19 @@ const ChatSidebar = ({
                 </div>
             )}
 
+            {isError && (
+                <div role="alert" className="p-3 text-sm">
+                    <p>{t("chat.list_error")}</p>
+                    <button type="button" className="mt-2 underline" onClick={onRetry}>
+                        {t("chat.retry_list")}
+                    </button>
+                </div>
+            )}
             {/* Chat list */}
             <nav className="min-h-0 flex-1" aria-label={t("chat.chat_list", { defaultValue: "Chat list" })}>
                 {data ? (
                     <InfiniteLoader
+                        key={listVersion}
                         isRowLoaded={({ index }) => !!data && index < data.items.length}
                         loadMoreRows={async (range: IndexRange) => {
                             if (!data) return Promise.resolve();
@@ -162,7 +177,7 @@ const ChatSidebar = ({
                             </AutoSizer>
                         )}
                     </InfiniteLoader>
-                ) : (
+                ) : !isError ? (
                     <div className="flex flex-col gap-1 p-2" role="status" aria-label="Loading chats">
                         {Array.from({ length: 8 }, (_, i) => (
                             <div key={i} className="flex items-center gap-3 px-3 py-3">
@@ -174,7 +189,7 @@ const ChatSidebar = ({
                             </div>
                         ))}
                     </div>
-                )}
+                ) : null}
             </nav>
         </div>
     );

@@ -33,7 +33,7 @@ export const UserProvider: React.FC<Props> = ({ children }) => {
         (redirect = false) => {
             clearAuthSession();
             setIsAuthenticated(false);
-            queryClient.removeQueries({ queryKey: ["userData"] });
+            queryClient.clear();
 
             if (redirect) {
                 redirectToLogin();

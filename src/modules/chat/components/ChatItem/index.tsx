@@ -1,3 +1,4 @@
+import getChatName from "../../helpers/getChatName";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { Chat } from "../../types";
@@ -32,7 +33,7 @@ const ChatItem = ({ chat, selected, readed, onClick }: Props) => {
                     is_active ? "bg-primary-brand/15 text-primary-brand" : "bg-muted text-muted-foreground"
                 )}
             >
-                <span className="text-sm font-bold">{chat.name.charAt(0).toUpperCase()}</span>
+                <span className="text-sm font-bold">{getChatName(chat).charAt(0).toUpperCase()}</span>
             </div>
             <div className="min-w-0 flex-1">
                 <p
@@ -42,7 +43,7 @@ const ChatItem = ({ chat, selected, readed, onClick }: Props) => {
                         !is_active && "text-muted-foreground"
                     )}
                 >
-                    {chat.name}
+                    {getChatName(chat)}
                 </p>
                 {chat.last_message && (
                     <p className="text-muted-foreground max-w-full truncate text-xs">

@@ -344,6 +344,9 @@
         }
     },
     "chat": {
+        "unnamed": "Chat #{{id}}",
+        "list_error": "Could not load chats.",
+        "retry_list": "Try again",
         "leaving": {
             "badge": "External link",
             "destination_blocked": "Blocked link:",

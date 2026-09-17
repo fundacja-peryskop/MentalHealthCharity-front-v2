@@ -95,7 +95,7 @@ export interface Contract {
 }
 
 export interface Chat {
-    name: string;
+    name: string | null;
     id: number;
     participants: User[];
     is_active: boolean;
@@ -114,6 +114,7 @@ export interface Chat {
 }
 
 export interface SearchChatQueryOptions extends DefaultPaginationOptions {
+    revision?: string;
     search?: string;
     unread_first?: boolean;
     sort_by?: ChatSortByOptions;

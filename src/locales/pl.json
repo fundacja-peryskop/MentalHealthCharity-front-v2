@@ -196,6 +196,9 @@
         "confirmation_modal_text": "Zgłoszenie zostanie zamknięte i nie będzie można go ponownie otworzyć. Czy na pewno chcesz zamknąć zgłoszenie jako rozwiązane?"
     },
     "chat": {
+        "unnamed": "Czat #{{id}}",
+        "list_error": "Nie udało się pobrać rozmów.",
+        "retry_list": "Spróbuj ponownie",
         "conntecting": "Łączenie z rozmówcą...",
         "open": "Połaczono",
         "admin_chat": "Czat koordynacyjny",

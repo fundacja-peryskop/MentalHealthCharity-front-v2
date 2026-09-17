@@ -1,3 +1,4 @@
+import getChatName from "../../helpers/getChatName";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -255,7 +256,7 @@ const ChatManager = ({ data, onEditChat, onToggleChat, onAddParticipant, onRemov
                                     <div className="min-w-0">
                                         <div className="flex flex-wrap items-center gap-2">
                                             <h3 className="text-foreground max-w-full text-base font-semibold break-words">
-                                                {chat.name}
+                                                {getChatName(chat)}
                                             </h3>
                                             {chat.is_special_chat && (
                                                 <Badge variant={getSpecialChatBadgeVariant(chat.chat_type)}>

@@ -13,7 +13,7 @@ const addParticipantMutation = async ({ chat_id, participant_id }: ParticipantOp
         });
 
         if (!res.ok) {
-            throw handleApiError(res);
+            throw await handleApiError(await res.json());
         }
 
         return await res.json();
