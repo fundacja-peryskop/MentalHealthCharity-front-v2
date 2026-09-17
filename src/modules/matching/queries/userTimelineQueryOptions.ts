@@ -1,16 +1,19 @@
-import { queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions } from "@tanstack/react-query";
 import { url } from "../../../api";
 import getAuthHeaders from "../../auth/helpers/getAuthHeaders";
 import { fetchJson } from "../../shared/helpers/fetchJson";
 import { UserTimelineOptions, UserTimelineResponse } from "../types";
 
-export const userTimelineQueryOptions = (options: UserTimelineOptions, enabled: boolean) =>
-    queryOptions<UserTimelineResponse>({
-        queryKey: ["matching", "user-timeline", options.user_id ?? options.email],
-        queryFn: () =>
-            fetchJson(url.matching.userTimeline(options), {
+export const userTimelineQueryOptions = (options: Omit<UserTimelineOptions, "cursor">, enabled: boolean) =>
+    infiniteQueryOptions({
+        queryKey: ["matching", "user-timeline", options],
+        initialPageParam: undefined as string | undefined,
+        queryFn: ({ pageParam, signal }): Promise<UserTimelineResponse> =>
+            fetchJson(url.matching.userTimeline({ ...options, cursor: pageParam }), {
                 headers: getAuthHeaders(),
-            }) as Promise<UserTimelineResponse>,
+                signal,
+            }),
+        getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
         enabled,
         retry: false,
     });

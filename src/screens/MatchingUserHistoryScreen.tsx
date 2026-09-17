@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { FileText, History, Loader2, MessageCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,11 +39,10 @@ const MatchingUserHistoryScreen = () => {
     const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
     const selectedUserId = Number(searchParams.get("user_id") ?? "");
-    const [selectedUser, setSelectedUser] = useState<User | undefined>();
     const [previewFormId, setPreviewFormId] = useState<number | null>(null);
     const queryEnabled = Number.isInteger(selectedUserId) && selectedUserId > 0;
 
-    const timelineQuery = useQuery(
+    const timelineQuery = useInfiniteQuery(
         userTimelineQueryOptions(
             {
                 user_id: selectedUserId,
@@ -52,7 +51,8 @@ const MatchingUserHistoryScreen = () => {
         )
     );
 
-    const timeline = timelineQuery.data;
+    const timeline = timelineQuery.data?.pages[0];
+    const events = useMemo(() => timelineQuery.data?.pages.flatMap((page) => page.events) ?? [], [timelineQuery.data]);
     const error = timelineQuery.error;
     const isNotFound = error instanceof ApiError && error.status === 404;
     const isWrongRole = error instanceof ApiError && error.status === 409;
@@ -84,7 +84,7 @@ const MatchingUserHistoryScreen = () => {
     const existingChatIds = useMemo(() => new Set(timeline?.chats.map((chat) => chat.id) ?? []), [timeline?.chats]);
 
     const handleUserChange = (user?: User) => {
-        setSelectedUser(user);
+        setPreviewFormId(null);
         if (user) {
             setSearchParams({ user_id: String(user.id) });
         } else {
@@ -116,10 +116,10 @@ const MatchingUserHistoryScreen = () => {
 
                 <div className="mt-5 max-w-3xl">
                     <SearchUser
-                        value={selectedUser}
+                        key={selectedUserId}
+                        value={timeline?.user}
                         onChange={handleUserChange}
                         allowedRoles={[Roles.USER]}
-                        disabled={timelineQuery.isFetching}
                         hideRoleFilter
                     />
                 </div>
@@ -154,7 +154,23 @@ const MatchingUserHistoryScreen = () => {
                 </div>
             )}
 
-            {timeline && (
+            {timelineQuery.isError && !isNotFound && !isWrongRole && (
+                <div role="alert" className="border-border/50 bg-card mt-5 rounded-xl border p-6">
+                    <p>{t("matching.user_history_load_error", { defaultValue: "Nie udało się pobrać historii." })}</p>
+                    <Button
+                        className="mt-3"
+                        variant="outline"
+                        disabled={timelineQuery.isFetching}
+                        onClick={() =>
+                            timelineQuery.isFetchNextPageError ? timelineQuery.fetchNextPage() : timelineQuery.refetch()
+                        }
+                    >
+                        {t("matching.user_history_retry", { defaultValue: "Spróbuj ponownie" })}
+                    </Button>
+                </div>
+            )}
+
+            {timeline && !isNotFound && !isWrongRole && (
                 <>
                     <div className="border-border/50 bg-card mt-5 rounded-xl border p-6 shadow-sm">
                         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -164,6 +180,13 @@ const MatchingUserHistoryScreen = () => {
                                 </h2>
                                 <p className="text-muted-foreground text-sm">{timeline.user.email}</p>
                             </div>
+                            <Button
+                                variant="outline"
+                                disabled={timelineQuery.isFetching}
+                                onClick={() => timelineQuery.refetch()}
+                            >
+                                {t("matching.user_history_refresh", { defaultValue: "Odśwież" })}
+                            </Button>
                             {timeline.summary.matching_status && (
                                 <Badge variant={statusVariant[timeline.summary.matching_status]}>
                                     {statusLabels[timeline.summary.matching_status]}
@@ -193,6 +216,37 @@ const MatchingUserHistoryScreen = () => {
                         </div>
                     </div>
 
+                    <details className="border-border/50 bg-card mt-5 rounded-xl border p-6">
+                        <summary className="cursor-pointer font-medium">
+                            {t("matching.user_history_records", { defaultValue: "Formularze i rozmowy" })}
+                        </summary>
+                        <div className="mt-4 grid gap-6 md:grid-cols-2">
+                            <ul className="space-y-2">
+                                {timeline.forms.map((form) => (
+                                    <li key={form.id}>
+                                        <Button variant="outline" size="sm" onClick={() => setPreviewFormId(form.id)}>
+                                            <FileText className="size-4" />#{form.id} ·{" "}
+                                            {formatDate(form.creation_date, "dd/MM/yyyy")}
+                                        </Button>
+                                    </li>
+                                ))}
+                            </ul>
+                            <ul className="space-y-2">
+                                {timeline.chats.map((chat) => (
+                                    <li key={chat.id}>
+                                        <Link
+                                            to={`/chat/${chat.id}`}
+                                            className={buttonVariants({ variant: "outline", size: "sm" })}
+                                        >
+                                            <MessageCircle className="size-4" />#{chat.id} ·{" "}
+                                            {formatDate(chat.creation_date, "dd/MM/yyyy")}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </details>
+
                     <div className="mt-5 w-full min-w-0">
                         <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-sm">
                             <Table>
@@ -211,11 +265,9 @@ const MatchingUserHistoryScreen = () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {timeline.events.length > 0 ? (
-                                        timeline.events.map((event) => (
-                                            <TableRow
-                                                key={`${event.event_type}-${event.occurred_at}-${event.chat_id ?? "no-chat"}`}
-                                            >
+                                    {events.length > 0 ? (
+                                        events.map((event) => (
+                                            <TableRow key={event.id}>
                                                 <TableCell className="whitespace-nowrap">
                                                     {formatDate(event.occurred_at)}
                                                 </TableCell>
@@ -277,6 +329,21 @@ const MatchingUserHistoryScreen = () => {
                                     )}
                                 </TableBody>
                             </Table>
+                            {timelineQuery.hasNextPage && (
+                                <div className="border-border border-t p-4 text-center">
+                                    <Button
+                                        variant="outline"
+                                        disabled={timelineQuery.isFetching}
+                                        onClick={() => timelineQuery.fetchNextPage()}
+                                    >
+                                        {timelineQuery.isFetchingNextPage ? (
+                                            <Loader2 className="size-4 animate-spin" />
+                                        ) : (
+                                            t("matching.user_history_load_more", { defaultValue: "Pokaż więcej" })
+                                        )}
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </>

@@ -547,6 +547,11 @@
         "chat_list_title": "Zarządzaj czatami"
     },
     "matching": {
+        "user_history_load_error": "Nie udało się pobrać historii.",
+        "user_history_retry": "Spróbuj ponownie",
+        "user_history_refresh": "Odśwież",
+        "user_history_load_more": "Pokaż więcej",
+        "user_history_records": "Formularze i rozmowy",
         "manual_pairing_created": "Czat utworzony ręcznie",
         "matching_status": "Parowanie",
         "move_form_to_queue": "Przenieś do sparowania",

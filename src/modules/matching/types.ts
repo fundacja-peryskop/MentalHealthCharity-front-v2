@@ -75,6 +75,10 @@ export enum AutomationEventType {
     FORM_QUEUED = "FORM_QUEUED",
     AVAILABILITY_UPDATED = "AVAILABILITY_UPDATED",
     CHAT_CREATED = "CHAT_CREATED",
+    CHAT_CREATED_MANUALLY = "CHAT_CREATED_MANUALLY",
+    CHAT_PARTICIPANT_ADDED = "CHAT_PARTICIPANT_ADDED",
+    CHAT_PARTICIPANT_REMOVED = "CHAT_PARTICIPANT_REMOVED",
+    CHAT_AUTO_CLOSE_SNOOZED = "CHAT_AUTO_CLOSE_SNOOZED",
     NO_CAPACITY = "NO_CAPACITY",
     REMATCH_REQUESTED = "REMATCH_REQUESTED",
     REMATCH_DECISION = "REMATCH_DECISION",
@@ -87,6 +91,8 @@ export enum AutomationEventType {
 }
 
 export interface UserTimelineOptions {
+    cursor?: string;
+    limit?: number;
     email?: string;
     user_id?: number;
 }
@@ -119,6 +125,7 @@ export interface UserTimelineSummary {
 }
 
 export interface UserTimelineEvent {
+    id: number;
     occurred_at: string;
     event_type: AutomationEventType;
     label: string;
@@ -137,6 +144,8 @@ export interface UserTimelineResponse {
     forms: UserTimelineForm[];
     chats: UserTimelineChat[];
     events: UserTimelineEvent[];
+    next_cursor: string | null;
+    has_more: boolean;
 }
 
 export interface MenteeMatchingState {
