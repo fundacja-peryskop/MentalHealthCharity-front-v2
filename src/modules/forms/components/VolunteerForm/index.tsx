@@ -69,7 +69,8 @@ const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
         }),
         Yup.object({
             phone: Yup.string()
-                .matches(/^[0-9]+$/, t("validation.phone"))
+                .trim()
+                .matches(/^\+?(?=[0-9 ()-]*[0-9])[0-9 ()-]+$/, t("volunteer_phone.invalid"))
                 .required(t("validation.required")),
             contacts: Yup.array().of(Yup.string()).min(1, t("validation.required")),
         }),
@@ -225,6 +226,9 @@ const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
                             <Input
                                 id="phone"
                                 name="phone"
+                                type="tel"
+                                autoComplete="tel"
+                                aria-invalid={Boolean(formik.touched.phone && formik.errors.phone)}
                                 autoFocus
                                 value={formik.values.phone}
                                 onChange={formik.handleChange}

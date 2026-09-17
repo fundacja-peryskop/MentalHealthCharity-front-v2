@@ -1,8 +1,10 @@
 {
+    "volunteer_phone": {
+        "invalid": "Enter a phone number using digits, an optional leading +, spaces, hyphens and parentheses."
+    },
     "manage_volunteer_forms": {
         "search_label": "Search applications",
         "search_placeholder": "Name, email, phone or application text",
-        "search_hint": "Also searches education, experience, motivation and recruitment notes. Results use the selected status.",
         "clear_search": "Clear search",
         "no_results": "No matching applications in the selected status."
     },
