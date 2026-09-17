@@ -32,6 +32,7 @@ export interface FormOption {
 }
 
 export interface ReadAllFormOptions {
+    search?: string;
     form_status: formStatus;
     form_type: formTypes;
     page: number;

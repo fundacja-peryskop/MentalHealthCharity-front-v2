@@ -55,6 +55,7 @@ interface Props {
     formNoteKeys: formNoteFields[];
     /** Keeps the pinned board of one list from leaking into another. */
     pinScope: formTypes;
+    isSearching?: boolean;
 }
 
 const FormsTable = ({
@@ -68,6 +69,7 @@ const FormsTable = ({
     onRefetch,
     formNoteKeys,
     pinScope,
+    isSearching = false,
 }: Props) => {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
@@ -77,7 +79,7 @@ const FormsTable = ({
     const { pinnedIds, isPinned, togglePin, unpin, unpinAll, isFull, count, limit } = usePinnedForms(pinScope);
     const pinnedEntries = usePinnedFormsData(pinnedIds);
 
-    const hasPins = pinnedIds.length > 0;
+    const hasPins = !isSearching && pinnedIds.length > 0;
     // A pinned form is lifted to the top, so it must not show up a second time further down.
     const pinnedIdSet = new Set(pinnedIds);
     const listForms = hasPins ? data.filter((form) => !pinnedIdSet.has(form.id)) : data;
@@ -92,7 +94,7 @@ const FormsTable = ({
         }
 
         rows.push({ kind: "list-header" });
-    } else {
+    } else if (!isSearching) {
         rows.push({ kind: "pinned-hint" });
     }
 
@@ -252,7 +254,9 @@ const FormsTable = ({
             case "empty":
                 return (
                     <div className="text-muted-foreground flex h-full items-center justify-center rounded-lg border border-dashed text-sm">
-                        {t("common.no_data", { defaultValue: "No data" })}
+                        {isSearching
+                            ? t("manage_volunteer_forms.no_results")
+                            : t("common.no_data", { defaultValue: "No data" })}
                     </div>
                 );
 

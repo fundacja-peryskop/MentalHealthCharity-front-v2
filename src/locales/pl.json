@@ -983,6 +983,11 @@
         "subtitle": "Zarządzaj formularzami podopiecznych"
     },
     "manage_volunteer_forms": {
+        "search_label": "Szukaj formularzy",
+        "search_placeholder": "Imię, nazwisko, e-mail, telefon lub treść zgłoszenia",
+        "search_hint": "Przeszukuje też wykształcenie, doświadczenie, motywację i notatki rekrutacyjne. Wyniki dotyczą wybranego statusu.",
+        "clear_search": "Wyczyść wyszukiwanie",
+        "no_results": "Brak formularzy pasujących do wyszukiwania w wybranym statusie.",
         "title": "Rekrutuj nowych wolontariuszy",
         "subtitle": "Zarządzaj formularzami wolontariuszy",
         "steps": [
