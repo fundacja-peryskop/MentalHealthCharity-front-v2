@@ -371,3 +371,195 @@ test("continuous change signals do not postpone synchronization indefinitely", a
     }
     assert(refreshes >= 4, "At least two refresh batches should run during the burst");
 });
+
+test("WS bursts let slow fetches finish and catch up with the final change", async () => {
+    state.socketState = 1;
+    let calls = 0;
+    let cancelled = 0;
+    let version = 1;
+    globalThis.fetch = async (_input, init) => {
+        calls++;
+        const captured = version;
+        if (calls > 1) {
+            await new Promise<void>((resolve, reject) => {
+                const timeout = setTimeout(resolve, 400);
+                init?.signal?.addEventListener(
+                    "abort",
+                    () => {
+                        clearTimeout(timeout);
+                        cancelled++;
+                        reject(new DOMException("Aborted", "AbortError"));
+                    },
+                    { once: true }
+                );
+            });
+        }
+        return response(page([captured]));
+    };
+    mount(
+        <>
+            <Feed />
+            <Sync />
+        </>
+    );
+    await settle(() => !!current.data && !current.isFetching);
+    for (let i = 0; i < 7; i++) {
+        version++;
+        act(() =>
+            state.socketOptions.onMessage({
+                data: JSON.stringify({ type: "chat_list_changed", revision: String(version) }),
+            })
+        );
+        await act(async () => {
+            await wait(120);
+        });
+    }
+    assert(current.data!.items[0].id > 1, "A refresh must complete while events continue");
+    for (let i = 0; i < 12 && current.data?.items[0].id !== version; i++) {
+        await act(async () => {
+            await wait(100);
+        });
+    }
+    assert.equal(cancelled, 0, "WS refreshes must not repeatedly abort an in-flight fetch");
+    assert.equal(current.data?.items[0].id, version, "The last event must not be lost");
+});
+
+test("scrolling during background refresh queues the page requested by InfiniteLoader", async () => {
+    const { default: InfiniteLoader } = await import("react-virtualized/dist/es/InfiniteLoader/InfiniteLoader");
+    let release: () => void;
+    let first = true;
+    let pageTwoCalls = 0;
+    globalThis.fetch = async (input) => {
+        const next = new URL(String(input), "http://local").searchParams.get("page") === "2";
+        if (next) pageTwoCalls++;
+        else if (!first)
+            await new Promise<void>((resolve) => {
+                release = resolve;
+            });
+        first = false;
+        return response(page(next ? [3, 4] : [1, 2], next ? 2 : 1));
+    };
+    mount(<Feed />);
+    await settle(() => !!current.data && !current.isFetching);
+    let refresh: Promise<unknown>;
+    act(() => {
+        refresh = current.refetch();
+    });
+    await settle(() => current.isFetching);
+    const loader = new InfiniteLoader({
+        rowCount: 4,
+        minimumBatchSize: 2,
+        threshold: 0,
+        isRowLoaded: ({ index }: { index: number }) => index < (current.data?.items.length ?? 0),
+        loadMoreRows: () => current.loadNextPage(),
+        children: () => null,
+    });
+    act(() => loader._onRowsRendered({ startIndex: 1, stopIndex: 3 }));
+    assert.equal(pageTwoCalls, 0);
+    await act(async () => {
+        release();
+        await refresh;
+    });
+    await settle(() => current.data?.items.length === 4);
+    assert.equal(pageTwoCalls, 1);
+});
+
+test("queued pagination is discarded after changing the search", async () => {
+    let release: () => void;
+    let first = true;
+    let pageTwoCalls = 0;
+    globalThis.fetch = async (input) => {
+        const params = new URL(String(input), "http://local").searchParams;
+        if (params.get("page") === "2") pageTwoCalls++;
+        if (params.get("search")) return response(page([9]));
+        if (!first)
+            await new Promise<void>((resolve) => {
+                release = resolve;
+            });
+        first = false;
+        return response(page([1, 2]));
+    };
+    mount(<Feed />);
+    await settle(() => !!current.data && !current.isFetching);
+    act(() => {
+        void current.refetch();
+    });
+    await settle(() => current.isFetching);
+    let pending: Promise<void>;
+    act(() => {
+        pending = current.loadNextPage();
+    });
+    act(() =>
+        renderer.update(
+            <QueryClientProvider client={client}>
+                <Feed search="Anna" />
+            </QueryClientProvider>
+        )
+    );
+    await settle(() => current.data?.items[0]?.id === 9);
+    await act(async () => {
+        release();
+        await pending;
+    });
+    assert.equal(pageTwoCalls, 0);
+    assert.deepEqual(
+        current.data?.items.map((chat) => chat.id),
+        [9]
+    );
+});
+
+test("one WS event during an existing fetch still triggers a fresh snapshot", async () => {
+    state.socketState = 1;
+    let version = 1;
+    let calls = 0;
+    globalThis.fetch = async () => {
+        const captured = version;
+        if (++calls > 1) await wait(250);
+        return response(page([captured]));
+    };
+    mount(
+        <>
+            <Feed />
+            <Sync />
+        </>
+    );
+    await settle(() => !!current.data && !current.isFetching);
+    act(() => {
+        void current.refetch();
+    });
+    await settle(() => current.isFetching);
+    version = 2;
+    act(() => state.socketOptions.onMessage({ data: JSON.stringify({ type: "chat_list_changed", revision: "new" }) }));
+    await act(async () => {
+        await wait(900);
+    });
+    assert.equal(current.data?.items[0].id, 2);
+});
+
+test("cached feed can request its next page from a child layout effect", async () => {
+    state.user = { id: 1, user_role: "VOLUNTEER" };
+    client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity, gcTime: 0 } } });
+    client.setQueryData(["chats", "feed", 1, { size: 2, search: "" }], {
+        pages: [page([1, 2])],
+        pageParams: [{ page: 1 }],
+    });
+    globalThis.fetch = (input) => {
+        assert.equal(new URL(String(input), "http://local").searchParams.get("page"), "2");
+        return response(page([3, 4], 2));
+    };
+    function CachedFeed() {
+        current = useChatFeed({ size: 2, search: "" });
+        React.useLayoutEffect(() => {
+            void current.loadNextPage();
+        }, []);
+        return null;
+    }
+    act(() => {
+        renderer = create(
+            <QueryClientProvider client={client}>
+                <CachedFeed />
+            </QueryClientProvider>
+        );
+    });
+    await settle(() => current.data?.items.length === 4);
+});

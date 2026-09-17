@@ -10,16 +10,37 @@ export default function useChatListSync() {
     const queryClient = useQueryClient();
     const timer = useRef<ReturnType<typeof setTimeout>>();
     const revision = useRef<string>();
+    const refresh = useRef({ running: false, queued: false });
     const lastFrameAt = useRef(Date.now());
     const token = Cookies.get("token");
-    const sync = useCallback(() => {
-        if (timer.current) return;
-        timer.current = setTimeout(() => {
-            timer.current = undefined;
-            void queryClient.invalidateQueries({ queryKey: ["chats"] });
-            void queryClient.invalidateQueries({ queryKey: ["chat"] });
-        }, 150);
-    }, [queryClient]);
+    const sync = useCallback(
+        function scheduleSync() {
+            const round = refresh.current;
+            round.queued = true;
+            if (timer.current || round.running) return;
+            timer.current = setTimeout(async () => {
+                timer.current = undefined;
+                round.running = true;
+                // A request already in flight may have captured state before this
+                // event. Join it, then perform one fresh round so this event is not lost.
+                round.queued =
+                    queryClient.isFetching({ queryKey: ["chats"] }) > 0 ||
+                    queryClient.isFetching({ queryKey: ["chat"] }) > 0;
+                try {
+                    await Promise.all([
+                        queryClient.invalidateQueries({ queryKey: ["chats"] }, { cancelRefetch: false }),
+                        queryClient.invalidateQueries({ queryKey: ["chat"] }, { cancelRefetch: false }),
+                    ]);
+                } finally {
+                    if (refresh.current === round) {
+                        round.running = false;
+                        if (round.queued) scheduleSync();
+                    }
+                }
+            }, 150);
+        },
+        [queryClient]
+    );
     const { readyState, getWebSocket } = useWebSocket(user && token ? url.chat.connectChatList({ token }) : null, {
         onOpen: () => {
             lastFrameAt.current = Date.now();
@@ -61,6 +82,7 @@ export default function useChatListSync() {
         () => () => {
             if (timer.current) clearTimeout(timer.current);
             timer.current = undefined;
+            refresh.current = { running: false, queued: false };
         },
         [user?.id]
     );
