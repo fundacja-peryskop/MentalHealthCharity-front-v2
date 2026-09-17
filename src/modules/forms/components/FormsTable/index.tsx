@@ -254,9 +254,7 @@ const FormsTable = ({
             case "empty":
                 return (
                     <div className="text-muted-foreground flex h-full items-center justify-center rounded-lg border border-dashed text-sm">
-                        {isSearching
-                            ? t("manage_volunteer_forms.no_results")
-                            : t("common.no_data", { defaultValue: "No data" })}
+                        {isSearching ? t("forms_search.no_results") : t("common.no_data", { defaultValue: "No data" })}
                     </div>
                 );
 

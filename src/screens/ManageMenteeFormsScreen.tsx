@@ -1,22 +1,23 @@
-import { Button } from "@/components/ui/button";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Filter } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import MenteeFormsTable from "../modules/forms/components/MenteeFormsTable";
-import { translatedFormStatus, translateFormSorting } from "../modules/forms/constants";
+import FormsFilters from "../modules/forms/components/FormsFilters";
 import { getFormsInfiniteQueryOptions } from "../modules/forms/queries/getFormsQueryOptions";
 import queueMenteeFormMutation from "../modules/forms/queries/queueMenteeFormMutation";
 import { formSorting, formStatus, formTypes } from "../modules/forms/types";
 import AdminLayout from "../modules/shared/components/AdminLayout";
 import SimpleCard from "../modules/shared/components/SimpleCard";
+import useDebounce from "../modules/shared/hooks/useDebounce";
 
 const ManageMenteeFormsScreen = () => {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const [status, setStatus] = useState<formStatus>(formStatus.WAITED);
     const [sort, setSort] = useState<formSorting>(formSorting.NEWEST);
+    const [search, setSearch] = useState("");
+    const debouncedSearch = useDebounce(search.trim(), 350);
     const [queueingFormId, setQueueingFormId] = useState<number | null>(null);
 
     const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery(
@@ -24,6 +25,7 @@ const ManageMenteeFormsScreen = () => {
             form_status: status,
             form_type: formTypes.MENTEE,
             sort,
+            search: debouncedSearch || undefined,
             size: 25,
         })
     );
@@ -53,34 +55,19 @@ const ManageMenteeFormsScreen = () => {
     return (
         <AdminLayout>
             <SimpleCard title={t("manage_mentee_forms.title")} subtitle={t("manage_mentee_forms.subtitle")} />
-            <div className="mt-5 mb-4 flex w-full flex-wrap items-center gap-3">
-                {Object.keys(formStatus).map((option) => (
-                    <Button
-                        key={option}
-                        className="whitespace-nowrap text-white"
-                        style={{ opacity: option === status ? 1 : 0.5 }}
-                        onClick={() => setStatus(option as formStatus)}
-                    >
-                        <Filter className="size-4" />
-                        {translatedFormStatus[option as formStatus]}
-                    </Button>
-                ))}
-
-                <select
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value as formSorting)}
-                    className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 min-w-[180px] rounded-lg border bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:ring-3 max-sm:w-full"
-                >
-                    {Object.values(formSorting).map((option) => (
-                        <option key={option} value={option}>
-                            {translateFormSorting[option]}
-                        </option>
-                    ))}
-                </select>
-            </div>
+            <FormsFilters
+                search={search}
+                onSearchChange={setSearch}
+                status={status}
+                onStatusChange={setStatus}
+                sort={sort}
+                onSortChange={setSort}
+            />
             <div className="w-full min-w-0">
                 <div className="w-full max-w-full overflow-x-auto overflow-y-hidden">
                     <MenteeFormsTable
+                        key={`${status}:${sort}:${debouncedSearch}`}
+                        isSearching={Boolean(debouncedSearch)}
                         data={forms}
                         total={totalForms}
                         hasNextPage={Boolean(hasNextPage)}

@@ -990,11 +990,13 @@
         "title": "Dodaj nowych podopiecznych łącząc ich z wolontariuszami",
         "subtitle": "Zarządzaj formularzami podopiecznych"
     },
-    "manage_volunteer_forms": {
+    "forms_search": {
         "search_label": "Szukaj formularzy",
         "search_placeholder": "Imię, nazwisko, e-mail, telefon lub treść zgłoszenia",
         "clear_search": "Wyczyść wyszukiwanie",
-        "no_results": "Brak formularzy pasujących do wyszukiwania w wybranym statusie.",
+        "no_results": "Brak formularzy pasujących do wyszukiwania w wybranym statusie."
+    },
+    "manage_volunteer_forms": {
         "title": "Rekrutuj nowych wolontariuszy",
         "subtitle": "Zarządzaj formularzami wolontariuszy",
         "steps": [
