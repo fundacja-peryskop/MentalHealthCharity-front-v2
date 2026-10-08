@@ -2,11 +2,10 @@ import logo from "@/assets/static/logo_small.webp";
 import resolveAssetUrl from "@/modules/shared/helpers/resolveAssetUrl";
 import { Avatar, Header, Stack, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink, useLocation } from "react-router-dom";
-import { useTheme } from "../../hooks/useTheme";
 import { useUser } from "../auth/components/AuthProvider";
 import { getChatsQueryOptions } from "../chat/queries/getChatsQueryOptions";
 import { Permissions } from "../shared/constants";
@@ -17,8 +16,24 @@ import { brand } from "./content";
 import { useIconColor } from "./useIconColor";
 
 const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
-/** Sticks the header under the (non-sticky) announcement bar as the page scrolls. */
-const STICKY: React.CSSProperties = { position: "sticky", top: 0, zIndex: 100 };
+
+/**
+ * Header overlap styling. The header always sits 16px over the announcement bar
+ * (the "content sits on the bar" treatment); stickiness and the slide animation
+ * are owned by the layout's chrome wrapper, so the header and bar move together
+ * and the header always covers the bar (no peeking sliver). Only the rounded top
+ * corners animate away as the bar collapses, leaving the header flush at the top.
+ */
+function headerStyle(collapsed: boolean, reduceMotion: boolean): React.CSSProperties {
+    return {
+        position: "relative",
+        zIndex: 1,
+        marginTop: -16,
+        borderTopLeftRadius: collapsed ? 0 : 20,
+        borderTopRightRadius: collapsed ? 0 : 20,
+        transition: reduceMotion ? "none" : "border-top-left-radius 0.35s ease, border-top-right-radius 0.35s ease",
+    };
+}
 
 interface NavItem {
     label: string;
@@ -27,11 +42,16 @@ interface NavItem {
     indicator?: boolean;
 }
 
-export function AppHeader() {
+interface AppHeaderProps {
+    /** Announcement bar collapsed (scrolled down) - flatten the header to the top. */
+    collapsed?: boolean;
+    reduceMotion?: boolean;
+}
+
+export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeaderProps) {
     const { t } = useTranslation();
     const { user, logout } = useUser();
     const { hasPermissions } = usePermissions();
-    const { resolvedTheme, setTheme } = useTheme();
     const icon = useIconColor();
     const location = useLocation();
     const [menuOpen, setMenuOpen] = useState(false);
@@ -87,30 +107,6 @@ export function AppHeader() {
         </XStack>
     ));
 
-    const themeToggle = (
-        <Stack
-            tag="button"
-            role="button"
-            aria-label={
-                resolvedTheme === "dark"
-                    ? t("common.light_mode", { defaultValue: "Jasny motyw" })
-                    : t("common.dark_mode", { defaultValue: "Ciemny motyw" })
-            }
-            onPress={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            width={40}
-            height={40}
-            borderRadius="$full"
-            alignItems="center"
-            justifyContent="center"
-            borderWidth={0}
-            backgroundColor="$backgroundTransparent"
-            cursor="pointer"
-            hoverStyle={{ backgroundColor: "$backgroundHover" }}
-        >
-            {resolvedTheme === "dark" ? <Sun size={20} color={icon.color} /> : <Moon size={20} color={icon.color} />}
-        </Stack>
-    );
-
     const accountArea = user ? (
         <XStack alignItems="center" gap="$sm">
             <RouterLink to={`/profile/${user.id}`} style={LINK_RESET}>
@@ -144,7 +140,7 @@ export function AppHeader() {
     );
 
     return (
-        <Header tag="header" width="100%" backgroundColor="$background" style={STICKY}>
+        <Header tag="header" width="100%" backgroundColor="$background" style={headerStyle(collapsed, reduceMotion)}>
             <XStack
                 width="100%"
                 maxWidth={1200}
@@ -165,7 +161,6 @@ export function AppHeader() {
 
                 {/* Desktop right */}
                 <XStack display="none" $md={{ display: "flex" }} alignItems="center" gap="$sm">
-                    {themeToggle}
                     {accountArea}
                 </XStack>
 
@@ -200,10 +195,7 @@ export function AppHeader() {
                     <YStack gap="$md" paddingTop="$md">
                         {navLinksList}
                     </YStack>
-                    <XStack alignItems="center" justifyContent="space-between">
-                        {accountArea}
-                        {themeToggle}
-                    </XStack>
+                    <XStack alignItems="center">{accountArea}</XStack>
                 </YStack>
             ) : null}
         </Header>

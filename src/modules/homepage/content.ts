@@ -1,20 +1,26 @@
 /**
  * Homepage content model.
  *
- * Per the redesign spec (§10), homepage copy lives in a single content source
- * instead of being hardcoded inside components — every section is rendered from
- * the data below. Strings are the Polish marketing copy for the page; keys,
- * types and comments are English. Shared chrome content (brand, announcement
- * bar, footer) lives in `../layout/content`.
+ * This file describes the *structure* of each homepage section - order, tones,
+ * illustrations, routes and ids. All user-facing copy is localised: every text
+ * field is an i18n key (resolved with `t(...)` in the rendering component), and
+ * the strings themselves live in `src/locales/{pl,en}.json` under `homepage.*`.
+ * Never put display copy here - add it to the locale files instead so both
+ * languages stay in sync (see `npm run i18n:check`).
  */
 
-import type { LinkItem } from "../layout/content";
 import type { TopicId } from "./illustrations/TopicIcon";
 
-/** Hero. */
+/**
+ * Hero copy keys. The heading reads as one sentence whose final word rotates
+ * through `titleWordsKey` (an i18n array) for a subtle "living" accent; the
+ * full, non-animated `titleKey` is used as the heading's accessible name.
+ */
 export const hero = {
-    title: "Cokolwiek chodzi Ci po głowie, jesteśmy tu, żeby wysłuchać",
-    subtitle: "Darmowa i w pełni anonimowa pomoc psychologiczna w formie czatu. Rozmawiasz z człowiekiem - nie robotem",
+    titleKey: "homepage.hero.title",
+    titleLeadKey: "homepage.hero.title_lead",
+    titleWordsKey: "homepage.hero.title_words",
+    subtitleKey: "homepage.hero.subtitle",
 } as const;
 
 /** Visual accent used by the two pitch cards and their circular arrow button. */
@@ -23,46 +29,48 @@ export type PitchTone = "help" | "volunteer";
 /** Dual CTA "pitch" cards. */
 export interface PitchCardContent {
     tone: PitchTone;
-    title: string;
-    subtitle: string;
-    cta: LinkItem;
+    titleKey: string;
+    subtitleKey: string;
+    cta: { labelKey: string; href: string };
 }
 
 export const pitchCards: PitchCardContent[] = [
     {
         tone: "help",
-        title: "Potrzebuję pomocy",
-        subtitle: "Zapisz się na wymianę wiadomości z wolontariuszem",
-        cta: { label: "Dołącz za darmo", href: "/form/mentee-getting-started" },
+        titleKey: "homepage.pitch.help.title",
+        subtitleKey: "homepage.pitch.help.subtitle",
+        cta: { labelKey: "homepage.pitch.help.cta", href: "/form/mentee-getting-started" },
     },
     {
         tone: "volunteer",
-        title: "Chcę pomagać",
-        subtitle: "Zostań wolontariuszem",
-        cta: { label: "Dołącz za darmo", href: "/form/volunteer" },
+        titleKey: "homepage.pitch.volunteer.title",
+        subtitleKey: "homepage.pitch.volunteer.subtitle",
+        cta: { labelKey: "homepage.pitch.volunteer.cta", href: "/form/volunteer" },
     },
 ];
 
 /** Topics grid. */
-export interface TopicItem extends LinkItem {
+export interface TopicItem {
     id: TopicId;
+    labelKey: string;
+    href: string;
 }
 
-export const topicsHeading = "O czym chcesz porozmawiać?";
+export const topicsHeadingKey = "homepage.topics.heading";
 
 /**
- * Every topic starts the same intake flow — clicking one takes the visitor to
+ * Every topic starts the same intake flow - clicking one takes the visitor to
  * the "getting started" mentee form, where they describe what they need.
  */
 const TOPIC_HREF = "/form/mentee-getting-started";
 
 export const topics: TopicItem[] = [
-    { id: "relationship", label: "Problemy w związku", href: TOPIC_HREF },
-    { id: "negativeThoughts", label: "Negatywne myśli", href: TOPIC_HREF },
-    { id: "lowMood", label: "Złe samopoczucie", href: TOPIC_HREF },
-    { id: "depression", label: "Depresja", href: TOPIC_HREF },
-    { id: "addiction", label: "Alkoholizm", href: TOPIC_HREF },
-    { id: "other", label: "Inne / nie wiem", href: TOPIC_HREF },
+    { id: "relationship", labelKey: "homepage.topics.relationship", href: TOPIC_HREF },
+    { id: "negativeThoughts", labelKey: "homepage.topics.negative_thoughts", href: TOPIC_HREF },
+    { id: "lowMood", labelKey: "homepage.topics.low_mood", href: TOPIC_HREF },
+    { id: "depression", labelKey: "homepage.topics.depression", href: TOPIC_HREF },
+    { id: "addiction", labelKey: "homepage.topics.addiction", href: TOPIC_HREF },
+    { id: "other", labelKey: "homepage.topics.other", href: TOPIC_HREF },
 ];
 
 /** Illustration used by a how-it-works step. */
@@ -70,40 +78,42 @@ export type StepIllustration = "bubbles" | "chat";
 
 /** "Jak działamy?" carousel steps. */
 export interface HowItWorksStep {
-    /** 1-based step number rendered as the giant outlined numeral. */
+    /** 1-based step number rendered as the giant background numeral. */
     number: number;
     illustration: StepIllustration;
-    title: string;
-    subtitle: string;
+    titleKey: string;
+    subtitleKey: string;
 }
 
-export const howItWorksHeading = "Jak działamy?";
+export const howItWorksHeadingKey = "homepage.steps.heading";
 
-/**
- * The real intake flow is three steps (mirrors the app's existing
- * `homepage.how_it_works` content). The reference screenshot only captured the
- * first two; the carousel itself supports an arbitrary number of slides.
- */
+/** The four intake steps. The carousel supports any number of slides. */
 export const howItWorksSteps: HowItWorksStep[] = [
     {
         number: 1,
         illustration: "bubbles",
-        title: "Złóż formularz",
-        subtitle: "Odpowiedz na kilka pytań, abyśmy mogli poznać Twoje potrzeby",
+        titleKey: "homepage.steps.step1.title",
+        subtitleKey: "homepage.steps.step1.subtitle",
     },
     {
         number: 2,
         illustration: "chat",
-        title: "Dopasujemy wolontariusza",
-        subtitle: "Poinformujemy Cię mailowo, gdy utworzymy czat z przydzielonym wolontariuszem",
+        titleKey: "homepage.steps.step2.title",
+        subtitleKey: "homepage.steps.step2.subtitle",
     },
     {
         number: 3,
         illustration: "chat",
-        title: 'Wejdź do zakładki "Rozmowy"',
-        subtitle: "Rozpocznij regularną wymianę wiadomości w wygodnej formie czatu online",
+        titleKey: "homepage.steps.step3.title",
+        subtitleKey: "homepage.steps.step3.subtitle",
+    },
+    {
+        number: 4,
+        illustration: "bubbles",
+        titleKey: "homepage.steps.step4.title",
+        subtitleKey: "homepage.steps.step4.subtitle",
     },
 ];
 
 /** Articles section heading. */
-export const articlesHeading = "Artykuły";
+export const articlesHeadingKey = "homepage.articles_section.heading";

@@ -86,7 +86,7 @@ const Chat = ({
     const newMessageIds = useMemo(() => {
         const ids = new Set<number>();
         if (!initialLoadDoneRef.current) {
-            // First load — mark all as known, none as new
+            // First load - mark all as known, none as new
             for (const m of messages) {
                 knownMessageIdsRef.current.add(m.id);
             }

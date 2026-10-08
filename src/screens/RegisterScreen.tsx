@@ -1,5 +1,6 @@
-import { Stack, Typography, XStack } from "@fundacja-peryskop/ui";
+import { Stack, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { ShieldCheck } from "lucide-react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUser } from "../modules/auth/components/AuthProvider";
@@ -10,8 +11,9 @@ import {
     getAuthRedirectContext,
 } from "../modules/auth/helpers/authRedirect";
 import { RegisterFormValues } from "../modules/auth/types";
-import { AppLink } from "../modules/layout/AppLink";
 import { AuthShell } from "../modules/layout/AuthShell";
+import { AuthDivider } from "../modules/layout/auth/AuthDivider";
+import { CtaButton } from "../modules/layout/CtaButton";
 import { useIconColor } from "../modules/layout/useIconColor";
 
 const RegisterScreen = () => {
@@ -33,9 +35,8 @@ const RegisterScreen = () => {
                 ...(authRedirect.next ? { next: authRedirect.next } : {}),
             },
             {
-                onSuccess: () => {
-                    navigate(`/auth/confirm-email-begin${authSearch}`);
-                },
+                onSuccess: () => navigate(`/auth/confirm-email-begin${authSearch}`),
+                onError: () => toast.error(t("auth.register.submit_error")),
             }
         );
     };
@@ -62,14 +63,17 @@ const RegisterScreen = () => {
     ) : undefined;
 
     const footer = (
-        <XStack gap="$xs" alignItems="center" flexWrap="wrap" justifyContent="center">
-            <Typography variant="smallRegular" muted>
-                {t(isChatSupportIntent ? "auth.register_chat_support.has_account" : "auth.register.has_account")}
-            </Typography>
-            <AppLink href={`/login${authSearch}`} variant="smallSemibold" color="$primary">
-                {t("auth.register.login_link")}
-            </AppLink>
-        </XStack>
+        <YStack gap="$lg" width="100%">
+            <AuthDivider label={t("common.or")} />
+            <YStack gap="$sm" alignItems="center">
+                <Typography variant="smallRegular" muted>
+                    {t(isChatSupportIntent ? "auth.register_chat_support.has_account" : "auth.register.has_account")}
+                </Typography>
+                <CtaButton href={`/login${authSearch}`} variant="mutedPrimary" fullWidth borderRadius="$md">
+                    {t("auth.actions.login")}
+                </CtaButton>
+            </YStack>
+        </YStack>
     );
 
     return (
@@ -79,7 +83,7 @@ const RegisterScreen = () => {
             notice={notice}
             footer={footer}
         >
-            <RegisterForm onSubmit={handleSubmit} />
+            <RegisterForm loading={register.isPending} onSubmit={handleSubmit} />
         </AuthShell>
     );
 };

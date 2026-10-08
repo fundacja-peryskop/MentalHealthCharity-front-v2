@@ -19,12 +19,12 @@ function useMediaQueryMatch(query: string): boolean {
     return matches;
 }
 
-/** Replaces useMediaQuery(theme.breakpoints.down("md")) — true when < 900px */
+/** Replaces useMediaQuery(theme.breakpoints.down("md")) - true when < 900px */
 export function useIsMobile(): boolean {
     return useMediaQueryMatch("(max-width: 899px)");
 }
 
-/** Replaces useMediaQuery(theme.breakpoints.down("sm")) — true when < 600px */
+/** Replaces useMediaQuery(theme.breakpoints.down("sm")) - true when < 600px */
 export function useIsSmallMobile(): boolean {
     return useMediaQueryMatch("(max-width: 599px)");
 }

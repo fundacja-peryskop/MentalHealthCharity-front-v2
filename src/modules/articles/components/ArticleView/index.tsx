@@ -14,6 +14,15 @@ import Videoplayer from "../Videoplayer";
 const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
 const HERO_SCRIM = "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.15) 100%)";
 
+/**
+ * "More articles" grid: one column on mobile, two from 640px, three from 1000px
+ * - so the capped measure shows a single row of three. Driven by a scoped
+ * min-width style rather than Tamagui media props, which resolve unreliably
+ * here (the `sm` override wins at every width; see CLAUDE.md).
+ */
+const MORE_GRID_CLASS = "article-more-grid";
+const MORE_GRID_STYLE = `.${MORE_GRID_CLASS}{display:grid;gap:16px;grid-template-columns:1fr;width:100%;}@media (min-width:640px){.${MORE_GRID_CLASS}{grid-template-columns:repeat(2,1fr);}}@media (min-width:1000px){.${MORE_GRID_CLASS}{grid-template-columns:repeat(3,1fr);}}`;
+
 interface Props {
     article: Article;
     articles?: Article[];
@@ -146,13 +155,12 @@ const ArticleView = ({ article, articles }: Props) => {
                         <Typography variant="title2" tag="h2" align="center">
                             {t("articles.more_articles")}
                         </Typography>
-                        <XStack flexWrap="wrap" gap="$lg" justifyContent="center">
+                        <style>{MORE_GRID_STYLE}</style>
+                        <div className={MORE_GRID_CLASS}>
                             {articles.map((a) => (
-                                <Stack key={a.id} width="100%" $sm={{ width: "48%" }} $md={{ width: "31.5%" }}>
-                                    <DsArticleCard article={a} />
-                                </Stack>
+                                <DsArticleCard key={a.id} article={a} />
                             ))}
-                        </XStack>
+                        </div>
                     </PageContainer>
                 </Section>
             ) : null}

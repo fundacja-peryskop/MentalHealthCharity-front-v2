@@ -44,8 +44,8 @@ const DataComparison = ({ dataA, dataB }: Props) => {
                     {Object.entries(differences).map(([field, { oldValue, newValue }]) => (
                         <TableRow key={field}>
                             <TableCell className="text-foreground">{field}</TableCell>
-                            <TableCell className="text-red-600">{String(oldValue) || "—"}</TableCell>
-                            <TableCell className="text-green-600">{String(newValue) || "—"}</TableCell>
+                            <TableCell className="text-red-600">{String(oldValue) || "-"}</TableCell>
+                            <TableCell className="text-green-600">{String(newValue) || "-"}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

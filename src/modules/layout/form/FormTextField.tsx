@@ -9,13 +9,15 @@ export interface FormTextFieldProps extends Omit<InputProps, "value" | "onChange
     label?: string;
     /** Maps to the right web input semantics (email keyboard, masked password). */
     type?: TextFieldType;
+    /** Optional transform applied to each keystroke before it reaches Formik (e.g. digits-only). */
+    sanitize?: (value: string) => string;
 }
 
 /**
  * Design-system text `Input` wired to Formik. Shows the field's validation
  * error once the field has been touched. Reused across every migrated form.
  */
-export function FormTextField({ name, label, type = "text", ...rest }: FormTextFieldProps) {
+export function FormTextField({ name, label, type = "text", sanitize, ...rest }: FormTextFieldProps) {
     const [field, meta, helpers] = useField<string>(name);
     const errorText = meta.touched && meta.error ? meta.error : undefined;
 
@@ -34,7 +36,7 @@ export function FormTextField({ name, label, type = "text", ...rest }: FormTextF
         <Input
             label={label}
             value={field.value ?? ""}
-            onChangeText={(text) => helpers.setValue(text)}
+            onChangeText={(text) => helpers.setValue(sanitize ? sanitize(text) : text)}
             onBlur={() => helpers.setTouched(true)}
             error={errorText}
             {...typeProps}

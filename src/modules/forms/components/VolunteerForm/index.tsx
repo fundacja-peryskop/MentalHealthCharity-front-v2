@@ -1,21 +1,27 @@
-import { Button, Checkbox, Input, Select, Stack, Textarea, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
-import { useFormik } from "formik";
-import { ArrowLeft, Check, CheckCircle } from "lucide-react";
-import { useRef, useState } from "react";
+import { Typography, YStack } from "@fundacja-peryskop/ui";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { useUser } from "../../../auth/components/AuthProvider";
-import { AppLink } from "../../../layout/AppLink";
-import { useIconColor } from "../../../layout/useIconColor";
-import { DateTimePicker } from "../../../shared/components/DatePicker";
+import { CtaButton } from "../../../layout/CtaButton";
+import { FormSelectField } from "../../../layout/form/FormSelectField";
+import { FormTextField } from "../../../layout/form/FormTextField";
+import { FormTextareaField } from "../../../layout/form/FormTextareaField";
+import { phoneRegex, sanitizePhone } from "../../../shared/constants";
 import { VolunteerFormValues } from "../../types";
-import FormWrapper from "../FormWrapper";
+import { FormWizard } from "../../wizard/components/FormWizard";
+import { ChipMultiSelect } from "../../wizard/fields/ChipMultiSelect";
+import { ConsentField } from "../../wizard/fields/ConsentField";
+import { DateField } from "../../wizard/fields/DateField";
+import type { WizardStep } from "../../wizard/types";
+import { useFormWizard } from "../../wizard/useFormWizard";
 
-/** Marks a `<button>` as non-submitting; DS Button/Stack don't type `type`. */
-const NON_SUBMIT = { type: "button" } as object;
+const STORAGE_KEY = "peryskop:form:volunteer:v1";
+/** Consent is never persisted - it must be re-affirmed each time. */
+const PERSIST_OMIT: (keyof VolunteerFormValues)[] = ["tos"];
 
-const THEME_OPTIONS = [
+const digitsOnly = (value: string) => value.replace(/[^0-9]/g, "");
+
+const THEME_VALUES = [
     "no",
     "depression",
     "alcoholism",
@@ -34,19 +40,116 @@ const THEME_OPTIONS = [
 ];
 
 interface Props {
-    onSubmit: (values: VolunteerFormValues) => void;
-    initStep?: number;
+    onSubmit: (values: VolunteerFormValues) => void | Promise<void>;
+    /** Render the success state immediately (the user has already applied). */
+    startCompleted?: boolean;
 }
 
-const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
-    const icon = useIconColor();
-    const { user } = useUser();
+// ---------------------------------------------------------------------------
+// Step fields - module-scoped so they keep identity across renders.
+// ---------------------------------------------------------------------------
 
-    const [step, setStep] = useState(initStep);
-    const [direction, setDirection] = useState(1);
-    const prevStepRef = useRef(step);
+function AgeField() {
+    const { t } = useTranslation();
+    return (
+        <FormTextField
+            name="age"
+            label={t("form.volunteer.age_label")}
+            keyboardType="numeric"
+            autoFocus
+            sanitize={digitsOnly}
+        />
+    );
+}
+
+function EducationField() {
+    const { t } = useTranslation();
+    const options = ["elementary", "high_school", "bachelor", "master", "phd"].map((k) => ({
+        value: k,
+        label: t(`form.volunteer.education.${k}`),
+    }));
+    return (
+        <FormSelectField
+            name="education"
+            label={t("form.volunteer.education_label")}
+            placeholder="---"
+            options={options}
+        />
+    );
+}
+
+function PhoneField() {
+    const { t } = useTranslation();
+    return (
+        <FormTextField
+            name="phone"
+            label={t("form.volunteer.phone_number_label")}
+            keyboardType="phone-pad"
+            autoComplete={"tel" as never}
+            placeholder="+48 600 700 800"
+            autoFocus
+            sanitize={sanitizePhone}
+        />
+    );
+}
+
+function ReasonField() {
+    const { t } = useTranslation();
+    return <FormTextareaField name="description" label={t("form.volunteer.reason_label")} rows={5} autoFocus />;
+}
+
+function DatesField() {
+    return <DateField name="interview_meeting_dates" />;
+}
+
+function SourceExperienceFields() {
+    const { t } = useTranslation();
+    const sourceOptions = [
+        { value: "friend", label: t("form.referral_source_options.friend") },
+        { value: "socialMedia", label: t("form.referral_source_options.social_media") },
+        { value: "google", label: t("form.referral_source_options.google") },
+    ];
+    const experienceOptions = ["yes_professional", "yes_personal", "no"].map((k) => ({
+        value: k,
+        label: t(`form.volunteer.prior_experience.${k}`),
+    }));
+    return (
+        <YStack gap="$lg">
+            <FormSelectField
+                name="source"
+                label={t("form.referral_source_label")}
+                placeholder="---"
+                options={sourceOptions}
+            />
+            <FormSelectField
+                name="did_help"
+                label={t("form.volunteer.prior_experience_label")}
+                placeholder="---"
+                options={experienceOptions}
+            />
+        </YStack>
+    );
+}
+
+function ThemesConsentFields() {
+    const { t } = useTranslation();
+    const options = THEME_VALUES.map((value) => ({ value, label: t(`form.volunteer.issues_to_avoid.${value}`) }));
+    return (
+        <YStack gap="$lg">
+            <YStack gap="$sm">
+                <Typography variant="regularSemibold">{t("form.volunteer.issues_to_avoid_label")}</Typography>
+                <ChipMultiSelect name="themes" options={options} />
+            </YStack>
+            <ConsentField name="tos" />
+        </YStack>
+    );
+}
+
+// ---------------------------------------------------------------------------
+
+const VolunteerForm = ({ onSubmit, startCompleted = false }: Props) => {
+    const { t } = useTranslation();
+    const { user } = useUser();
 
     const initialValues: VolunteerFormValues = {
         age: "",
@@ -62,287 +165,97 @@ const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
         interview_meeting_dates: [],
     };
 
-    const validationSchemas = [
-        Yup.object({ age: Yup.number().min(18, t("validation.age.min")).required(t("validation.required")) }),
-        Yup.object({ education: Yup.string().required(t("validation.required")) }),
-        Yup.object({
-            phone: Yup.string()
-                .matches(/^[0-9]+$/, t("validation.phone"))
-                .required(t("validation.required")),
-            contacts: Yup.array().of(Yup.string()).min(1, t("validation.required")),
-        }),
-        Yup.object({
-            description: Yup.string().min(10, t("validation.description.tooShort")).required(t("validation.required")),
-        }),
-        Yup.object({ interview_meeting_dates: Yup.array().min(1, t("validation.required")) }),
-        Yup.object({
-            source: Yup.string().required(t("validation.required")),
-            did_help: Yup.string().required(t("validation.required")),
-        }),
-        Yup.object({
-            themes: Yup.array(),
-            tos: Yup.boolean().oneOf([true], t("validation.consent.required")),
-        }),
+    const text = (kind: "title" | "subtitle", index: number) =>
+        t(`form.volunteer.${kind}.${index}`, { contact: user?.email });
+
+    const steps: WizardStep<VolunteerFormValues>[] = [
+        {
+            id: "age",
+            title: text("title", 0),
+            subtitle: text("subtitle", 0),
+            schema: Yup.object({
+                age: Yup.number().min(18, t("validation.age.min")).required(t("validation.required")),
+            }),
+            Field: AgeField,
+        },
+        {
+            id: "education",
+            title: text("title", 1),
+            subtitle: text("subtitle", 1),
+            schema: Yup.object({ education: Yup.string().required(t("validation.required")) }),
+            Field: EducationField,
+        },
+        {
+            id: "phone",
+            title: text("title", 2),
+            subtitle: text("subtitle", 2),
+            schema: Yup.object({
+                phone: Yup.string().matches(phoneRegex, t("validation.phone")).required(t("validation.required")),
+                contacts: Yup.array().of(Yup.string()).min(1, t("validation.required")),
+            }),
+            Field: PhoneField,
+        },
+        {
+            id: "reason",
+            title: text("title", 3),
+            subtitle: text("subtitle", 3),
+            schema: Yup.object({
+                description: Yup.string()
+                    .min(10, t("validation.description.tooShort"))
+                    .required(t("validation.required")),
+            }),
+            Field: ReasonField,
+        },
+        {
+            id: "dates",
+            title: text("title", 4),
+            subtitle: text("subtitle", 4),
+            schema: Yup.object({ interview_meeting_dates: Yup.array().min(1, t("validation.required")) }),
+            Field: DatesField,
+        },
+        {
+            id: "source",
+            title: text("title", 5),
+            subtitle: text("subtitle", 5),
+            schema: Yup.object({
+                source: Yup.string().required(t("validation.required")),
+                did_help: Yup.string().required(t("validation.required")),
+            }),
+            Field: SourceExperienceFields,
+        },
+        {
+            id: "themes",
+            title: text("title", 6),
+            subtitle: text("subtitle", 6),
+            schema: Yup.object({
+                themes: Yup.array(),
+                tos: Yup.boolean().oneOf([true], t("validation.consent.required")),
+            }),
+            Field: ThemesConsentFields,
+        },
     ];
 
-    const LAST_STEP = validationSchemas.length - 1;
-
-    const formik = useFormik({
+    const wizard = useFormWizard<VolunteerFormValues>({
+        steps,
         initialValues,
-        validationSchema: validationSchemas[step],
-        onSubmit: (values) => {
-            if (step === LAST_STEP) {
-                onSubmit(values);
-            }
-            setDirection(1);
-            prevStepRef.current = step;
-            setStep((prev) => prev + 1);
-        },
+        storageKey: STORAGE_KEY,
+        persistOmit: PERSIST_OMIT,
+        onSubmit,
+        startCompleted,
     });
 
-    const handleBack = () => {
-        setDirection(-1);
-        prevStepRef.current = step;
-        setStep((prev) => (prev > 0 ? prev - 1 : prev));
-    };
-
-    const errorFor = (name: keyof VolunteerFormValues) =>
-        formik.touched[name] && formik.errors[name] ? String(formik.errors[name]) : undefined;
-
-    const handleThemeToggle = (value: string) => {
-        const current = formik.values.themes;
-        const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value];
-        formik.setFieldValue("themes", next);
-    };
-
-    const educationOptions = ["elementary", "high_school", "bachelor", "master", "phd"].map((k) => ({
-        value: k,
-        label: t(`form.volunteer.education.${k}`),
-    }));
-    const sourceOptions = [
-        { value: "friend", label: t("form.referral_source_options.friend") },
-        { value: "socialMedia", label: t("form.referral_source_options.social_media") },
-        { value: "google", label: t("form.referral_source_options.google") },
-    ];
-    const experienceOptions = ["yes_professional", "yes_personal", "no"].map((k) => ({
-        value: k,
-        label: t(`form.volunteer.prior_experience.${k}`),
-    }));
-
-    // Success state
-    if (step > LAST_STEP) {
-        return (
-            <FormWrapper subtitle="" title="" progress={100} direction={direction} stepKey="success">
-                <YStack alignItems="center" gap="$md" paddingVertical="$md">
-                    <Stack
-                        width={64}
-                        height={64}
-                        borderRadius="$full"
-                        alignItems="center"
-                        justifyContent="center"
-                        backgroundColor="$primarySoft"
-                    >
-                        <CheckCircle size={32} color={icon.primary} />
-                    </Stack>
-                    <Typography variant="title3" tag="h2" align="center">
-                        {t("form.volunteer.title.7", { defaultValue: "Dziękujemy!" })}
-                    </Typography>
-                    <Typography variant="regularRegular" muted align="center" width="100%">
-                        {t("form.volunteer.subtitle.7", {
-                            defaultValue: "Twoje zgłoszenie zostało wysłane. Skontaktujemy się z Tobą wkrótce.",
-                        })}
-                    </Typography>
-                    <Button variant="primary" fullWidth onPress={() => navigate("/")}>
-                        {t("form.homepage")}
-                    </Button>
-                </YStack>
-            </FormWrapper>
-        );
-    }
-
-    return (
-        <FormWrapper
-            subtitle={t(`form.volunteer.subtitle.${step}`, { contact: user?.email })}
-            title={t(`form.volunteer.title.${step}`, { contact: user?.email })}
-            progress={((step + 1) / (LAST_STEP + 2)) * 100}
-            stepIndicator={`${step + 1} / ${validationSchemas.length}`}
-            direction={direction}
-            stepKey={step}
-        >
-            <form onSubmit={formik.handleSubmit} noValidate>
-                {step === 0 ? (
-                    <Input
-                        label={t("form.volunteer.age_label")}
-                        keyboardType="numeric"
-                        autoFocus
-                        value={formik.values.age}
-                        onChangeText={(v) => formik.setFieldValue("age", v.replace(/[^0-9]/g, ""))}
-                        onBlur={() => formik.setFieldTouched("age", true)}
-                        error={errorFor("age")}
-                    />
-                ) : null}
-
-                {step === 1 ? (
-                    <Select
-                        label={t("form.volunteer.education_label")}
-                        placeholder="---"
-                        options={educationOptions}
-                        value={formik.values.education || undefined}
-                        onValueChange={(v) => {
-                            formik.setFieldValue("education", v);
-                            formik.setFieldTouched("education", true);
-                        }}
-                        error={errorFor("education")}
-                    />
-                ) : null}
-
-                {step === 2 ? (
-                    <Input
-                        label={t("form.volunteer.phone_number_label")}
-                        keyboardType="phone-pad"
-                        autoFocus
-                        value={formik.values.phone}
-                        onChangeText={(v) => formik.setFieldValue("phone", v)}
-                        onBlur={() => formik.setFieldTouched("phone", true)}
-                        error={errorFor("phone")}
-                    />
-                ) : null}
-
-                {step === 3 ? (
-                    <Textarea
-                        label={t("form.volunteer.reason_label")}
-                        rows={5}
-                        value={formik.values.description}
-                        onChangeText={(v) => formik.setFieldValue("description", v)}
-                        onBlur={() => formik.setFieldTouched("description", true)}
-                        error={errorFor("description")}
-                    />
-                ) : null}
-
-                {step === 4 ? (
-                    <YStack alignItems="center" gap="$md" width="100%">
-                        <DateTimePicker
-                            values={formik.values.interview_meeting_dates}
-                            onChange={(newValue) => formik.setFieldValue("interview_meeting_dates", newValue)}
-                        />
-                        {errorFor("interview_meeting_dates") ? (
-                            <Typography variant="smallRegular" color="$danger">
-                                {errorFor("interview_meeting_dates")}
-                            </Typography>
-                        ) : null}
-                    </YStack>
-                ) : null}
-
-                {step === 5 ? (
-                    <YStack gap="$lg">
-                        <Select
-                            label={t("form.referral_source_label")}
-                            placeholder="---"
-                            options={sourceOptions}
-                            value={formik.values.source || undefined}
-                            onValueChange={(v) => {
-                                formik.setFieldValue("source", v);
-                                formik.setFieldTouched("source", true);
-                            }}
-                            error={errorFor("source")}
-                        />
-                        <Select
-                            label={t("form.volunteer.prior_experience_label")}
-                            placeholder="---"
-                            options={experienceOptions}
-                            value={formik.values.did_help || undefined}
-                            onValueChange={(v) => {
-                                formik.setFieldValue("did_help", v);
-                                formik.setFieldTouched("did_help", true);
-                            }}
-                            error={errorFor("did_help")}
-                        />
-                    </YStack>
-                ) : null}
-
-                {step === 6 ? (
-                    <YStack gap="$lg">
-                        <YStack gap="$sm">
-                            <Typography variant="regularSemibold">
-                                {t("form.volunteer.issues_to_avoid_label")}
-                            </Typography>
-                            <XStack flexWrap="wrap" gap="$sm">
-                                {THEME_OPTIONS.map((value) => {
-                                    const selected = formik.values.themes.includes(value);
-                                    return (
-                                        <Stack
-                                            key={value}
-                                            tag="button"
-                                            role="button"
-                                            aria-pressed={selected}
-                                            {...NON_SUBMIT}
-                                            onPress={() => handleThemeToggle(value)}
-                                            flexDirection="row"
-                                            alignItems="center"
-                                            gap="$sm"
-                                            width="100%"
-                                            $sm={{ width: "48%" }}
-                                            paddingHorizontal="$md"
-                                            paddingVertical="$sm"
-                                            borderRadius="$md"
-                                            borderWidth={1}
-                                            borderColor={selected ? "$primary" : "$borderColor"}
-                                            backgroundColor={selected ? "$primarySoft" : "$background"}
-                                            cursor="pointer"
-                                        >
-                                            <Stack
-                                                width={20}
-                                                height={20}
-                                                borderRadius="$xs"
-                                                alignItems="center"
-                                                justifyContent="center"
-                                                borderWidth={1}
-                                                borderColor={selected ? "$primary" : "$borderColor"}
-                                                backgroundColor={selected ? "$primary" : "$background"}
-                                            >
-                                                {selected ? <Check size={14} color={icon.inverse} /> : null}
-                                            </Stack>
-                                            <Typography variant="smallRegular" flex={1}>
-                                                {t(`form.volunteer.issues_to_avoid.${value}`)}
-                                            </Typography>
-                                        </Stack>
-                                    );
-                                })}
-                            </XStack>
-                        </YStack>
-
-                        <Checkbox
-                            checked={formik.values.tos}
-                            onCheckedChange={(checked) => formik.setFieldValue("tos", checked)}
-                            error={errorFor("tos")}
-                            size="sm"
-                            label={
-                                <Typography variant="smallRegular">
-                                    {t("crisis.tos_label", { defaultValue: "Wyrażam zgodę na" })}{" "}
-                                    <AppLink href="/tos" external variant="smallSemibold" color="$primary">
-                                        {t("crisis.tos_link", {
-                                            defaultValue: "warunki użytkowania i politykę prywatności",
-                                        })}
-                                    </AppLink>
-                                </Typography>
-                            }
-                        />
-                    </YStack>
-                ) : null}
-
-                {/* Navigation */}
-                <XStack marginTop="$xl" alignItems="center" justifyContent="space-between" gap="$md">
-                    <Button variant="mutedPrimary" {...NON_SUBMIT} onPress={handleBack} disabled={step === 0}>
-                        <ArrowLeft size={16} color={icon.primary} />
-                        <Typography variant="regularSemibold" color="$primaryDarker">
-                            {t("form.back")}
-                        </Typography>
-                    </Button>
-                    <Button variant="primary">{step === LAST_STEP ? t("form.submit") : t("form.next")}</Button>
-                </XStack>
-            </form>
-        </FormWrapper>
+    const successContent = (
+        <YStack gap="$lg" width="100%" alignItems="center">
+            <Typography variant="regularRegular" muted align="center">
+                {t("form.volunteer.subtitle.7")}
+            </Typography>
+            <CtaButton href="/" variant="primary" fullWidth>
+                {t("form.homepage")}
+            </CtaButton>
+        </YStack>
     );
+
+    return <FormWizard wizard={wizard} successTitle={t("form.volunteer.title.7")} successContent={successContent} />;
 };
 
 export default VolunteerForm;

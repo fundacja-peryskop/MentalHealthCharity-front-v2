@@ -158,7 +158,7 @@ const LeavingScreen = () => {
         </Typography>
     );
 
-    // Malformed or unsafe link — never offer a way to follow it.
+    // Malformed or unsafe link - never offer a way to follow it.
     if (!url) {
         return (
             <Shell>
@@ -178,7 +178,7 @@ const LeavingScreen = () => {
         );
     }
 
-    // Dangerous links are blocked outright — there is no "continue anyway".
+    // Dangerous links are blocked outright - there is no "continue anyway".
     const threats = assessUrlThreats(url);
     if (threats.length > 0) {
         return (

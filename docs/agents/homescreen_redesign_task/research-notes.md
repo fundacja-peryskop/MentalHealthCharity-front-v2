@@ -1,4 +1,4 @@
-# Homepage Redesign — Research Notes
+# Homepage Redesign - Research Notes
 
 > Author: implementation agent. Scope: understand both projects before wiring
 > `@fundacja-peryskop/ui` (PeryskopUI) into `MentalHealthCharity-front-v2` (MHC)
@@ -14,13 +14,13 @@
 | React | 19 in dev; peer allows `>=18.2.0` | **18.3.1** |
 | Bundler | Vite 6 (for its own build/Storybook) | **Vite 5.4.8** |
 | Styling | Tamagui tokens/themes (Sarabun font) | **Tailwind CSS 4** + shadcn-style `@/components/ui/*` |
-| Router | — | React Router 6 |
+| Router | - | React Router 6 |
 | Package | Published to **GitHub Packages** under `@fundacja-peryskop`, `v0.1.0` | Private app |
 
 The two share brand DNA already: MHC's Tailwind brand teal `--color-primary-brand: #0da69e`
 is essentially Peryskop's `primaryBase: #06b7a7`. The redesign unifies on the DS token.
 
-## 2. PeryskopUI — the design system
+## 2. PeryskopUI - the design system
 
 Built on Tamagui (`createTamagui` in `src/config/tamagui.config.ts`), published with
 `dist/` (cjs+esm) + `types/` + `src/` (source ships too, minus stories/tests). The Tamagui
@@ -47,7 +47,7 @@ Vite plugin consumes the **source** config, so a consuming web app must point at
   `$colorMuted`, `$colorInverse`, `$borderColor`, `$primary` / `$primaryHover` / `$primarySoft` /
   `$primaryText`, `$secondary*` (yellow), `$danger*` (coral/red), `$success*`, `$overlay`.
   Raw palette tokens also exist (`$primaryBase`, `$skyLighter`, `$secondaryLightest`, …) for
-  one-off backgrounds — prefer semantic tokens.
+  one-off backgrounds - prefer semantic tokens.
 - **Spec colour → token map** (for the homepage):
   - teal / turquoise brand primary → `$primary`
   - coral / red secondary accent → `$danger` (this is the DS's red `#ff5247`)
@@ -57,7 +57,7 @@ Vite plugin consumes the **source** config, so a consuming web app must point at
   - dark navy/charcoal text → `$color` (`inkDarkest`)
   - muted gray body text → `$colorMuted` (`inkLight`)
 - **Typography**: single family **Sarabun** (weights 400/500/700). The spec mentions a
-  "serif-ish display face" — the DS has **no serif**; headings use Sarabun Bold. Use the
+  "serif-ish display face" - the DS has **no serif**; headings use Sarabun Bold. Use the
   `Typography` component variants: `title1` (48/56 → `<h1>`), `title2` (32/36 → `<h2>`),
   `title3` (24/32 → `<h3>`), `largeRegular/Bold` (18), `regular*` (16, body), `small*` (14),
   `tiny*` (12). `muted` and `align` props available.
@@ -65,24 +65,24 @@ Vite plugin consumes the **source** config, so a consuming web app must point at
 
 ### Component notes relevant to the homepage
 
-- **Button** — `variant`: `primary` (teal) | `secondary` (yellow) | `danger` (coral/red) |
+- **Button** - `variant`: `primary` (teal) | `secondary` (yellow) | `danger` (coral/red) |
   `mutedPrimary`; `outlined`; `fullWidth`; `disabled`; `onPress`. Pill look = pass
   `borderRadius="$full"`. Coral CTA = `variant="danger"`; teal CTA = `variant="primary"`.
   Renders `<button>`; a11y label required for icon-only.
-- **Card** — compound (`Card.Header/Body/Footer`); `variant` (`elevated` default);
+- **Card** - compound (`Card.Header/Body/Footer`); `variant` (`elevated` default);
   `clickable`/`onPress` (adds `role="button"`, focus ring); `render` prop for polymorphism
   (`render="article"` or `render={<a href/>}`). Article grid (§4.7) uses this as-is.
-- **Article** — compound `<article>`: `Article.Banner` (fixed 320:157 aspect ratio, `<img>`
+- **Article** - compound `<article>`: `Article.Banner` (fixed 320:157 aspect ratio, `<img>`
   inside) + `Article.Content` (vertical stack). Good primitive for the article cards.
-- **Typography** — see above; auto-picks semantic tag per variant.
-- **Link** — real `<a href>` on web; `external` opens new tab; `variant` inline/standalone.
-- **Layout landmarks** — `Section`, `Header`, `Footer`, `Nav`, `Main`, `Aside`, `List`,
+- **Typography** - see above; auto-picks semantic tag per variant.
+- **Link** - real `<a href>` on web; `external` opens new tab; `variant` inline/standalone.
+- **Layout landmarks** - `Section`, `Header`, `Footer`, `Nav`, `Main`, `Aside`, `List`,
   `OrderedList`, `ListItem` (semantic tags on web). Use for the page shell + topics list.
-- **Badge / Avatar / Person** — for the article card category label + author row.
+- **Badge / Avatar / Person** - for the article card category label + author row.
 - **Not in the DS** (build new per spec §7/§8): the **How-it-works carousel**, the decorative
   **topic "paint-stroke" icons**, the **circular arrow icon-button**, and the illustrations.
 
-## 3. MHC frontend — the consuming app
+## 3. MHC frontend - the consuming app
 
 - Entry: `src/main.tsx` → `App.tsx`. `App` wires `QueryClientProvider` → `UserProvider` →
   `BrowserRouter` → `Layout` → `Navbar` + `RootRouter`. PostHog + GA + a technical-break gate.
@@ -90,10 +90,10 @@ Vite plugin consumes the **source** config, so a consuming web app must point at
 - Homepage: `src/screens/HomepageScreen.tsx` renders 7 provisional Tailwind sections from
   `src/modules/shared/components/`: `Hero`, `HowItWorks`, `ChatMockup`, `ArticlesPreview`,
   `TrustMission`, `DonationsPreview`, `FinalCTA`.
-- The current `Hero` already hand-rolls an Embla carousel + chat mockups in Tailwind — it is
+- The current `Hero` already hand-rolls an Embla carousel + chat mockups in Tailwind - it is
   the "very provisional" design the redesign replaces.
 - Existing infra we can reuse without touching Tamagui:
-  - i18n via `react-i18next` (`src/locales`) — homepage copy currently under `homepage.*` keys.
+  - i18n via `react-i18next` (`src/locales`) - homepage copy currently under `homepage.*` keys.
   - Routing links via `react-router-dom` `<Link to>`.
   - Data: `@tanstack/react-query` query-option factories (e.g. articles, chats, forms).
   - Shared helpers: `resolveAssetUrl`, breakpoint hooks (`useIsMobile`, `useIsTablet`), theme.
@@ -111,17 +111,17 @@ circular arrow icon are still to be sourced/built.
 
 **Chosen approach:** add Tamagui alongside Tailwind, wrap the app in `PeryskopProvider`, and
 rebuild only the homepage with DS components. Tailwind stays for every other screen; screens
-migrate incrementally later. Tamagui and Tailwind coexist — Tamagui emits scoped atomic CSS via
+migrate incrementally later. Tamagui and Tailwind coexist - Tamagui emits scoped atomic CSS via
 its Vite plugin; Tailwind emits its own layer. No global reset from the DS overrides Tailwind.
 
 **Install (published package):**
-1. `.npmrc` — add `@fundacja-peryskop:registry=https://npm.pkg.github.com/`. The existing
+1. `.npmrc` - add `@fundacja-peryskop:registry=https://npm.pkg.github.com/`. The existing
    registry-wide `//npm.pkg.github.com/:_authToken=…` line already authenticates the whole
    GitHub Packages registry, so no second token is needed. `.npmrc` is gitignored (`*.npmrc`),
    so the token is never committed.
 2. App deps: `@fundacja-peryskop/ui` (library) + `tamagui` (peer) + `@tamagui/vite-plugin` (dev).
    `@tamagui/config` is pulled transitively by the library.
-3. `vite.config.ts` — add `tamaguiPlugin({ config: '…/ui/src/config/tamagui.config.ts',
+3. `vite.config.ts` - add `tamaguiPlugin({ config: '…/ui/src/config/tamagui.config.ts',
    components: ['tamagui', '@fundacja-peryskop/ui'] })` after `react()`.
 4. Wrap the tree with `<PeryskopProvider defaultTheme="light">` (in `App.tsx` or `main.tsx`).
 5. Load Sarabun in `index.html` via Google Fonts (`wght@400;500;700`).
@@ -135,7 +135,7 @@ Tamagui/RN-web fatal errors.
 **Two findings that shape the implementation:**
 - **Semantic HTML needs explicit `tag` props (no compiler in dev).** The plugin is wired without
   the optimizing compiler (`optimize` off), so a variant-level `tag` (e.g. `Typography` `title2` →
-  `h2`) is **not** applied at runtime — `<Typography variant="title2">` rendered a `<span>`. But an
+  `h2`) is **not** applied at runtime - `<Typography variant="title2">` rendered a `<span>`. But an
   explicit `tag` **prop** (`<Typography variant="title2" tag="h2">`) and the `Layout` landmark
   components (`<Section>` → `<section>`) **do** render real elements at runtime (verified). So for
   the spec's a11y/SEO requirement: always pass explicit `tag` on headings (`h1`/`h2`/`h3`) and use

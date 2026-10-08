@@ -13,7 +13,7 @@ interface Props {
 }
 
 /**
- * Minimal content card on the design system — a soft-rounded surface with an
+ * Minimal content card on the design system - a soft-rounded surface with an
  * optional accent subtitle, heading and lead, plus arbitrary content below.
  */
 const SimpleCard = ({ text, title, subtitle, children }: Props) => {

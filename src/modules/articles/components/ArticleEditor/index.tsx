@@ -175,7 +175,7 @@ const ArticleEditor = ({
         }
 
         // Saving as draft changes the lifecycle status of an already-submitted or
-        // published article — warn the author before it happens.
+        // published article - warn the author before it happens.
         if (currentStatus && currentStatus !== ArticleStatus.DRAFT) {
             setIsDraftWarningOpen(true);
             return;

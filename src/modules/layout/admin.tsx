@@ -378,7 +378,7 @@ export function DataTable<Row>({
                     ) : (
                         <XStack paddingVertical="$xxl" justifyContent="center">
                             <Typography variant="smallRegular" muted>
-                                {emptyText ?? "—"}
+                                {emptyText ?? "-"}
                             </Typography>
                         </XStack>
                     )}

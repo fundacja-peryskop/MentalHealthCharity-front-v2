@@ -97,13 +97,17 @@ const ProfileScreen = () => {
     const avatar = data ? resolveAssetUrl(data.avatar_url) : undefined;
 
     return (
-        <YStack width="100%">
-            {/* Subtle brand band */}
-            <Stack width="100%" height={200} backgroundColor="$primarySoft" />
+        <YStack width="100%" backgroundColor="$background">
+            {/* Soft brand cover */}
+            <Stack
+                width="100%"
+                height={220}
+                style={{ background: "linear-gradient(120deg, #c1ede9 0%, #83dbd3 100%)" }}
+            />
 
-            {/* Content pulled up over the band */}
+            {/* Content pulled up over the cover */}
             <Section alignItems="center" paddingBottom="$xxxl">
-                <PageContainer maxWidth={800} marginTop={-120} gap="$lg">
+                <PageContainer maxWidth={860} marginTop={-96} gap="$xl">
                     {username && role && (
                         <UserProfileHeading
                             onSubmit={({ avatar }) => updateAvatar({ id: Number(userId), avatar })}

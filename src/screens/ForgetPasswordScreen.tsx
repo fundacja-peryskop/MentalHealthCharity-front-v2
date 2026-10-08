@@ -49,11 +49,26 @@ const ForgetPasswordScreen = () => {
             >
                 <Form>
                     <YStack gap="$lg">
-                        <FormTextField name="email" label="Adres e-mail" type="email" autoFocus />
-                        <FormTextField name="token" label="Kod odzyskiwania" />
-                        <FormTextField name="new_password" label="Nowe hasło" type="password" />
+                        <FormTextField
+                            name="email"
+                            type="email"
+                            label={t("auth.fields.email")}
+                            placeholder={t("auth.fields.email_placeholder")}
+                            autoFocus
+                        />
+                        <FormTextField
+                            name="token"
+                            label={t("auth.fields.recovery_code")}
+                            placeholder={t("auth.fields.recovery_code_placeholder")}
+                        />
+                        <FormTextField
+                            name="new_password"
+                            type="password"
+                            label={t("auth.fields.new_password")}
+                            placeholder={t("auth.fields.password_placeholder")}
+                        />
                         <Button variant="primary" fullWidth>
-                            Zresetuj hasło
+                            {t("auth.actions.reset_password")}
                         </Button>
                     </YStack>
                 </Form>

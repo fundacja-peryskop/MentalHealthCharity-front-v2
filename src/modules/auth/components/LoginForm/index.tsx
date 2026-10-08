@@ -1,18 +1,20 @@
-import { Button, Checkbox, XStack, YStack } from "@fundacja-peryskop/ui";
+import { Button, XStack, YStack } from "@fundacja-peryskop/ui";
 import { Form, Formik } from "formik";
 import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
 import { AppLink } from "../../../layout/AppLink";
 import { FormTextField } from "../../../layout/form/FormTextField";
+import Loader from "../../../shared/components/Loader";
 import { LoginFormValues } from "../../types";
 
 interface Props {
     onSubmit: (values: LoginFormValues) => void;
-    disabled?: boolean;
+    /** Submission in progress - disables the form and shows a spinner. */
+    loading?: boolean;
     initial?: LoginFormValues;
 }
 
-const LoginForm = ({ onSubmit, initial, disabled }: Props) => {
+const LoginForm = ({ onSubmit, initial, loading = false }: Props) => {
     const { t } = useTranslation();
 
     const validationSchema = Yup.object({
@@ -26,18 +28,30 @@ const LoginForm = ({ onSubmit, initial, disabled }: Props) => {
         <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
             <Form>
                 <YStack gap="$lg">
-                    <FormTextField name="email" label="Email" type="email" autoFocus />
-                    <FormTextField name="password" label="Hasło" type="password" />
+                    <FormTextField
+                        name="email"
+                        type="email"
+                        label={t("auth.fields.email")}
+                        placeholder={t("auth.fields.email_placeholder")}
+                        autoFocus
+                    />
 
-                    <XStack alignItems="center" justifyContent="space-between" gap="$md" flexWrap="wrap">
-                        <Checkbox defaultChecked size="sm" label="Zapamiętaj mnie" />
-                        <AppLink href="/auth/forget-password" variant="smallSemibold" color="$primary">
-                            Przypomnij hasło
-                        </AppLink>
-                    </XStack>
+                    <YStack gap="$sm">
+                        <FormTextField
+                            name="password"
+                            type="password"
+                            label={t("auth.fields.password")}
+                            placeholder={t("auth.fields.password_placeholder")}
+                        />
+                        <XStack justifyContent="flex-end">
+                            <AppLink href="/auth/forget-password" variant="smallSemibold" color="$primary">
+                                {t("auth.login.forgot_password")}
+                            </AppLink>
+                        </XStack>
+                    </YStack>
 
-                    <Button variant="primary" fullWidth disabled={disabled}>
-                        Zaloguj
+                    <Button variant="primary" fullWidth disabled={loading}>
+                        {loading ? <Loader variant="small" size={20} /> : t("auth.actions.login")}
                     </Button>
                 </YStack>
             </Form>

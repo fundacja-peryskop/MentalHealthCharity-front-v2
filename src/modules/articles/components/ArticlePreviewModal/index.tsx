@@ -78,7 +78,7 @@ const ArticlePreviewModal = ({ open, onClose, values, author, categoryName }: Pr
             className="max-h-[95vh] w-full max-sm:max-w-[calc(100%-1rem)] sm:max-w-5xl"
             contentClassName="space-y-8"
         >
-            {/* Card preview — how the article appears on listings */}
+            {/* Card preview - how the article appears on listings */}
             <section className="space-y-3">
                 <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                     {t("articles.preview.card_heading")}
@@ -121,7 +121,7 @@ const ArticlePreviewModal = ({ open, onClose, values, author, categoryName }: Pr
 
             <Separator />
 
-            {/* Full article preview — mirrors the reader-facing ArticleView layout */}
+            {/* Full article preview - mirrors the reader-facing ArticleView layout */}
             <section className="space-y-3">
                 <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                     {t("articles.preview.article_heading")}

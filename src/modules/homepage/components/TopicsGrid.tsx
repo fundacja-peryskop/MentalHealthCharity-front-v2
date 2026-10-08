@@ -1,7 +1,8 @@
 import { List, ListItem, Section, Typography, XStack } from "@fundacja-peryskop/ui";
 import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
-import { topics, topicsHeading } from "../content";
+import { topics, topicsHeadingKey } from "../content";
 import { TopicIcon } from "../illustrations/TopicIcon";
 import { PageContainer } from "../../layout/PageContainer";
 import { useIconColor } from "../../layout/useIconColor";
@@ -10,19 +11,20 @@ const LIST_RESET: React.CSSProperties = { listStyle: "none", margin: 0, padding:
 const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "block", width: "100%" };
 
 /**
- * §4.5 — topics grid. A data-driven list of outlined pill rows, each with a
+ * §4.5 - topics grid. A data-driven list of outlined pill rows, each with a
  * decorative per-topic icon, a label, and a trailing arrow marking it as a
  * link. Renders as a semantic `<ul>`/`<li>`; the 3-column grid collapses to two
  * then one column on smaller viewports.
  */
 export function TopicsGrid() {
+    const { t } = useTranslation();
     const iconColor = useIconColor();
 
     return (
         <Section paddingVertical="$xxxl" alignItems="center">
             <PageContainer gap="$xl" alignItems="center">
                 <Typography variant="title2" tag="h2" align="center">
-                    {topicsHeading}
+                    {t(topicsHeadingKey)}
                 </Typography>
 
                 <List
@@ -54,7 +56,7 @@ export function TopicsGrid() {
                                 >
                                     <XStack alignItems="center" gap="$md" flex={1}>
                                         <TopicIcon id={topic.id} />
-                                        <Typography variant="regularSemibold">{topic.label}</Typography>
+                                        <Typography variant="regularSemibold">{t(topic.labelKey)}</Typography>
                                     </XStack>
                                     <ArrowRight size={18} color={iconColor.muted} />
                                 </XStack>

@@ -20,6 +20,7 @@
         "closed": "Closed",
         "cancel": "Cancel",
         "close": "Close",
+        "or": "or",
         "confirm": "Confirm",
         "copied_to_clipboard": "Copied to clipboard",
         "created_at": "Created {{date}}",
@@ -68,7 +69,7 @@
         "chat_now": "Chat now",
         "processing": {
             "title": "Your form is being processed!",
-            "description": "Our team is matching you with the right person. We'll let you know when your chat is ready — it won't take long!"
+            "description": "Our team is matching you with the right person. We'll let you know when your chat is ready - it won't take long!"
         },
         "trust_free": "Free",
         "trust_anonymous": "Anonymous",
@@ -93,14 +94,14 @@
             "mock_msg3": "I understand. Would you like to tell me about it? I'm here for you.",
             "mock_msg4": "Yes, I'd like to talk.",
             "conv2_name": "Volunteer Michał",
-            "conv2_msg1": "Welcome! This is a safe space — feel free to share whatever you need.",
+            "conv2_msg1": "Welcome! This is a safe space - feel free to share whatever you need.",
             "conv2_msg2": "I don't really know where to start…",
             "conv2_msg3": "That's completely fine. There's no rush. We can take it one step at a time.",
             "conv2_msg4": "Thank you, that helps.",
             "conv3_name": "Volunteer Kasia",
             "conv3_msg1": "Hi there! I'm glad you reached out.",
             "conv3_msg2": "I've been feeling overwhelmed with everything lately.",
-            "conv3_msg3": "That sounds really tough. You're not alone in this — let's talk through it together.",
+            "conv3_msg3": "That sounds really tough. You're not alone in this - let's talk through it together.",
             "conv3_msg4": "I'd really appreciate that."
         },
         "articles_preview": {
@@ -120,9 +121,58 @@
         },
         "final_cta": {
             "title": "You don't have to face it alone",
-            "subtitle": "Take the first step — fill out the form and receive free support from trained volunteers.",
+            "subtitle": "Take the first step - fill out the form and receive free support from trained volunteers.",
             "cta_mentee": "I need support",
             "cta_volunteer": "I want to help"
+        },
+        "hero": {
+            "title": "Whatever's on your mind, we're here to listen",
+            "title_lead": "Whatever's on your mind, we're here to",
+            "title_words": ["listen", "talk", "understand", "support you", "be here"],
+            "subtitle": "Free, fully anonymous psychological support over chat. You talk to a human - not a bot"
+        },
+        "pitch": {
+            "help": {
+                "title": "I need help",
+                "subtitle": "Sign up to exchange messages with a volunteer",
+                "cta": "Join for free"
+            },
+            "volunteer": {
+                "title": "I want to help",
+                "subtitle": "Become a volunteer",
+                "cta": "Join for free"
+            }
+        },
+        "topics": {
+            "heading": "What would you like to talk about?",
+            "relationship": "Relationship problems",
+            "negative_thoughts": "Negative thoughts",
+            "low_mood": "Low mood",
+            "depression": "Depression",
+            "addiction": "Alcohol addiction",
+            "other": "Other / not sure"
+        },
+        "steps": {
+            "heading": "How it works",
+            "step1": {
+                "title": "Submit the form",
+                "subtitle": "Sign up to exchange messages with a volunteer"
+            },
+            "step2": {
+                "title": "We find a volunteer for you",
+                "subtitle": "Wait while we find an available person to talk with you"
+            },
+            "step3": {
+                "title": "Open the \"Conversations\" tab",
+                "subtitle": "To start exchanging messages with your assigned volunteer"
+            },
+            "step4": {
+                "title": "Come back to us regularly",
+                "subtitle": "You can continue the conversation whenever you like!"
+            }
+        },
+        "articles_section": {
+            "heading": "Articles"
         }
     },
     "admin": {
@@ -249,7 +299,7 @@
         }
     },
     "crisis": {
-        "banner_text": "In crisis? Call — help is free, anonymous, and available 24/7.",
+        "banner_text": "In crisis? Call - help is free, anonymous, and available 24/7.",
         "emergency": "emergency",
         "helpline": "helpline",
         "quick_exit": "Quick Exit",
@@ -262,12 +312,24 @@
         "nav": "Donations",
         "hero_title": "Support the Peryskop Foundation",
         "hero_subtitle": "Together we can make mental health support accessible to everyone.",
+        "read_more": "Read more",
+        "read_less": "Show less",
+        "trust": {
+            "anonymous": "100% anonymous",
+            "free": "Always free",
+            "supervised": "Professionally supervised"
+        },
+        "stats": {
+            "supporters_label": "people have supported us",
+            "anonymous_label": "anonymous conversations",
+            "cost_label": "for those who use it"
+        },
         "what_is": {
             "title": "What is the Peryskop Foundation?",
             "p1": "The idea for this project was born out of a personal crisis and the need for support during a difficult time. From experience, we know how important the presence of other people can be in such moments.",
             "p2": "We are also aware of the potential hidden in difficult moments of life. Although it may not be visible at first, these moments can become a turning point toward positive change.",
             "p3": "The Peryskop Foundation is created for people who, despite the rapid growth of social media and the increasing presence of psychology in public discussions, still feel alone when facing a mental health crisis.",
-            "p4": "We want to create a space without taboos — a place where people can meet on the deepest human level.",
+            "p4": "We want to create a space without taboos - a place where people can meet on the deepest human level.",
             "p5": "We believe we have the right conditions to support the mental well-being of people like us, because in reality we all share similar concerns and challenges that define our humanity.",
             "p6": "Psychology is close to our hearts.",
             "p7": "Join us if you need help or if you want to help others. The role you take here does not have to remain the same forever. Each of us constantly changes, and a crisis often turns out to be only a temporary state.",
@@ -277,7 +339,7 @@
         "goals": {
             "title": "Our Goals",
             "goal1_title": "Accessible Support",
-            "goal1_desc": "Provide free, anonymous psychological support to anyone who needs it — regardless of location or financial situation.",
+            "goal1_desc": "Provide free, anonymous psychological support to anyone who needs it - regardless of location or financial situation.",
             "goal2_title": "Trained Volunteers",
             "goal2_desc": "Build a community of well-trained volunteers who offer empathetic, supervised support in one-on-one conversations.",
             "goal3_title": "Break the Stigma",
@@ -291,13 +353,18 @@
             "p2": "Although we live in different parts of Poland, we work together toward a shared goal and believe that effective support can also happen online. For some people, this may be the only accessible form of help.",
             "p3": "We created a safe platform in the form of a chat system designed to connect people experiencing a crisis with volunteers offering support.",
             "p4": "This support takes the form of one-on-one conversations held regularly over time.",
-            "p5": "If, like us, you believe that modern technology can also have a positive impact on mental health — welcome aboard."
+            "p5": "If, like us, you believe that modern technology can also have a positive impact on mental health - welcome aboard."
         },
         "donate": {
             "title": "Donations",
             "subtitle": "Our services are completely free of charge, but without the help of donors we cannot achieve our mission.",
             "supporters": "{{count}}+ people have already supported this project",
             "cta": "Donate now",
+            "cta_amount": "Donate {{amount}} zł",
+            "choose_amount": "Choose an amount",
+            "custom_amount": "Other",
+            "method_online": "Pomagam.pl",
+            "method_transfer": "Bank transfer",
             "bank_title": "Bank transfer",
             "bank_number": "62 1870 1045 2083 1080 5210 0001",
             "copy_account": "Copy account number",
@@ -309,18 +376,50 @@
             "read_more": "Read more"
         }
     },
+    "articles": {
+        "featured": "Latest",
+        "all_categories": "All",
+        "filter_label": "Filter by category"
+    },
     "auth": {
         "login": {
             "title": "Welcome back!",
-            "subtitle": "Sign in using the form below — we're glad you're back!",
+            "subtitle": "Sign in using the form below - we're glad you're back!",
             "no_account": "Don't have an account?",
-            "register_link": "Sign up"
+            "register_link": "Sign up",
+            "forgot_password": "Forgot your password?"
         },
         "register": {
             "title": "Create a new account!",
-            "subtitle": "Register using the form below — we're glad you're joining us!",
+            "subtitle": "Register using the form below - we're glad you're joining us!",
             "has_account": "Already have an account?",
-            "login_link": "Sign in"
+            "login_link": "Sign in",
+            "policy_prefix": "By signing up, I accept the",
+            "policy_link": "terms of use and privacy policy",
+            "submit_error": "We couldn't create your account. Please try again."
+        },
+        "fields": {
+            "email": "Email",
+            "email_placeholder": "Enter your email address",
+            "password": "Password",
+            "password_placeholder": "Enter your password",
+            "full_name": "Name or nickname",
+            "full_name_placeholder": "What should we call you?",
+            "confirm_password": "Confirm password",
+            "confirm_password_placeholder": "Re-enter your password",
+            "recovery_code": "Recovery code",
+            "recovery_code_placeholder": "Enter your account recovery code",
+            "new_password": "New password"
+        },
+        "actions": {
+            "login": "Sign in",
+            "register": "Create account",
+            "reset_password": "Reset password"
+        },
+        "cover": {
+            "headline": "We're here to listen",
+            "subline": "Safe, anonymous psychological support - always close by.",
+            "credit": "Photo by"
         },
         "register_chat_support": {
             "title": "Create an account to start the chat",
@@ -425,7 +524,7 @@
             "4": "Foundation support is available only to adults (over 18 years of age).",
             "5": "The “Agreement” concerns the frequency and rules of contact between the volunteer and the person in crisis.",
             "6": "The volunteer does not receive any remuneration in any form and does not expect any compensation.",
-            "7": "The volunteer is obliged to maintain confidentiality and secrecy. The exception is situations where there is a threat to the life of the beneficiary — then the volunteer undertakes to report it to the Volunteer Coordinator and the appropriate services.",
+            "7": "The volunteer is obliged to maintain confidentiality and secrecy. The exception is situations where there is a threat to the life of the beneficiary - then the volunteer undertakes to report it to the Volunteer Coordinator and the appropriate services.",
             "8": "The volunteer undertakes to treat the supported person as a subject and not to cross their boundaries.",
             "9": "Arranging contact outside the Peryskop Foundation chat is prohibited.",
             "10": "A person in crisis has the right to receive support no less than once a week, for at least one hour per week.",
@@ -524,7 +623,7 @@
                 "Describe your situation as clearly as you can so we can match you with the right volunteer.",
                 "Tell us whether you prefer regular scheduled chat sessions or a looser exchange of messages.",
                 "How did you hear about our foundation?",
-                "That's everything. We will email you when we find a volunteer for you. Keep checking the website for the “CHAT” tab, remember to check your spam folder as well, and if you have any problems with the chat write to kontakt@fundacjaperyskop.org. Whether you chose scheduled sessions or a looser exchange of messages, please do not expect an immediate reply right after assignment — it may take a few days. Thank you for your trust."
+                "That's everything. We will email you when we find a volunteer for you. Keep checking the website for the “CHAT” tab, remember to check your spam folder as well, and if you have any problems with the chat write to kontakt@fundacjaperyskop.org. Whether you chose scheduled sessions or a looser exchange of messages, please do not expect an immediate reply right after assignment - it may take a few days. Thank you for your trust."
             ],
             "title": [
                 "Receive free support",
@@ -540,7 +639,7 @@
                 "Describe your situation as clearly as you can so we can match you with the right volunteer.",
                 "Tell us whether you prefer regular scheduled chat sessions or a looser exchange of messages.",
                 "You need to create an account to use the chat. Support is anonymous and free.",
-                "That's everything. We will email you when we find a volunteer for you. Keep checking the website for the “CHAT” tab, remember to check your spam folder as well, and if you have any problems with the chat write to kontakt@fundacjaperyskop.org. Whether you chose scheduled sessions or a looser exchange of messages, please do not expect an immediate reply right after assignment — it may take a few days. Thank you for your trust."
+                "That's everything. We will email you when we find a volunteer for you. Keep checking the website for the “CHAT” tab, remember to check your spam folder as well, and if you have any problems with the chat write to kontakt@fundacjaperyskop.org. Whether you chose scheduled sessions or a looser exchange of messages, please do not expect an immediate reply right after assignment - it may take a few days. Thank you for your trust."
             ],
             "success": {
                 "lead": "That's everything. We will email you as soon as we find a volunteer for you.",

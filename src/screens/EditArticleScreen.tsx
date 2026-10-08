@@ -33,7 +33,7 @@ const EditArticleScreen = () => {
     );
 
     // In edit mode the banner is managed separately (the /banner endpoint on
-    // image change), so the update payload must never carry a banner_url — sending
+    // image change), so the update payload must never carry a banner_url - sending
     // it back would let the resolved absolute URL be persisted and then doubled.
     const buildUpdatePayload = (values: CreateArticleValues, status: ArticleStatus): UpdateArticlePayload => ({
         banner_base64: "",
@@ -56,7 +56,7 @@ const EditArticleScreen = () => {
     };
 
     const handleCreateDraft = async (values: CreateArticleValues) => {
-        // Save in place — no redirect — so the author can keep working.
+        // Save in place - no redirect - so the author can keep working.
         editArticle(buildUpdatePayload(values, ArticleStatus.DRAFT), {
             onSuccess: () => {
                 toast.success(t("articles.draft_saved"));

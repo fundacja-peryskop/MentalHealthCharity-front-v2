@@ -1,102 +1,96 @@
-import { Stack, Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
-import { Heart } from "lucide-react";
+import logo from "@/assets/static/logo_small.webp";
+import { Typography, XStack, YStack } from "@fundacja-peryskop/ui";
+import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { Link as RouterLink } from "react-router-dom";
+import { AuthCover } from "./auth/AuthCover";
 import { brand } from "./content";
 
 interface Props {
-    title: string;
+    /** Heading shown at the top-left of the form column. Omit for a lead-with-content screen. */
+    title?: string;
     subtitle?: string;
     /** Optional callout rendered under the subtitle (e.g. an intent notice). */
     notice?: ReactNode;
     /** The form. */
     children: ReactNode;
-    /** Secondary action line under the card (e.g. "no account? register"). */
+    /** Secondary action area under the form (e.g. "no account? create one"). */
     footer?: ReactNode;
 }
 
+const BRAND_LINK_RESET: React.CSSProperties = {
+    textDecoration: "none",
+    display: "inline-flex",
+    alignSelf: "flex-start",
+};
+
 /**
- * Branded split layout shared by the auth screens: a brand panel on the left
- * (hidden on mobile) and a centered form card on the right.
+ * Split-screen layout shared by every auth screen: a left column with the brand
+ * mark, heading and form, and a full-height cover image on the right (desktop
+ * only). Full-bleed - the app chrome is hidden on auth routes - so it reads as a
+ * focused, standalone entry point. The form column fades/slides in on mount
+ * (disabled under `prefers-reduced-motion`). Layout only: all copy comes in via
+ * props, so the shell stays reusable across login, register and password flows.
  */
 export function AuthShell({ title, subtitle, notice, children, footer }: Props) {
     const { t } = useTranslation();
+    const reduce = useReducedMotion();
 
     return (
-        <XStack width="100%" minHeight="100vh" backgroundColor="$background">
-            {/* Brand panel */}
-            <YStack
-                display="none"
-                $md={{ display: "flex", width: "50%" }}
-                backgroundColor="$primary"
-                alignItems="center"
-                justifyContent="center"
-                padding="$xxxl"
-            >
-                <YStack maxWidth={400} alignItems="center" gap="$lg">
-                    <Stack
-                        width={64}
-                        height={64}
-                        borderRadius="$lg"
-                        alignItems="center"
-                        justifyContent="center"
-                        backgroundColor="rgba(255,255,255,0.15)"
-                    >
-                        <Heart size={32} color="white" />
-                    </Stack>
-                    <Typography variant="title2" tag="span" color="$primaryText">
-                        {brand.shortName}
-                    </Typography>
-                    <Typography variant="largeRegular" align="center" color="rgba(255,255,255,0.85)">
-                        {t("homepage.title")}
-                    </Typography>
-                    <YStack maxWidth={320} padding="$lg" borderRadius="$md" backgroundColor="rgba(255,255,255,0.1)">
-                        <Typography
-                            variant="smallRegular"
-                            color="rgba(255,255,255,0.9)"
-                            style={{ fontStyle: "italic" }}
-                        >
-                            &quot;{t("homepage.trust_mission.description")}&quot;
-                        </Typography>
-                    </YStack>
-                </YStack>
-            </YStack>
-
-            {/* Form panel */}
+        <XStack width="100%" backgroundColor="$background" style={{ minHeight: "100dvh" }}>
+            {/* Form column */}
             <YStack
                 flex={1}
                 alignItems="center"
                 justifyContent="center"
-                paddingHorizontal="$lg"
+                paddingHorizontal="$xl"
                 paddingVertical="$xxxl"
-                gap="$lg"
+                $md={{ paddingHorizontal: "$xxxl" }}
             >
-                <YStack
-                    width="100%"
-                    maxWidth={440}
-                    padding="$xl"
-                    borderRadius="$lg"
-                    borderWidth={1}
-                    borderColor="$borderColor"
-                    backgroundColor="$background"
-                    gap="$lg"
-                    {...shadows.medium}
+                <motion.div
+                    initial={reduce ? false : { opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ width: "100%", maxWidth: 420 }}
                 >
-                    <YStack gap="$xs" alignItems="center">
-                        <Typography variant="title3" tag="h1" align="center">
-                            {title}
-                        </Typography>
-                        {subtitle ? (
-                            <Typography variant="regularRegular" muted align="center">
-                                {subtitle}
-                            </Typography>
+                    <YStack gap="$xl" width="100%">
+                        <RouterLink to="/" aria-label={brand.name} style={BRAND_LINK_RESET}>
+                            <XStack alignItems="center" gap="$sm">
+                                <img src={logo} alt="" width={32} height={32} style={{ display: "block" }} />
+                                <Typography variant="largeBold" tag="span">
+                                    {brand.shortName}
+                                </Typography>
+                            </XStack>
+                        </RouterLink>
+
+                        {title || subtitle || notice ? (
+                            <YStack gap="$sm">
+                                {title ? (
+                                    <Typography
+                                        variant="title1"
+                                        tag="h1"
+                                        style={{ fontSize: "clamp(30px, 3.6vw, 40px)", lineHeight: "1.12" }}
+                                    >
+                                        {title}
+                                    </Typography>
+                                ) : null}
+                                {subtitle ? (
+                                    <Typography variant="regularRegular" muted>
+                                        {subtitle}
+                                    </Typography>
+                                ) : null}
+                                {notice}
+                            </YStack>
                         ) : null}
-                        {notice}
+
+                        {children}
+                        {footer}
                     </YStack>
-                    {children}
-                </YStack>
-                {footer}
+                </motion.div>
             </YStack>
+
+            <AuthCover headline={t("auth.cover.headline")} subline={t("auth.cover.subline")} />
         </XStack>
     );
 }

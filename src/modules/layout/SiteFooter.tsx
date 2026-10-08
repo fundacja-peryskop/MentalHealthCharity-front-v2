@@ -9,7 +9,7 @@ const SOCIAL_ANCHOR: React.CSSProperties = { textDecoration: "none", display: "i
 const SOCIAL_ICONS = { Facebook, LinkedIn: Linkedin } as const;
 
 /**
- * §4.8 — footer. Full-bleed dark strip with a brand/mission column, link
+ * §4.8 - footer. Full-bleed dark strip with a brand/mission column, link
  * columns, social icons and a copyright line. Content mirrors the app's
  * existing footer. Collapses columns on narrow viewports.
  */

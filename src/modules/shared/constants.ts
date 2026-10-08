@@ -92,3 +92,14 @@ export const validation = {
     email: Yup.string().email(i18n.t("validation.invalid_email")).required(i18n.t("validation.required")),
     token: Yup.string().required(i18n.t("validation.required")),
 };
+
+/**
+ * Permissive international phone number: an optional leading `+` country code
+ * (e.g. `+48`), then 7–19 more characters of digits, spaces, hyphens, dots or
+ * parentheses. Intentionally lenient - it accepts the common ways people write
+ * a number rather than enforcing a single strict format.
+ */
+export const phoneRegex = /^\+?[0-9][0-9\s().-]{6,19}$/;
+
+/** Strip characters that can't appear in a phone number (keeps digits and `+ () - . space`). */
+export const sanitizePhone = (value: string) => value.replace(/[^\d+\s().-]/g, "");

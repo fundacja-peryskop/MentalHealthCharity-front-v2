@@ -1,83 +1,86 @@
-import { Section, Stack, Typography, YStack, shadows } from "@fundacja-peryskop/ui";
+import { Section, Stack, Typography, YStack } from "@fundacja-peryskop/ui";
 import { useTranslation } from "react-i18next";
 import { useUser } from "../modules/auth/components/AuthProvider";
 import { buildChatSupportRegisterUrl } from "../modules/auth/helpers/authRedirect";
 import { CtaButton } from "../modules/layout/CtaButton";
 import { PageContainer } from "../modules/layout/PageContainer";
-import ScrollIndicator from "../modules/shared/components/ScrollIndicator";
 
 const TX = "mentee_form_getting_started_screen";
 
+/** Comfortable reading line-height for the longer body copy. */
+const BODY_LINE_HEIGHT = "1.75";
+
+/**
+ * Pre-form briefing for people seeking support. A calm, generous document - no
+ * card, no tinted banner - with a large title, an emphasised lead line, airy
+ * body copy and a single "Kontynuuj" action that starts the intake form
+ * (sending unauthenticated visitors through sign-up).
+ */
 const MenteeFormGettingStartedScreen = () => {
     const { t } = useTranslation();
     const { user } = useUser();
     const chatSupportHref = user ? "/form/mentee" : buildChatSupportRegisterUrl("/form/mentee");
 
-    const Paragraph = ({ tx, bold }: { tx: string; bold?: boolean }) => (
-        <Typography variant={bold ? "regularBold" : "regularRegular"} width="100%">
+    const Body = ({ tx }: { tx: string }) => (
+        <Typography variant="largeRegular" tag="p" width="100%" style={{ lineHeight: BODY_LINE_HEIGHT }}>
             {t(`${TX}.${tx}`)}
         </Typography>
     );
 
     return (
-        <YStack>
-            {/* Header */}
-            <Section backgroundColor="$primary" paddingTop={112} paddingBottom={96} alignItems="center">
-                <PageContainer maxWidth={768} gap="$md">
-                    <Typography variant="title2" tag="h1" color="$primaryText" width="100%">
+        <Section paddingTop="$xxxl" paddingBottom="$xxxl" alignItems="center">
+            <PageContainer maxWidth={860} gap="$xxl">
+                {/* Heading */}
+                <YStack gap="$md">
+                    <Typography
+                        variant="title1"
+                        tag="h1"
+                        width="100%"
+                        style={{ fontSize: "clamp(36px, 5vw, 52px)", lineHeight: "1.1" }}
+                    >
                         {t(`${TX}.header.title`)}
                     </Typography>
-                    <Typography variant="largeRegular" color="rgba(255,255,255,0.9)" maxWidth={520} width="100%">
+                    <Typography variant="largeRegular" muted maxWidth={640} width="100%" style={{ lineHeight: "1.6" }}>
                         {t(`${TX}.header.subtitle`)}
                     </Typography>
-                </PageContainer>
-            </Section>
+                </YStack>
 
-            {/* Content */}
-            <Section paddingBottom="$xxxl" alignItems="center">
-                <PageContainer maxWidth={768} gap="$lg">
-                    <YStack
-                        marginTop={-48}
-                        width="100%"
-                        gap="$lg"
-                        padding="$xl"
-                        borderRadius="$lg"
-                        borderWidth={1}
-                        borderColor="$borderColor"
-                        backgroundColor="$background"
-                        {...shadows.small}
-                    >
-                        <Paragraph tx="content.p1" bold />
-                        <Paragraph tx="content.p2" />
-                        <Paragraph tx="content.p3" />
+                {/* Lead line */}
+                <Typography variant="title3" tag="p" width="100%" style={{ lineHeight: "1.35" }}>
+                    {t(`${TX}.content.p1`)}
+                </Typography>
 
-                        <YStack gap="$sm" width="100%">
-                            <Typography variant="regularBold" width="100%">
-                                {t(`${TX}.content.chat_section.title`)}
-                            </Typography>
-                            <Paragraph tx="content.chat_section.p4" />
-                            <Paragraph tx="content.chat_section.p5" />
-                            <Paragraph tx="content.chat_section.p6" />
-                        </YStack>
+                {/* Body */}
+                <YStack gap="$xl" width="100%">
+                    <Body tx="content.p2" />
+                    <Body tx="content.p3" />
 
-                        <Paragraph tx="content.p7" />
-                        <Paragraph tx="content.p8" />
-
-                        <Stack borderTopWidth={1} borderColor="$borderColor" paddingTop="$lg" alignItems="center">
-                            <CtaButton href={chatSupportHref} variant="primary" fullWidth>
-                                {t("homepage.chat_now")}
-                            </CtaButton>
-                        </Stack>
+                    <YStack gap="$md" width="100%" paddingLeft="$lg" borderLeftWidth={3} borderColor="$primaryBorder">
+                        <Typography variant="title3" tag="h2" width="100%">
+                            {t(`${TX}.content.chat_section.title`)}
+                        </Typography>
+                        <Body tx="content.chat_section.p4" />
+                        <Body tx="content.chat_section.p5" />
+                        <Body tx="content.chat_section.p6" />
                     </YStack>
 
-                    <Typography variant="smallRegular" muted align="center" width="100%">
+                    <Body tx="content.p7" />
+                    <Body tx="content.p8" />
+                </YStack>
+
+                {/* Closing + CTA */}
+                <YStack gap="$xl" width="100%">
+                    <Typography variant="title3" tag="p" color="$primary" width="100%">
                         {t(`${TX}.content.footer`)}
                     </Typography>
-
-                    <ScrollIndicator />
-                </PageContainer>
-            </Section>
-        </YStack>
+                    <Stack alignSelf="flex-start">
+                        <CtaButton href={chatSupportHref} variant="primary">
+                            {t(`${TX}.continue`, { defaultValue: "Kontynuuj" })}
+                        </CtaButton>
+                    </Stack>
+                </YStack>
+            </PageContainer>
+        </Section>
     );
 };
 
