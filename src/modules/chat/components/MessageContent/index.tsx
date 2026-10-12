@@ -52,7 +52,7 @@ const MessageContent = ({ content, isOwnMessage = false }: Props) => {
     };
 
     return (
-        <p className="text-start text-[15px] leading-relaxed [overflow-wrap:anywhere] break-words">
+        <p className="text-start text-[16px] leading-relaxed [overflow-wrap:anywhere] break-words">
             <Linkify
                 as="span"
                 options={{

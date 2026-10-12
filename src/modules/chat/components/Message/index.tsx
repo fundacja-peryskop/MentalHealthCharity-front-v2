@@ -1,9 +1,7 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, Stack, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import resolveAssetUrl from "@/modules/shared/helpers/resolveAssetUrl";
-import { cn } from "@/lib/utils";
 import { t } from "i18next";
-import { AlertCircle, Archive, RotateCcw, Trash2, User as UserIcon } from "lucide-react";
+import { AlertCircle, Archive, Check, Clock, RotateCcw, Trash2 } from "lucide-react";
 import { useUser } from "../../../auth/components/AuthProvider";
 import ActionMenu from "../../../shared/components/ActionMenu";
 import { Permissions } from "../../../shared/constants";
@@ -20,101 +18,114 @@ interface Props {
     isNew?: boolean;
 }
 
+/** Bubble corner radii - one tight corner gives the "tail" toward the sender. */
+const OWN_RADIUS = { borderRadius: 18, borderBottomRightRadius: 6 } as const;
+const OTHER_RADIUS = { borderRadius: 18, borderBottomLeftRadius: 6 } as const;
+
 const ChatMessage = ({ message, onDeleteMessage, onRetryMessage, showArchiveChip = false, isNew = false }: Props) => {
     const { user } = useUser();
     const senderIsCurrentUser = user && user.id === message.sender.id;
     const { hasPermissions } = usePermissions();
     const canDeleteMessage = senderIsCurrentUser || hasPermissions(Permissions.DELETE_OTHERS_CHAT_MESSAGES);
 
+    const metaColor = senderIsCurrentUser ? "rgba(255,255,255,0.75)" : "#6c7072";
+    const animationClass = isNew ? (senderIsCurrentUser ? "chat-msg-in-right" : "chat-msg-in-left") : "";
+
     return (
-        <div
-            className={cn(
-                "group flex w-full items-end gap-2.5",
-                senderIsCurrentUser ? "flex-row-reverse" : "flex-row",
-                isNew && (senderIsCurrentUser ? "animate-msg-in-right" : "animate-msg-in-left")
-            )}
+        <XStack
+            width="100%"
+            gap="$sm"
+            alignItems="flex-end"
+            className={`chat-msg-row ${animationClass}`.trim()}
+            style={{ flexDirection: senderIsCurrentUser ? "row-reverse" : "row" }}
         >
             {!senderIsCurrentUser && (
-                <Avatar className="ring-background size-8 shrink-0 rounded-full ring-2 md:size-10">
-                    <AvatarImage src={resolveAssetUrl(message.sender.chat_avatar_url)} alt={message.sender.full_name} />
-                    <AvatarFallback className="rounded-full text-sm">
-                        <UserIcon className="size-4" />
-                    </AvatarFallback>
-                </Avatar>
+                <Avatar
+                    size={36}
+                    src={resolveAssetUrl(message.sender.chat_avatar_url)}
+                    name={message.sender.full_name}
+                    ring
+                />
             )}
-            <div className={cn("flex max-w-[65%] flex-col gap-0.5", senderIsCurrentUser ? "items-end" : "items-start")}>
-                {/* Sender name above bubble */}
+
+            <YStack maxWidth="72%" gap={2} alignItems={senderIsCurrentUser ? "flex-end" : "flex-start"} minWidth={0}>
                 {!senderIsCurrentUser && (
-                    <span className="text-muted-foreground px-1 text-[11px] font-semibold">
+                    <Typography variant="tinySemibold" color="$colorMuted" paddingHorizontal="$xs">
                         {message.sender.full_name}
-                    </span>
+                    </Typography>
                 )}
 
-                {/* Message bubble */}
-                <div
-                    className={cn(
-                        "max-w-full overflow-hidden rounded-2xl px-4 py-2.5 shadow-xs",
-                        senderIsCurrentUser
-                            ? "bg-primary-brand rounded-br-md text-white"
-                            : "border-border/30 bg-card text-foreground rounded-bl-md border",
-                        message.isPending && "opacity-50",
-                        message.isFailed && "border-destructive/50 opacity-70"
-                    )}
+                <YStack
+                    paddingHorizontal="$lg"
+                    paddingVertical="$sm"
+                    maxWidth="100%"
+                    backgroundColor={senderIsCurrentUser ? "$primary" : "$backgroundStrong"}
+                    style={{
+                        ...(senderIsCurrentUser ? OWN_RADIUS : OTHER_RADIUS),
+                        color: senderIsCurrentUser ? "#ffffff" : "#090a0a",
+                        opacity: message.isPending ? 0.65 : 1,
+                        ...(message.isFailed ? { boxShadow: "inset 0 0 0 1px #ff5247" } : null),
+                    }}
                 >
                     <MessageContent content={message.content} isOwnMessage={!!senderIsCurrentUser} />
-                    <div
-                        className={cn(
-                            "mt-1 flex items-center gap-1.5 text-[11px]",
-                            senderIsCurrentUser ? "justify-end text-white/60" : "text-muted-foreground justify-end"
-                        )}
-                    >
-                        <span>{formatDate(message.creation_date)}</span>
+
+                    <XStack alignItems="center" justifyContent="flex-end" gap="$xs" marginTop={4}>
                         {showArchiveChip && (
-                            <Badge
-                                variant="outline"
-                                className={cn(
-                                    "ml-1 h-[18px] gap-1 text-[9px]",
-                                    senderIsCurrentUser
-                                        ? "border-white/40 text-white/60"
-                                        : "border-warning-brand text-warning-brand"
-                                )}
-                            >
-                                <Archive className="size-2.5" />
-                                {t("chat.archive")}
-                            </Badge>
+                            <XStack alignItems="center" gap={3} style={{ opacity: 0.85 }}>
+                                <Archive size={11} color={metaColor} aria-hidden />
+                                <Typography variant="tinyRegular" style={{ color: metaColor }}>
+                                    {t("chat.archive")}
+                                </Typography>
+                            </XStack>
                         )}
-                    </div>
-                    {message.isPending && (
-                        <p
-                            className={cn(
-                                "mt-0.5 text-start text-[11px]",
-                                senderIsCurrentUser ? "text-white/50" : "text-info-brand"
-                            )}
-                        >
-                            {t("chat.sending", { defaultValue: "Wysyłanie..." })}
-                        </p>
-                    )}
+
+                        <Typography variant="tinyRegular" style={{ color: metaColor }}>
+                            {formatDate(message.creation_date, "HH:mm")}
+                        </Typography>
+
+                        {/* Outgoing delivery status - only states the system actually supports. */}
+                        {senderIsCurrentUser && message.isPending && (
+                            <Clock size={12} color={metaColor} aria-hidden aria-label={t("chat.sending")} />
+                        )}
+                        {senderIsCurrentUser && !message.isPending && !message.isFailed && (
+                            <Check size={13} color={metaColor} aria-hidden aria-label={t("chat.sent")} />
+                        )}
+                    </XStack>
+
                     {message.isFailed && (
-                        <div className="mt-1 flex items-center gap-1.5">
-                            <AlertCircle className="size-3 text-red-300" />
-                            <span className="text-[11px] text-red-300">
-                                {t("chat.send_failed", { defaultValue: "Failed to send" })}
-                            </span>
+                        <XStack alignItems="center" gap="$xs" marginTop={4}>
+                            <AlertCircle size={13} style={{ color: "#ffe5e5" }} aria-hidden />
+                            <Typography variant="tinyRegular" style={{ color: "#ffe5e5" }}>
+                                {t("chat.send_failed")}
+                            </Typography>
                             {onRetryMessage && (
                                 <button
+                                    type="button"
                                     onClick={() => onRetryMessage(message.id)}
-                                    className="ml-1 inline-flex cursor-pointer items-center gap-0.5 text-[11px] text-white/80 underline underline-offset-2 hover:text-white"
+                                    style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: 3,
+                                        cursor: "pointer",
+                                        background: "none",
+                                        border: 0,
+                                        color: "#ffffff",
+                                        textDecoration: "underline",
+                                        textUnderlineOffset: 2,
+                                        fontSize: 12,
+                                    }}
                                 >
-                                    <RotateCcw className="size-2.5" />
-                                    {t("chat.retry", { defaultValue: "Retry" })}
+                                    <RotateCcw size={11} aria-hidden />
+                                    {t("chat.retry")}
                                 </button>
                             )}
-                        </div>
+                        </XStack>
                     )}
-                </div>
-            </div>
+                </YStack>
+            </YStack>
+
             {canDeleteMessage && onDeleteMessage && !message.isPending && !message.isFailed && (
-                <div className="invisible shrink-0 group-hover:visible">
+                <Stack flexShrink={0} className="chat-msg-actions">
                     <ActionMenu
                         actions={[
                             {
@@ -127,9 +138,9 @@ const ChatMessage = ({ message, onDeleteMessage, onRetryMessage, showArchiveChip
                             },
                         ]}
                     />
-                </div>
+                </Stack>
             )}
-        </div>
+        </XStack>
     );
 };
 

@@ -57,7 +57,7 @@ const Note = ({ chat, onClose }: Props) => {
     }, [debounceValue, chat.id, chat.is_active, edited, mutate]);
 
     return (
-        <ChatSidebarPanel>
+        <ChatSidebarPanel onClose={onClose}>
             {/* Header */}
             <div className="border-border/50 flex h-16 items-center justify-between border-b px-4">
                 <div className="flex items-center gap-2.5">

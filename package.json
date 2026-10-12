@@ -8,6 +8,8 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "typecheck": "tsc --noEmit -p tsconfig.app.json",
+        "test": "vitest run",
+        "test:watch": "vitest",
         "i18n:check": "node scripts/check-i18n.js",
         "i18n:check:strict": "node scripts/check-i18n.js --strict",
         "prepare": "husky install",
@@ -98,6 +100,7 @@
         "prettier-plugin-tailwindcss": "^0.7.2",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.7.0",
-        "vite": "^5.4.8"
+        "vite": "^5.4.8",
+        "vitest": "^2.1.9"
     }
 }

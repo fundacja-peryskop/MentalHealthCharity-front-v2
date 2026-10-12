@@ -38,3 +38,13 @@ export function useIsCompact(): boolean {
 export function useIsTablet(): boolean {
     return useMediaQueryMatch("(max-width: 1100px)");
 }
+
+/**
+ * True on wide screens (>= 1200px) - enough room to show a right-hand chat
+ * panel (details, notes, contract...) as a side column next to the list and
+ * conversation. Below this the panel opens as an overlay drawer instead, so the
+ * conversation is never squeezed.
+ */
+export function useIsWideDesktop(): boolean {
+    return useMediaQueryMatch("(min-width: 1200px)");
+}

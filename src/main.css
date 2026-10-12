@@ -584,6 +584,50 @@ select optgroup {
     font-size: inherit;
 }
 
+/* ---- Chat message micro-interactions ---- */
+@keyframes chat-msg-in-left {
+    from {
+        opacity: 0;
+        transform: translate3d(-6px, 8px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+@keyframes chat-msg-in-right {
+    from {
+        opacity: 0;
+        transform: translate3d(6px, 8px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+.chat-msg-in-left {
+    animation: chat-msg-in-left 0.22s ease-out both;
+}
+.chat-msg-in-right {
+    animation: chat-msg-in-right 0.22s ease-out both;
+}
+
+/* Delete/action affordance: hidden until the row is hovered or keyboard-focused. */
+.chat-msg-actions {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.chat-msg-row:hover .chat-msg-actions,
+.chat-msg-row:focus-within .chat-msg-actions {
+    opacity: 1;
+}
+/* Touch devices can't hover - keep the action reachable. */
+@media (hover: none) {
+    .chat-msg-actions {
+        opacity: 1;
+    }
+}
+
 /* ---- Reduced motion ---- */
 @media (prefers-reduced-motion: reduce) {
     *,

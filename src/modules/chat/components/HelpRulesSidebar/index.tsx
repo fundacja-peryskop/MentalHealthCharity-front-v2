@@ -25,7 +25,7 @@ const HelpRulesSidebar = ({ onClose }: Props) => {
     ];
 
     return (
-        <ChatSidebarPanel>
+        <ChatSidebarPanel onClose={onClose}>
             <div className="border-border/50 flex h-16 items-center justify-between border-b px-4">
                 <div className="flex items-center gap-2.5">
                     <ScrollText className="text-primary-brand size-5" />

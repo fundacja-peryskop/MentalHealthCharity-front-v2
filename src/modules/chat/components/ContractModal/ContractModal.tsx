@@ -75,7 +75,7 @@ const ContractSidebar = ({ onClose, chatId, readonly = false }: Props) => {
     };
 
     return (
-        <ChatSidebarPanel>
+        <ChatSidebarPanel onClose={onClose}>
             {/* Header */}
             <div className="border-border/50 flex h-16 items-center justify-between border-b px-4">
                 <div className="flex items-center gap-2.5">
