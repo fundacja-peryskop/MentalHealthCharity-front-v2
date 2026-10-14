@@ -310,19 +310,36 @@
     },
     "donations": {
         "nav": "Donations",
-        "hero_title": "Support the Peryskop Foundation",
-        "hero_subtitle": "Together we can make mental health support accessible to everyone.",
+        "hero_title": "Support us, so we can keep supporting others",
+        "hero_subtitle": "Thanks to donations we can offer our services free of charge and keep growing.",
+        "hero_cta": "Make a donation",
+        "hero_secondary": "Discover our mission",
         "read_more": "Read more",
         "read_less": "Show less",
-        "trust": {
-            "anonymous": "100% anonymous",
-            "free": "Always free",
-            "supervised": "Professionally supervised"
+        "collage": {
+            "aria": "Ways to support the Foundation",
+            "stat_value": "100%",
+            "stat_label": "of funds go to free support",
+            "stat_cta": "Make a donation",
+            "photo1_label": "Support",
+            "photo1_title": "One-on-one conversations, whenever you need them",
+            "photo2_label": "Online",
+            "photo2_title": "Support available from anywhere",
+            "social_title": "Join the people already helping",
+            "social_cta": "I support",
+            "cta_title": "Donate online",
+            "cta_desc": "A quick payment via pomagam.pl",
+            "cta_bar": "Give now"
         },
-        "stats": {
-            "supporters_label": "people have supported us",
-            "anonymous_label": "anonymous conversations",
-            "cost_label": "for those who use it"
+        "ways": {
+            "title": "Supporting us takes just a few minutes",
+            "subtitle": "Your donation fully powers free psychological support - online and under constant supervision.",
+            "item1_title": "Choose an amount",
+            "item1_desc": "Any amount matters - you decide how much you want to help.",
+            "item2_title": "Give in a minute",
+            "item2_desc": "Online via pomagam.pl or by a regular bank transfer to the Foundation.",
+            "item3_title": "You truly help",
+            "item3_desc": "You fund anonymous, free conversations for people in crisis."
         },
         "what_is": {
             "title": "What is the Peryskop Foundation?",
@@ -335,6 +352,12 @@
             "p7": "Join us if you need help or if you want to help others. The role you take here does not have to remain the same forever. Each of us constantly changes, and a crisis often turns out to be only a temporary state.",
             "p8": "Together we can create a unique place where people experiencing difficult emotions receive support from our volunteers, who are themselves under constant professional supervision.",
             "p9": "Together we see more, can do more, and are better prepared to face the ongoing journey that is life."
+        },
+        "photos": {
+            "helping_hands": "Hands joined in a gesture of support",
+            "phone": "A person using a phone",
+            "computer": "A person using a computer",
+            "hands_computer": "Hands on a computer keyboard"
         },
         "goals": {
             "title": "Our Goals",
@@ -360,15 +383,11 @@
             "subtitle": "Our services are completely free of charge, but without the help of donors we cannot achieve our mission.",
             "supporters": "{{count}}+ people have already supported this project",
             "cta": "Donate now",
-            "cta_amount": "Donate {{amount}} zł",
-            "choose_amount": "Choose an amount",
-            "custom_amount": "Other",
-            "method_online": "Pomagam.pl",
-            "method_transfer": "Bank transfer",
-            "bank_title": "Bank transfer",
-            "bank_number": "62 1870 1045 2083 1080 5210 0001",
             "copy_account": "Copy account number",
-            "or": "or support via"
+            "circle_cta": "Donate",
+            "ring_primary": "Support the Peryskop Foundation",
+            "ring_secondary": "Every donation is someone's conversation",
+            "transfer_label": "Prefer a bank transfer?"
         },
         "homepage_preview": {
             "title": "Support Our Mission",

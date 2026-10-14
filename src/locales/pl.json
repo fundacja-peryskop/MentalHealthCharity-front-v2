@@ -1218,19 +1218,36 @@
     },
     "donations": {
         "nav": "Wesprzyj nas",
-        "hero_title": "Wesprzyj Fundację Peryskop",
-        "hero_subtitle": "Razem możemy sprawić, by wsparcie psychologiczne było dostępne dla każdego.",
+        "hero_title": "Wesprzyj, abyśmy mogli dalej wspierać",
+        "hero_subtitle": "Dzięki dotacjom możemy świadczyć nasze usługi za darmo oraz rozwijać naszą działalność.",
+        "hero_cta": "Przekaż darowiznę",
+        "hero_secondary": "Poznaj naszą misję",
         "read_more": "Czytaj więcej",
         "read_less": "Zwiń",
-        "trust": {
-            "anonymous": "100% anonimowo",
-            "free": "Zawsze bezpłatnie",
-            "supervised": "Pod superwizją"
+        "collage": {
+            "aria": "Sposoby wsparcia Fundacji",
+            "stat_value": "100%",
+            "stat_label": "środków idzie na bezpłatne wsparcie",
+            "stat_cta": "Przekaż darowiznę",
+            "photo1_label": "Wsparcie",
+            "photo1_title": "Rozmowa 1 na 1, gdy jej potrzebujesz",
+            "photo2_label": "Online",
+            "photo2_title": "Wsparcie dostępne z każdego miejsca",
+            "social_title": "Dołącz do osób, które już pomagają",
+            "social_cta": "Wspieram",
+            "cta_title": "Wesprzyj online",
+            "cta_desc": "Szybka wpłata przez pomagam.pl",
+            "cta_bar": "Wpłać teraz"
         },
-        "stats": {
-            "supporters_label": "osób już nas wsparło",
-            "anonymous_label": "anonimowych rozmów",
-            "cost_label": "dla korzystających"
+        "ways": {
+            "title": "Wesprzeć nas można w kilka minut",
+            "subtitle": "Twoja darowizna w całości zasila bezpłatne wsparcie psychologiczne - online i pod stałą superwizją.",
+            "item1_title": "Wybierz kwotę",
+            "item1_desc": "Dowolna wpłata ma znaczenie - to Ty decydujesz, jak bardzo chcesz pomóc.",
+            "item2_title": "Wpłać w minutę",
+            "item2_desc": "Online przez pomagam.pl albo zwykłym przelewem na konto Fundacji.",
+            "item3_title": "Realnie pomagasz",
+            "item3_desc": "Finansujesz anonimowe, bezpłatne rozmowy dla osób w kryzysie."
         },
         "what_is": {
             "title": "Czym jest Fundacja Peryskop?",
@@ -1243,6 +1260,12 @@
             "p7": "Dołącz do nas, jeśli potrzebujesz pomocy lub chcesz pomagać. Rola, w którą się u nas wcielisz, nie musi pozostać na zawsze taka sama. Każdy z nas, bez wyjątku, podlega procesowi ciągłych zmian, a kryzys często okazuje się stanem przejściowym.",
             "p8": "Możemy tworzyć wspólnie unikalne miejsce, w którym osoby doświadczające trudnych emocji będą zaopiekowane przez naszych wolontariuszy, pozostających pod stałą opieką superwizyjną.",
             "p9": "Razem widzimy więcej, możemy więcej i jesteśmy lepiej przygotowani do stawiania czoła nieustannej podróży, jaką jest życie."
+        },
+        "photos": {
+            "helping_hands": "Dłonie splecione w geście wsparcia",
+            "phone": "Osoba korzystająca z telefonu",
+            "computer": "Osoba korzystająca z komputera",
+            "hands_computer": "Dłonie na klawiaturze komputera"
         },
         "goals": {
             "title": "Nasze cele",
@@ -1268,15 +1291,11 @@
             "subtitle": "Nasze usługi są całkowicie bezpłatne, ale bez pomocy darczyńców nie możemy realizować naszej misji.",
             "supporters": "{{count}}+ osób już wsparło ten projekt",
             "cta": "Wesprzyj teraz",
-            "cta_amount": "Wesprzyj {{amount}} zł",
-            "choose_amount": "Wybierz kwotę",
-            "custom_amount": "Inna",
-            "method_online": "Pomagam.pl",
-            "method_transfer": "Przelew",
-            "bank_title": "Przelew bankowy",
-            "bank_number": "62 1870 1045 2083 1080 5210 0001",
             "copy_account": "Skopiuj numer konta",
-            "or": "lub wesprzyj poprzez"
+            "circle_cta": "Wesprzyj",
+            "ring_primary": "Wesprzyj Fundację Peryskop",
+            "ring_secondary": "Każda wpłata to czyjaś rozmowa",
+            "transfer_label": "Wolisz przelew?"
         },
         "homepage_preview": {
             "title": "Wesprzyj naszą misję",
