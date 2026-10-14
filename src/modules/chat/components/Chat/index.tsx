@@ -538,7 +538,11 @@ const Chat = ({
                         )}
                     </AutoSizer>
                 ) : (
-                    <ChatEmptyState canSend={canSendMessage} isPrivileged={isPrivileged} />
+                    <ChatEmptyState
+                        canSend={canSendMessage}
+                        isPrivileged={isPrivileged}
+                        participants={chat?.participants}
+                    />
                 )}
             </Stack>
 

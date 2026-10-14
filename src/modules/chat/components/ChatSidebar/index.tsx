@@ -3,7 +3,7 @@ import { Loader2, PanelLeftClose, PanelLeftOpen, Plus, Search, X } from "lucide-
 import { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { AutoSizer, IndexRange, InfiniteLoader, List as RVList } from "react-virtualized";
+import { AutoSizer, InfiniteLoader, List as RVList } from "react-virtualized";
 import { useUser } from "../../../auth/components/AuthProvider";
 import resolveAssetUrl from "../../../shared/helpers/resolveAssetUrl";
 import { Pagination } from "../../../shared/types";
@@ -119,18 +119,20 @@ const ChatSidebar = ({
             );
         }
 
+        // Canonical react-virtualized infinite scroll: render only the rows we
+        // actually have, plus a single trailing "loading more" row while further
+        // pages exist. Scrolling that row into view triggers `loadMore`, and the
+        // list grows as pages arrive - identical behaviour on mobile and desktop,
+        // with no large blank placeholder region.
+        const items = data.items;
+        const hasMore = data.page < data.pages && !!loadMore;
+        const rowCount = items.length + (hasMore ? 1 : 0);
+
         return (
             <InfiniteLoader
-                isRowLoaded={({ index }) => !!data && index < data.items.length}
-                loadMoreRows={async (range: IndexRange) => {
-                    if (!data) return Promise.resolve();
-                    if (range.stopIndex < data.items.length) return Promise.resolve();
-                    if (data.page < data.pages) {
-                        return loadMore ? loadMore() : Promise.resolve();
-                    }
-                    return Promise.resolve();
-                }}
-                rowCount={data.total}
+                isRowLoaded={({ index }) => index < items.length}
+                loadMoreRows={() => (hasMore && loadMore ? loadMore() : Promise.resolve())}
+                rowCount={rowCount}
             >
                 {({ onRowsRendered, registerChild }) => (
                     <AutoSizer>
@@ -139,14 +141,41 @@ const ChatSidebar = ({
                                 ref={registerChild}
                                 height={height}
                                 width={width}
-                                rowCount={data.total}
+                                rowCount={rowCount}
                                 rowHeight={compact ? RAIL_ROW_HEIGHT : ROW_HEIGHT}
                                 style={{ outline: "none" }}
                                 rowRenderer={({ index, key, style }) => {
-                                    const chat = data.items[index];
-                                    if (!chat) {
-                                        return <div key={key} style={style} />;
+                                    if (index >= items.length) {
+                                        return (
+                                            <div key={key} style={style}>
+                                                <XStack
+                                                    height="100%"
+                                                    alignItems="center"
+                                                    justifyContent="center"
+                                                    gap="$sm"
+                                                    role="status"
+                                                    aria-label={t("chat.loading_more", {
+                                                        defaultValue: "Wczytywanie rozmów...",
+                                                    })}
+                                                >
+                                                    <Loader2
+                                                        size={18}
+                                                        className="animate-spin"
+                                                        color="#6c7072"
+                                                        aria-hidden
+                                                    />
+                                                    {!compact && (
+                                                        <Typography variant="smallRegular" muted>
+                                                            {t("chat.loading_more", {
+                                                                defaultValue: "Wczytywanie rozmów...",
+                                                            })}
+                                                        </Typography>
+                                                    )}
+                                                </XStack>
+                                            </div>
+                                        );
                                     }
+                                    const chat = items[index];
                                     return (
                                         <div key={key} style={style}>
                                             <ChatItem

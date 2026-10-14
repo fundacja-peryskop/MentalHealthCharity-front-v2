@@ -1,5 +1,5 @@
 import { Typography, XStack, YStack } from "@fundacja-peryskop/ui";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     AlarmClockPlus,
@@ -32,6 +32,7 @@ import AddParticipantModal from "../AddParticipantModal";
 import Chat from "../Chat";
 import ChatAvatar from "../ChatAvatar";
 import ChatDetails from "../ChatDetails";
+import ChatHeaderActions, { ChatHeaderAction } from "../ChatHeaderActions";
 import ChatSidebar from "../ChatSidebar";
 import CloseChatModal from "../CloseChatModal";
 import ContractSidebar from "../ContractModal/ContractModal";
@@ -41,10 +42,6 @@ import NewChatModal from "../NewChatModal";
 import Note from "../Note";
 import Skeleton from "../Skeleton";
 import SnoozeAutoCloseModal from "../SnoozeAutoCloseModal";
-
-/** Shared classes for the header icon-buttons so they stay large + easy to tap. */
-const HEADER_BTN =
-    "text-muted-foreground hover:bg-muted hover:text-foreground flex size-10 items-center justify-center rounded-full transition-colors";
 
 const ChatWindow = () => {
     const { id } = useParams<{ id: string }>();
@@ -208,139 +205,65 @@ const ChatWindow = () => {
         }
     }, [selectedChat?.id, selectedChat?.is_group_chat]);
 
-    const headerActions = (
-        <div className="flex shrink-0 items-center gap-0.5">
-            {canUseChatAttachments && hasPermissions(Permissions.EDIT_CHAT_NOTE) && (
-                <Tooltip>
-                    <TooltipTrigger
-                        render={
-                            <button
-                                onClick={() => setShowNote(!showNote)}
-                                className={HEADER_BTN}
-                                aria-label={t("chat.notes")}
-                            >
-                                <StickyNote className="size-5" />
-                            </button>
-                        }
-                    />
-                    <TooltipContent>{t("chat.notes")}</TooltipContent>
-                </Tooltip>
-            )}
-
-            {canUseChatAttachments && (
-                <>
-                    {selectedChat?.is_active && (
-                        <Tooltip>
-                            <TooltipTrigger
-                                render={
-                                    <button
-                                        onClick={() => setShowReportModal(!showReportModal)}
-                                        className={HEADER_BTN}
-                                        aria-label={t("chat.report")}
-                                    >
-                                        <Flag className="size-5" />
-                                    </button>
-                                }
-                            />
-                            <TooltipContent>{t("chat.report")}</TooltipContent>
-                        </Tooltip>
-                    )}
-
-                    <Tooltip>
-                        <TooltipTrigger
-                            render={
-                                <button
-                                    onClick={() => setShowContractModal(!showContractModal)}
-                                    className={HEADER_BTN}
-                                    aria-label={t("chat.contract")}
-                                >
-                                    <BookOpen className="size-5" />
-                                </button>
-                            }
-                        />
-                        <TooltipContent>{t("chat.contract")}</TooltipContent>
-                    </Tooltip>
-                </>
-            )}
-
-            <Tooltip>
-                <TooltipTrigger
-                    render={
-                        <button
-                            onClick={() => setShowHelpRules(!showHelpRules)}
-                            className={HEADER_BTN}
-                            aria-label={t("chat.help_rules")}
-                        >
-                            <ScrollText className="size-5" />
-                        </button>
-                    }
-                />
-                <TooltipContent>{t("chat.help_rules")}</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-                <TooltipTrigger
-                    render={
-                        <button
-                            onClick={() => setShowDetails(!showDetails)}
-                            className={HEADER_BTN}
-                            aria-label={t("chat.show_details", { defaultValue: "Szczegóły" })}
-                        >
-                            <Users className="size-5" />
-                        </button>
-                    }
-                />
-                <TooltipContent>{t("chat.show_details", { defaultValue: "Szczegóły" })}</TooltipContent>
-            </Tooltip>
-
-            {canSnoozeAutoClose && (
-                <Tooltip>
-                    <TooltipTrigger
-                        render={
-                            <button
-                                type="button"
-                                disabled={isSnoozingAutoClose}
-                                onClick={() => setShowSnoozeAutoCloseModal(true)}
-                                className="text-warning-brand hover:bg-warning-brand/10 flex size-10 items-center justify-center rounded-full transition-colors disabled:opacity-50"
-                                aria-label={t("chat.snooze_auto_close", {
-                                    defaultValue: "Drzemka +{{count}} dni",
-                                    count: snoozeExtensionDays,
-                                })}
-                            >
-                                <AlarmClockPlus className="size-5" />
-                            </button>
-                        }
-                    />
-                    <TooltipContent>
-                        {t("chat.snooze_auto_close", {
-                            defaultValue: "Drzemka +{{count}} dni",
-                            count: snoozeExtensionDays,
-                        })}
-                    </TooltipContent>
-                </Tooltip>
-            )}
-
-            {canCloseChat && (
-                <>
-                    <div className="bg-border/60 mx-1 h-5 w-px" />
-                    <Tooltip>
-                        <TooltipTrigger
-                            render={
-                                <button
-                                    onClick={() => setShowCloseChatModal(true)}
-                                    className="text-destructive hover:bg-destructive/10 flex size-10 items-center justify-center rounded-full transition-colors"
-                                    aria-label={t("chat.close_chat")}
-                                >
-                                    <LockKeyhole className="size-5" />
-                                </button>
-                            }
-                        />
-                        <TooltipContent>{t("chat.close_chat")}</TooltipContent>
-                    </Tooltip>
-                </>
-            )}
-        </div>
-    );
+    // Header actions as data - rendered as an icon row on desktop and a
+    // hamburger + bottom sheet on mobile (see ChatHeaderActions). Everyday
+    // actions come first; snooze (warning) and close (danger) are separated.
+    const headerActionItems: ChatHeaderAction[] = [];
+    if (canUseChatAttachments && hasPermissions(Permissions.EDIT_CHAT_NOTE)) {
+        headerActionItems.push({
+            id: "note",
+            label: t("chat.notes"),
+            icon: StickyNote,
+            onClick: () => setShowNote((v) => !v),
+        });
+    }
+    if (canUseChatAttachments && selectedChat?.is_active) {
+        headerActionItems.push({
+            id: "report",
+            label: t("chat.report"),
+            icon: Flag,
+            onClick: () => setShowReportModal((v) => !v),
+        });
+    }
+    if (canUseChatAttachments) {
+        headerActionItems.push({
+            id: "contract",
+            label: t("chat.contract"),
+            icon: BookOpen,
+            onClick: () => setShowContractModal((v) => !v),
+        });
+    }
+    headerActionItems.push({
+        id: "help",
+        label: t("chat.help_rules"),
+        icon: ScrollText,
+        onClick: () => setShowHelpRules((v) => !v),
+    });
+    headerActionItems.push({
+        id: "details",
+        label: t("chat.show_details", { defaultValue: "Szczegóły" }),
+        icon: Users,
+        onClick: () => setShowDetails((v) => !v),
+    });
+    if (canSnoozeAutoClose) {
+        headerActionItems.push({
+            id: "snooze",
+            label: t("chat.snooze_auto_close", { defaultValue: "Drzemka +{{count}} dni", count: snoozeExtensionDays }),
+            icon: AlarmClockPlus,
+            onClick: () => setShowSnoozeAutoCloseModal(true),
+            tone: "warning",
+            disabled: isSnoozingAutoClose,
+        });
+    }
+    if (canCloseChat) {
+        headerActionItems.push({
+            id: "close",
+            label: t("chat.close_chat"),
+            icon: LockKeyhole,
+            onClick: () => setShowCloseChatModal(true),
+            tone: "danger",
+        });
+    }
 
     // App-shell: on desktop the list and conversation sit as rounded white
     // panels on a soft canvas (reference layout, Peryskop tokens); on mobile
@@ -440,7 +363,7 @@ const ChatWindow = () => {
                                     </XStack>
                                 ) : null}
                             </XStack>
-                            {selectedChat && headerActions}
+                            {selectedChat && <ChatHeaderActions actions={headerActionItems} />}
                         </XStack>
 
                         {/* Chat area */}
