@@ -5,6 +5,17 @@ import { PageContainer } from "../../layout/PageContainer";
 import { RotatingWord } from "./RotatingWord";
 
 /**
+ * Vertical breathing room: 48px / 24px (`$xxxl` / `$xl`) on desktop, roomier
+ * 72px / 48px below 768px where the hero is the whole first screen. Scoped CSS
+ * because the DS media props resolve unreliably for layout here (see CLAUDE.md).
+ */
+const HERO_CLASS = "home-hero";
+const HERO_STYLE = `
+.${HERO_CLASS}{padding-top:48px;padding-bottom:24px;}
+@media (max-width:767.98px){.${HERO_CLASS}{padding-top:72px;padding-bottom:48px;}}
+`;
+
+/**
  * §4.3 - hero. Centered display heading (the page's single `<h1>`) with a
  * narrower, muted subheading. The heading's final word rotates through a few
  * warm synonyms for an inviting, "living" accent; the rotation is decorative,
@@ -16,7 +27,8 @@ export function Hero() {
     const words = t(hero.titleWordsKey, { returnObjects: true }) as string[];
 
     return (
-        <Section paddingTop="$xxxl" paddingBottom="$xl" alignItems="center">
+        <Section className={HERO_CLASS} alignItems="center">
+            <style>{HERO_STYLE}</style>
             <PageContainer alignItems="center" gap="$lg">
                 <Typography
                     variant="title1"

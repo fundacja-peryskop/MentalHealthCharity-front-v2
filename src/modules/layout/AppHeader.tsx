@@ -1,9 +1,9 @@
 import logo from "@/assets/static/logo_small.webp";
 import resolveAssetUrl from "@/modules/shared/helpers/resolveAssetUrl";
-import { Avatar, Header, Stack, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
+import { Avatar, Header, Stack, Typography, XStack } from "@fundacja-peryskop/ui";
 import { useQuery } from "@tanstack/react-query";
 import { LogOut, Menu, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { useUser } from "../auth/components/AuthProvider";
@@ -12,10 +12,26 @@ import { Permissions } from "../shared/constants";
 import usePermissions from "../shared/hooks/usePermissions";
 import { AppLink } from "./AppLink";
 import { CtaButton } from "./CtaButton";
-import { brand } from "./content";
+import { brand, type NavItem } from "./content";
+import { MobileMenu } from "./MobileMenu";
 import { useIconColor } from "./useIconColor";
 
 const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
+
+const MENU_ID = "mobile-menu";
+/** Where the header switches from the hamburger to the inline nav (the DS `$md`, min-width). */
+const DESKTOP_QUERY = "(min-width: 768px)";
+
+/**
+ * Header row vertical padding: compact on desktop, roomier below 768px where the
+ * header is the main tap target. Scoped CSS because the DS media props resolve
+ * unreliably for layout here (see CLAUDE.md).
+ */
+const ROW_CLASS = "app-header-row";
+const ROW_STYLE = `
+.${ROW_CLASS}{padding-top:8px;padding-bottom:8px;}
+@media (max-width:767.98px){.${ROW_CLASS}{padding-top:16px;padding-bottom:16px;}}
+`;
 
 /**
  * Header overlap styling. The header always sits 16px over the announcement bar
@@ -35,13 +51,6 @@ function headerStyle(collapsed: boolean, reduceMotion: boolean): React.CSSProper
     };
 }
 
-interface NavItem {
-    label: string;
-    href: string;
-    /** Show an unread indicator dot (chat). */
-    indicator?: boolean;
-}
-
 interface AppHeaderProps {
     /** Announcement bar collapsed (scrolled down) - flatten the header to the top. */
     collapsed?: boolean;
@@ -55,6 +64,25 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
     const icon = useIconColor();
     const location = useLocation();
     const [menuOpen, setMenuOpen] = useState(false);
+    const toggleRef = useRef<HTMLElement>(null);
+
+    // Closing via Escape / backdrop returns focus to the toggle that opened it.
+    const closeMenu = useCallback(() => {
+        setMenuOpen(false);
+        toggleRef.current?.focus();
+    }, []);
+
+    // The panel is mobile-only; close it if the viewport grows into desktop so the
+    // page scroll lock it holds is released.
+    useEffect(() => {
+        const media = window.matchMedia?.(DESKTOP_QUERY);
+        if (!media) return;
+        const onChange = () => {
+            if (media.matches) setMenuOpen(false);
+        };
+        media.addEventListener("change", onChange);
+        return () => media.removeEventListener("change", onChange);
+    }, []);
 
     const { data: chats } = useQuery(
         getChatsQueryOptions({ size: 50, page: 1 }, { enabled: !!user, queryKey: ["chats"] })
@@ -79,7 +107,7 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
             items.push({ label: t("common.navigation.chat"), href: "/chat", indicator: hasUnread });
         }
         if (!user) {
-            items.push({ label: t("footer.about_us", { defaultValue: "O nas" }), href: "/#about-us" });
+            items.push({ label: t("common.navigation.how_it_works"), href: "/how-it-works" });
         }
         if (hasPermissions(Permissions.ADMIN_DASHBOARD)) {
             items.push({ label: t("common.navigation.admin"), href: "/admin/" });
@@ -141,13 +169,14 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
 
     return (
         <Header tag="header" width="100%" backgroundColor="$background" style={headerStyle(collapsed, reduceMotion)}>
+            <style>{ROW_STYLE}</style>
             <XStack
+                className={ROW_CLASS}
                 width="100%"
                 maxWidth={1200}
                 alignSelf="center"
                 paddingHorizontal="$lg"
                 $sm={{ paddingHorizontal: "$xl" }}
-                paddingVertical="$sm"
                 alignItems="center"
                 justifyContent="space-between"
                 gap="$lg"
@@ -166,37 +195,32 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
 
                 {/* Mobile toggle */}
                 <Stack
+                    ref={toggleRef}
                     tag="button"
                     role="button"
-                    aria-label={menuOpen ? "Zamknij menu" : "Otwórz menu"}
+                    aria-label={menuOpen ? t("common.navigation.close_menu") : t("common.navigation.open_menu")}
                     aria-expanded={menuOpen}
+                    aria-controls={MENU_ID}
                     onPress={() => setMenuOpen((open) => !open)}
                     display="flex"
                     $md={{ display: "none" }}
-                    padding="$xs"
+                    width={44}
+                    height={44}
+                    marginRight={-10}
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="$full"
                     borderWidth={0}
-                    backgroundColor="$backgroundTransparent"
+                    backgroundColor={menuOpen ? "$backgroundHover" : "$backgroundTransparent"}
+                    pressStyle={{ backgroundColor: "$backgroundPress" }}
                     cursor="pointer"
                 >
                     {menuOpen ? <X size={24} color={icon.color} /> : <Menu size={24} color={icon.color} />}
                 </Stack>
             </XStack>
 
-            {/* Mobile panel */}
             {menuOpen ? (
-                <YStack
-                    $md={{ display: "none" }}
-                    paddingHorizontal="$lg"
-                    paddingBottom="$lg"
-                    gap="$lg"
-                    borderTopWidth={1}
-                    borderColor="$borderColor"
-                >
-                    <YStack gap="$md" paddingTop="$md">
-                        {navLinksList}
-                    </YStack>
-                    <XStack alignItems="center">{accountArea}</XStack>
-                </YStack>
+                <MobileMenu id={MENU_ID} items={navItems} pathname={location.pathname} onClose={closeMenu} />
             ) : null}
         </Header>
     );

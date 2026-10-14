@@ -13,6 +13,12 @@ export interface LinkItem {
     external?: boolean;
 }
 
+/** A header navigation entry. */
+export interface NavItem extends LinkItem {
+    /** Show an unread indicator dot (chat). */
+    indicator?: boolean;
+}
+
 export interface FooterColumn {
     heading: string;
     links: LinkItem[];
@@ -26,6 +32,8 @@ export const brand = {
 /** Utility/announcement bar. */
 export const announcement = {
     message: "W kryzysie? Inne formy pomocy (telefoniczne) - bezpłatne i anonimowe 24/7",
+    /** Shown instead of `message` on narrow screens, where the bar wraps. */
+    shortMessage: "Inne formy pomocy (telefoniczne)",
     contacts: [
         { label: "112 (pogotowie)", href: "tel:112" },
         { label: "116 123 (telefon zaufania)", href: "tel:116123" },
@@ -36,7 +44,7 @@ const footerColumns: FooterColumn[] = [
     {
         heading: "Nawigacja",
         links: [
-            { label: "O nas", href: "/#about-us" },
+            { label: "Jak to działa", href: "/how-it-works" },
             { label: "Artykuły", href: "/articles" },
             { label: "Wesprzyj nas", href: "/donations" },
         ],

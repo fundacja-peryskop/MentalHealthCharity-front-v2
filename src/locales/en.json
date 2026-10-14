@@ -10,7 +10,12 @@
             "donations": "Donations",
             "trainings": "Trainings",
             "availability": "Availability",
-            "volunteer_area": "Volunteer"
+            "volunteer_area": "Volunteer",
+            "chat": "Conversations",
+            "open_menu": "Open menu",
+            "close_menu": "Close menu",
+            "main_menu": "Main menu",
+            "how_it_works": "How it works"
         },
         "search": "Search...",
         "edit": "Edit",
@@ -307,6 +312,41 @@
         "content_warning": "The list below contains topics that may be sensitive. Select those you'd like support with.",
         "under_18_title": "Under 18?",
         "under_18_text": "If you're under 18, specialized help is available. Call the free Youth Helpline: 116 111."
+    },
+    "how_it_works": {
+        "title": "How does it work?",
+        "subtitle": "See in a short sample conversation how the Peryskop Foundation works.",
+        "chat_title": "Peryskop",
+        "chat_subtitle": "3 people",
+        "log_label": "A sample conversation about how Peryskop works",
+        "today": "Today",
+        "typing": "{{name}} is typing...",
+        "composer": "Write a message...",
+        "skip": "Skip",
+        "replay": "Replay",
+        "personas": {
+            "ola_name": "Ola",
+            "ola_role": "volunteer",
+            "michal_name": "Michał",
+            "michal_role": "coordinator",
+            "kasia_name": "Kasia",
+            "kasia_role": "supervisor"
+        },
+        "script": {
+            "hello": "Hi! 👋 We're glad you're here. In a few messages we'll tell you how Peryskop works.",
+            "what": "Peryskop is free and fully anonymous psychological support over chat. You talk to a human - not a bot.",
+            "form": "It all starts with a short form. You write what brings you here - that helps us find the right person for you.",
+            "match": "Then we look for an available person from our volunteer team. Once we find them, we'll let you know by email and the conversation will appear in the \"Conversations\" tab.",
+            "talk": "You talk one-on-one, regularly, at a pace that suits you.",
+            "safe": "Everyone offering support is trained and under ongoing professional supervision, so you can feel safe.",
+            "pace": "Nobody judges you here. You decide what to share - and you can come back to the conversation whenever you like.",
+            "get_help": "Start whenever it feels like the right moment.",
+            "volunteer": "Or if you'd like to help others, click to become a volunteer."
+        },
+        "cta": {
+            "get_help": "Get help",
+            "volunteer": "I want to help"
+        }
     },
     "donations": {
         "nav": "Donations",

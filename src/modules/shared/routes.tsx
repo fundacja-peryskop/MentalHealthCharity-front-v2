@@ -15,6 +15,7 @@ const CreateArticleScreen = React.lazy(() => import("../../screens/CreateArticle
 const DonationsScreen = React.lazy(() => import("../../screens/DonationsScreen"));
 const EditArticleScreen = React.lazy(() => import("../../screens/EditArticleScreen"));
 const ForgetPasswordScreen = React.lazy(() => import("../../screens/ForgetPasswordScreen"));
+const HowItWorksScreen = React.lazy(() => import("../../screens/HowItWorksScreen"));
 const ManageArticlesScreen = React.lazy(() => import("../../screens/ManageArticlesScreen"));
 const ManageMenteeFormsScreen = React.lazy(() => import("../../screens/ManageMenteeFormsScreen"));
 const MatchingAlertsScreen = React.lazy(() => import("../../screens/MatchingAlertsScreen"));
@@ -63,6 +64,11 @@ const routes: RouteType[] = [
     {
         url: "/about-chat",
         onRender: <AboutChatScreen />,
+        requiresAuth: false,
+    },
+    {
+        url: "/how-it-works",
+        onRender: <HowItWorksScreen />,
         requiresAuth: false,
     },
     {

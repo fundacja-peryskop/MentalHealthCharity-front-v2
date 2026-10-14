@@ -12,8 +12,12 @@
             "trainings": "Szkolenia",
             "availability": "Dyspozycyjność",
             "volunteer_area": "Wolontariusz",
-            "chat": "Czat",
+            "chat": "Rozmowy",
             "admin": "Zarządzaj stroną",
+            "open_menu": "Otwórz menu",
+            "close_menu": "Zamknij menu",
+            "main_menu": "Menu główne",
+            "how_it_works": "Jak to działa",
             "aria": {
                 "unread_messages": "Czat ma nieprzeczytane wiadomości"
             }
@@ -1215,6 +1219,41 @@
             "cta": "Rozpocznij"
         },
         "continue": "Kontynuuj"
+    },
+    "how_it_works": {
+        "title": "Jak to działa?",
+        "subtitle": "Zobacz w krótkiej, przykładowej rozmowie, jak działa Fundacja Peryskop.",
+        "chat_title": "Peryskop",
+        "chat_subtitle": "3 osoby",
+        "log_label": "Przykładowa rozmowa o tym, jak działa Peryskop",
+        "today": "Dzisiaj",
+        "typing": "{{name}} pisze...",
+        "composer": "Napisz wiadomość...",
+        "skip": "Pomiń",
+        "replay": "Odtwórz ponownie",
+        "personas": {
+            "ola_name": "Ola",
+            "ola_role": "wolontariuszka",
+            "michal_name": "Michał",
+            "michal_role": "koordynator",
+            "kasia_name": "Kasia",
+            "kasia_role": "superwizorka"
+        },
+        "script": {
+            "hello": "Cześć! 👋 Cieszymy się, że tu jesteś. W kilku wiadomościach opowiemy Ci, jak działa Peryskop.",
+            "what": "Peryskop to darmowa i w pełni anonimowa pomoc psychologiczna w formie czatu. Rozmawiasz z człowiekiem - nie z robotem.",
+            "form": "Wszystko zaczyna się od krótkiego formularza. Piszesz w nim, z czym przychodzisz - dzięki temu możemy dobrać dla Ciebie odpowiednią osobę.",
+            "match": "Potem szukamy wolnej osoby z naszego zespołu wolontariuszy. Gdy ją znajdziemy, damy Ci znać mailem, a rozmowa pojawi się w zakładce \"Rozmowy\".",
+            "talk": "Rozmawiacie jeden na jeden, regularnie i w tempie, które Ci odpowiada.",
+            "safe": "Osoby wspierające są przeszkolone i pozostają pod stałą opieką superwizyjną, więc możesz czuć się bezpiecznie.",
+            "pace": "Nikt Cię tu nie ocenia. To Ty decydujesz, czym chcesz się podzielić - i możesz wracać do rozmowy, kiedy tylko chcesz.",
+            "get_help": "Zacznij, kiedy poczujesz, że to dobry moment.",
+            "volunteer": "Lub jeśli chcesz pomagać, kliknij, aby zostać wolontariuszem."
+        },
+        "cta": {
+            "get_help": "Otrzymaj pomoc",
+            "volunteer": "Chcę pomagać"
+        }
     },
     "donations": {
         "nav": "Wesprzyj nas",

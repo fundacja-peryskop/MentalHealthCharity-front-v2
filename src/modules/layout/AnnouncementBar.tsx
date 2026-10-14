@@ -5,6 +5,17 @@ import { PageContainer } from "./PageContainer";
 
 const ANCHOR_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
 
+/**
+ * Below 768px (where the bar stacks and the header shows the hamburger) the
+ * long reassurance line is swapped for a short one. Done in CSS so there is no
+ * flash or re-render on resize.
+ */
+const MESSAGE_CLASS = "announcement-message";
+const MESSAGE_STYLE = `
+.${MESSAGE_CLASS}--short{display:none;}
+@media (max-width:767.98px){.${MESSAGE_CLASS}--long{display:none;}.${MESSAGE_CLASS}--short{display:inline;}}
+`;
+
 interface Props {
     /** When true the bar is slid out of view (handled by the sticky chrome wrapper). */
     collapsed?: boolean;
@@ -44,8 +55,10 @@ export function AnnouncementBar({ collapsed = false }: Props) {
                 paddingBottom={24}
                 $md={{ flexDirection: "row", justifyContent: "space-between" }}
             >
+                <style>{MESSAGE_STYLE}</style>
                 <Typography variant="regularRegular" color="$primaryText" align="center">
-                    {announcement.message}
+                    <span className={`${MESSAGE_CLASS}--long`}>{announcement.message}</span>
+                    <span className={`${MESSAGE_CLASS}--short`}>{announcement.shortMessage}</span>
                 </Typography>
 
                 <XStack alignItems="center" justifyContent="center" flexWrap="wrap" gap="$lg">
