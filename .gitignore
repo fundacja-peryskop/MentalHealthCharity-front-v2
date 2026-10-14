@@ -38,3 +38,5 @@ dist-ssr
 *.sw?
 
 *.npmrc
+# ...except the committed project config, which holds no secrets (token comes from ${GITHUB_TOKEN}).
+!/.npmrc
