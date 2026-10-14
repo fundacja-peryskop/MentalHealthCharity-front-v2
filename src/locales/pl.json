@@ -269,7 +269,7 @@
         },
         "about": {
             "title": "Jak otrzymać pomoc?",
-            "subtitle": "W naszym serwisie znajdziesz darmowe wsparcie psychologiczne w formie czatu. Wystarczy, że wypełnisz krótki formularz, a my dobierzemy dla Ciebie odpowiedniego wolontariusza, który będzie Cię wspierał w trudnych chwilach. Wszystkie rozmowy są anonimowe i pełne empatii. Nie musisz się martwić o ocenę, krytykę czy zrozumienie. Jesteśmy tu po to, aby Ci pomóc.",
+            "subtitle": "W naszym serwisie znajdziesz darmowe wsparcie w kryzysie w formie czatu. Wystarczy, że wypełnisz krótki formularz, a my dobierzemy dla Ciebie odpowiedniego wolontariusza, który będzie Cię wspierał w trudnych chwilach. Wszystkie rozmowy są anonimowe i pełne empatii. Nie musisz się martwić o ocenę, krytykę czy zrozumienie. Jesteśmy tu po to, aby Ci pomóc.",
             "tutorial": "Kliknij przycisk Dołącz Teraz, wypełnij formularz, poczekaj, aż przydzielimy Ci starannie dobranego wolontariusza i zacznij rozmowę. To takie proste!"
         },
         "leaving": {
@@ -434,7 +434,7 @@
         },
         "cover": {
             "headline": "Jesteśmy tu, aby Cię wysłuchać",
-            "subline": "Bezpieczne i anonimowe wsparcie psychologiczne - zawsze blisko.",
+            "subline": "Bezpieczne i anonimowe wsparcie w kryzysie - zawsze blisko.",
             "credit": "Grafika autorstwa"
         },
         "register_chat_support": {
@@ -686,7 +686,7 @@
     "homepage": {
         "choose_mentee_button": "Uzyskaj wsparcie",
         "choose_volunteer_button": "Zostań wolontariuszem",
-        "title": "Darmowe i anonimowe wsparcie psychologiczne w formie czatu",
+        "title": "Darmowe i anonimowe wsparcie w kryzysie w formie czatu",
         "chat_now": "Rozmawiaj teraz",
         "processing": {
             "title": "Twój formularz jest w trakcie przetwarzania!",
@@ -733,7 +733,7 @@
         },
         "trust_mission": {
             "title": "Nasza misja",
-            "description": "Tworzymy bezpieczną przestrzeń, w której każdy może uzyskać anonimowe wsparcie psychologiczne. Łączymy osoby potrzebujące pomocy z przeszkolonymi wolontariuszami, którzy są gotowi towarzyszyć im w trudnych chwilach.",
+            "description": "Tworzymy bezpieczną przestrzeń, w której każdy może uzyskać darmowe i anonimowe wsparcie w kryzysie w formie czatu. Łączymy osoby potrzebujące pomocy z przeszkolonymi wolontariuszami, którzy są gotowi towarzyszyć im w trudnych chwilach.",
             "stat1_value": "400+",
             "stat1_label": "Użytkowników",
             "stat2_value": "200+",
@@ -752,7 +752,7 @@
             "small_cards": [
                 {
                     "title": "Wolontariusze",
-                    "desc": "Szkolimy wolontariuszy, oraz pomagamy im rozwijać się w obszarze niesienia pomocy psychologicznej"
+                    "desc": "Szkolimy wolontariuszy oraz pomagamy im rozwijać się we wspieraniu osób w kryzysie"
                 },
                 {
                     "title": "Osoby w kryzysie",
@@ -780,7 +780,7 @@
             "title": "Cokolwiek chodzi Ci po głowie, jesteśmy tu, żeby wysłuchać",
             "title_lead": "Cokolwiek chodzi Ci po głowie, jesteśmy tu, żeby",
             "title_words": ["wysłuchać", "porozmawiać", "zrozumieć", "wesprzeć", "być obok"],
-            "subtitle": "Darmowa i w pełni anonimowa pomoc psychologiczna w formie czatu. Rozmawiasz z człowiekiem - nie robotem"
+            "subtitle": "Darmowe i anonimowe wsparcie w kryzysie w formie czatu. Rozmawiasz z człowiekiem - nie robotem"
         },
         "pitch": {
             "help": {
@@ -922,7 +922,7 @@
                 "Wybierz jak najwięcej terminów, abyśmy mogli umówić się na krótką rozmowę kwalifikacyjną.",
                 "Skąd dowiedziałeś się o naszej fundacji? Pomóż nam rozwijać się i dotrzeć do większej liczby osób!",
                 "Daj nam znać z którymi tematami nie chcesz się mierzyć. Możesz wybrać kilka.",
-                "Twoje zgłoszenie to cegiełka do budowy lepszej dostępności pomocy psychologicznej dla każdego. Powiadomimy Cię o dalszych krokach na twój adres email. Dziękujemy za zaufanie!"
+                "Twoje zgłoszenie to cegiełka do budowy lepszej dostępności wsparcia w kryzysie dla każdego. Powiadomimy Cię o dalszych krokach na twój adres email. Dziękujemy za zaufanie!"
             ],
             "title": [
                 "Dołacz do grona wolontariuszy z misją, aby pomagać!",
@@ -942,7 +942,7 @@
                 "email": "Email",
                 "phone": "Telefon"
             },
-            "prior_experience_label": "Czy masz doświadczenie w pomocy psychologicznej?",
+            "prior_experience_label": "Czy masz doświadczenie we wspieraniu osób w kryzysie?",
             "reason_label": "Dlaczego chcesz do nas dołączyć?",
             "issues_to_avoid_label": "Problemy, które chcesz unikać",
             "issues_to_avoid": {
@@ -1260,7 +1260,7 @@
         },
         "script": {
             "hello": "Cześć! 👋 Cieszymy się, że tu jesteś. W kilku wiadomościach opowiemy Ci, jak działa Peryskop.",
-            "what": "Peryskop to darmowa i w pełni anonimowa pomoc psychologiczna w formie czatu. Rozmawiasz z człowiekiem - nie z robotem.",
+            "what": "Peryskop to darmowe i anonimowe wsparcie w kryzysie w formie czatu. Rozmawiasz z człowiekiem - nie z robotem.",
             "form": "Wszystko zaczyna się od krótkiego formularza. Piszesz w nim, z czym przychodzisz - dzięki temu możemy dobrać dla Ciebie odpowiednią osobę.",
             "match": "Potem szukamy wolnej osoby z naszego zespołu wolontariuszy. Gdy ją znajdziemy, damy Ci znać mailem, a rozmowa pojawi się w zakładce \"Czat\".",
             "talk": "Rozmawiacie jeden na jeden, regularnie i w tempie, które Ci odpowiada.",
@@ -1299,7 +1299,7 @@
         },
         "ways": {
             "title": "Wesprzeć nas można w kilka minut",
-            "subtitle": "Twoja darowizna w całości zasila bezpłatne wsparcie psychologiczne - online i pod stałą superwizją.",
+            "subtitle": "Twoja darowizna w całości zasila darmowe i anonimowe wsparcie w kryzysie - online i pod stałą superwizją.",
             "item1_title": "Wybierz kwotę",
             "item1_desc": "Dowolna wpłata ma znaczenie - to Ty decydujesz, jak bardzo chcesz pomóc.",
             "item2_title": "Wpłać w minutę",
@@ -1328,13 +1328,13 @@
         "goals": {
             "title": "Nasze cele",
             "goal1_title": "Dostępne wsparcie",
-            "goal1_desc": "Zapewnienie darmowego, anonimowego wsparcia psychologicznego każdemu, kto tego potrzebuje - niezależnie od miejsca zamieszkania czy sytuacji finansowej.",
+            "goal1_desc": "Zapewnienie darmowego i anonimowego wsparcia w kryzysie każdemu, kto tego potrzebuje - niezależnie od miejsca zamieszkania czy sytuacji finansowej.",
             "goal2_title": "Przeszkoleni wolontariusze",
             "goal2_desc": "Budowanie społeczności dobrze przeszkolonych wolontariuszy, którzy oferują empatyczne wsparcie pod superwizją w rozmowach jeden na jeden.",
             "goal3_title": "Przełamywanie tabu",
             "goal3_desc": "Tworzenie przestrzeni bez tabu, gdzie wyzwania związane ze zdrowiem psychicznym spotykają się ze zrozumieniem, a nie oceną.",
             "goal4_title": "Technologia dla dobra",
-            "goal4_desc": "Wykorzystanie nowoczesnych technologii, by wsparcie psychologiczne online było skuteczne, bezpieczne i zawsze dostępne."
+            "goal4_desc": "Wykorzystanie nowoczesnych technologii, by wsparcie w kryzysie w formie czatu było skuteczne, bezpieczne i zawsze dostępne."
         },
         "how_we_work": {
             "title": "Jak działamy",
@@ -1357,7 +1357,7 @@
         },
         "homepage_preview": {
             "title": "Wesprzyj naszą misję",
-            "desc": "Nasze usługi są całkowicie bezpłatne. Pomóż nam kontynuować dostarczanie anonimowego wsparcia psychologicznego tym, którzy go najbardziej potrzebują.",
+            "desc": "Nasze usługi są całkowicie bezpłatne. Pomóż nam kontynuować dostarczanie darmowego i anonimowego wsparcia w kryzysie tym, którzy go najbardziej potrzebują.",
             "read_more": "Dowiedz się więcej"
         }
     },

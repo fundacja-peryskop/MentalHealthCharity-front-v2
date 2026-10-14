@@ -77,7 +77,7 @@ const footerSocials: LinkItem[] = [
 
 export const footer = {
     mission:
-        "Tworzymy bezpieczną przestrzeń, w której każdy może uzyskać anonimowe wsparcie psychologiczne w formie czatu.",
+        "Tworzymy bezpieczną przestrzeń, w której każdy może uzyskać darmowe i anonimowe wsparcie w kryzysie w formie czatu.",
     columns: footerColumns,
     socials: footerSocials,
     copyright: `© ${new Date().getFullYear()} ${brand.name}`,

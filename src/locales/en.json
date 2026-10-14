@@ -78,7 +78,7 @@
     "homepage": {
         "choose_mentee_button": "Get support",
         "choose_volunteer_button": "Become a volunteer",
-        "title": "Free and anonymous psychological support via chat",
+        "title": "Free and anonymous crisis support via chat",
         "desc": "Get help or become a volunteer today",
         "chat_now": "Chat now",
         "processing": {
@@ -125,7 +125,7 @@
         },
         "trust_mission": {
             "title": "Our Mission",
-            "description": "We create a safe space where everyone can receive anonymous psychological support. We connect people in need with trained volunteers who are ready to accompany them through difficult moments.",
+            "description": "We create a safe space where everyone can receive free and anonymous crisis support via chat. We connect people in need with trained volunteers who are ready to accompany them through difficult moments.",
             "stat1_value": "100+",
             "stat1_label": "volunteers",
             "stat2_value": "500+",
@@ -143,7 +143,7 @@
             "title": "Whatever's on your mind, we're here to listen",
             "title_lead": "Whatever's on your mind, we're here to",
             "title_words": ["listen", "talk", "understand", "support you", "be here"],
-            "subtitle": "Free, fully anonymous psychological support over chat. You talk to a human - not a bot"
+            "subtitle": "Free and anonymous crisis support via chat. You talk to a human - not a bot"
         },
         "pitch": {
             "help": {
@@ -349,7 +349,7 @@
         },
         "script": {
             "hello": "Hi! 👋 We're glad you're here. In a few messages we'll tell you how Peryskop works.",
-            "what": "Peryskop is free and fully anonymous psychological support over chat. You talk to a human - not a bot.",
+            "what": "Peryskop is free and anonymous crisis support via chat. You talk to a human - not a bot.",
             "form": "It all starts with a short form. You write what brings you here - that helps us find the right person for you.",
             "match": "Then we look for an available person from our volunteer team. Once we find them, we'll let you know by email and the conversation will appear in the \"Chat\" tab.",
             "talk": "You talk one-on-one, regularly, at a pace that suits you.",
@@ -388,7 +388,7 @@
         },
         "ways": {
             "title": "Supporting us takes just a few minutes",
-            "subtitle": "Your donation fully powers free psychological support - online and under constant supervision.",
+            "subtitle": "Your donation fully powers free and anonymous crisis support - online and under constant supervision.",
             "item1_title": "Choose an amount",
             "item1_desc": "Any amount matters - you decide how much you want to help.",
             "item2_title": "Give in a minute",
@@ -417,13 +417,13 @@
         "goals": {
             "title": "Our Goals",
             "goal1_title": "Accessible Support",
-            "goal1_desc": "Provide free, anonymous psychological support to anyone who needs it - regardless of location or financial situation.",
+            "goal1_desc": "Provide free and anonymous crisis support to anyone who needs it - regardless of location or financial situation.",
             "goal2_title": "Trained Volunteers",
             "goal2_desc": "Build a community of well-trained volunteers who offer empathetic, supervised support in one-on-one conversations.",
             "goal3_title": "Break the Stigma",
             "goal3_desc": "Create a space without taboos where mental health challenges are met with understanding, not judgment.",
             "goal4_title": "Technology for Good",
-            "goal4_desc": "Leverage modern technology to make online mental health support effective, safe, and always available."
+            "goal4_desc": "Leverage modern technology to make crisis support via chat effective, safe, and always available."
         },
         "how_we_work": {
             "title": "How We Work",
@@ -446,7 +446,7 @@
         },
         "homepage_preview": {
             "title": "Support Our Mission",
-            "desc": "Our services are completely free. Help us continue providing anonymous psychological support to those who need it most.",
+            "desc": "Our services are completely free. Help us continue providing free and anonymous crisis support to those who need it most.",
             "read_more": "Read more"
         }
     },
@@ -492,7 +492,7 @@
         },
         "cover": {
             "headline": "We're here to listen",
-            "subline": "Safe, anonymous psychological support - always close by.",
+            "subline": "Safe, anonymous crisis support - always close by.",
             "credit": "Photo by"
         },
         "register_chat_support": {
