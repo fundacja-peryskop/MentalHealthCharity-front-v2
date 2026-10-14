@@ -15,8 +15,12 @@
             "trainings": "Szkolenia",
             "availability": "Dyspozycyjność",
             "volunteer_area": "Wolontariusz",
-            "chat": "Czat",
+            "chat": "Rozmowy",
             "admin": "Zarządzaj stroną",
+            "open_menu": "Otwórz menu",
+            "close_menu": "Zamknij menu",
+            "main_menu": "Menu główne",
+            "how_it_works": "Jak to działa",
             "aria": {
                 "unread_messages": "Czat ma nieprzeczytane wiadomości"
             }
@@ -50,6 +54,7 @@
         "active": "Aktywny",
         "closed": "Zamknięty",
         "close": "Zamknij",
+        "or": "lub",
         "details": "Szczegóły",
         "hide": "Ukryj",
         "password": "Hasło",
@@ -85,7 +90,9 @@
             "new_value": "Nowa wartość",
             "field": "Pole",
             "no_changes": "Brak zmian"
-        }
+        },
+        "delete": "Usuń",
+        "back": "Wstecz"
     },
     "trainings": {
         "eyebrow": "Strefa wolontariusza",
@@ -120,10 +127,14 @@
         "login": "Zaloguj się"
     },
     "confirm_email_complete": {
-        "error_title": "Błąd potwierdzenia emaila",
-        "error_description": "Wystąpił problem z potwierdzeniem twojego adresu email. Spróbuj ponownie później.",
-        "loading_title": "Tworzymy Twoje konto...",
-        "loading_text": "Jeśli trwa to zbyt długo, spróbuj ponownie!"
+        "success_title": "Email potwierdzony!",
+        "success_description": "Wszystko gotowe - za chwilę przeniesiemy Cię do ekranu logowania.",
+        "error_title": "Nie udało się potwierdzić emaila",
+        "error_description": "Wystąpił problem z potwierdzeniem adresu email. Spróbuj ponownie później.",
+        "error_expired": "Link potwierdzający wygasł lub jest nieprawidłowy. Zarejestruj się ponownie, aby otrzymać nowy link.",
+        "register_again": "Zarejestruj się ponownie",
+        "loading_title": "Potwierdzamy Twój email...",
+        "loading_text": "To zajmie tylko chwilę."
     },
     "validation": {
         "required": "To pole jest wymagane",
@@ -157,7 +168,6 @@
         "description": {
             "tooShort": "Opis musi zawierać co najmniej 10 znaków."
         },
-
         "consent": {
             "required": "Musisz zaakceptować zgodę."
         },
@@ -251,7 +261,7 @@
             "close_chat_reason_2": "Użytkownik nie odpowiada od dłuższego czasu.",
             "close_chat_reason_3": "Zakończenie rozmowy jest wymagane przez procedurę."
         },
-        "close_chat_confirmation_text_1": "Czat zostanie zamknięty, osoba w kryzysie zostanie zdjęta z aktywnego wsparcia i nie uruchomi się rematch. Administracja wciąż będzie miała dostęp do historii rozmowy.",
+        "close_chat_confirmation_text_1": "Czat zostanie zamknięty, a osoba w kryzysie przestanie być objęta aktywnym wsparciem. W tym przypadku nie zostanie dla niej automatycznie znaleziony kolejny wolontariusz. Jeśli chcesz, aby rozmowę kontynuowała inna osoba, albo podopieczny nadal potrzebuje pomocy - skontaktuj się z superwizorem. Administracja wciąż będzie miała dostęp do historii rozmowy.",
         "contract_confirmed_desc": "Kontrakt został potwierdzony. Nie można go już edytować.",
         "remove_participant_success": "Uczestnik został usunięty",
         "connection": {
@@ -327,7 +337,7 @@
             "4": "Wsparcie Fundacji jest dostępne wyłącznie dla osób pełnoletnich (powyżej 18 lat).",
             "5": "“Kontrakt” dotyczy częstotliwości i zasad kontaktu Wolontariusza z osobą w kryzysie.",
             "6": "Wolontariusz nie pobiera wynagrodzenia w żadnej formie i nie oczekuje żadnej rekompensaty.",
-            "7": "Wolontariusz ma obowiązek zachowania poufności i tajemnicy. Wyjątkiem są sytuacje, w których istnieje zagrożenie życia podopiecznego — wtedy Wolontariusz zobowiązuje się zgłosić to Koordynatorowi Wolontariuszy oraz odpowiednim służbom.",
+            "7": "Wolontariusz ma obowiązek zachowania poufności i tajemnicy. Wyjątkiem są sytuacje, w których istnieje zagrożenie życia podopiecznego - wtedy Wolontariusz zobowiązuje się zgłosić to Koordynatorowi Wolontariuszy oraz odpowiednim służbom.",
             "8": "Wolontariusz zobowiązuje się do podmiotowego traktowania osoby wspieranej i nie przekraczania jej granic.",
             "9": "Zabronione jest umawianie się na kontakt poza czatem Fundacji Peryskop.",
             "10": "Osoba w kryzysie ma prawo do otrzymywania wsparcia nie rzadziej niż raz w tygodniu, nie mniej niż godzinę tygodniowo.",
@@ -342,7 +352,7 @@
         "no_available_chats_found": "Nie znaleziono dostępnych czatów. Skontakuj się z administratorem",
         "connection_lost": "Połączenie zostało utracone",
         "reconnecting_automatically": "Trwa automatyczne ponowne łączenie...",
-        "send_failed_not_connected": "Nie można wysłać wiadomości — brak połączenia",
+        "send_failed_not_connected": "Nie można wysłać wiadomości - brak połączenia",
         "send_failed": "Nie udało się wysłać",
         "retry": "Ponów",
         "disconnected_placeholder": "Ponowne łączenie...",
@@ -355,6 +365,26 @@
         "failed_to_load_history": "Nie udało się załadować historii czatu",
         "archive": "Archiwum",
         "archived_messages_notice": "Pozostałe wiadomości nie są już dostępne i zostały zarchiwizowane.",
+        "conversations_title": "Rozmowy",
+        "collapse_sidebar": "Zwiń listę rozmów",
+        "expand_sidebar": "Rozwiń listę rozmów",
+        "more_actions": "Więcej opcji",
+        "actions_title": "Opcje rozmowy",
+        "no_chats": "Brak rozmów",
+        "no_results": "Brak wyników",
+        "loading_more": "Wczytywanie rozmów...",
+        "back_to_list": "Wróć do listy rozmów",
+        "select_conversation": "Wybierz rozmowę z listy, aby zobaczyć wiadomości.",
+        "sending": "Wysyłanie...",
+        "sent": "Wysłano",
+        "read_only_notice": "Masz dostęp tylko do odczytu tej rozmowy.",
+        "today": "Dzisiaj",
+        "yesterday": "Wczoraj",
+        "empty_title": "Nie ma tu jeszcze żadnych wiadomości",
+        "empty_readonly_title": "Nie ma tu jeszcze żadnych wiadomości",
+        "empty_user_description": "Napisz pierwszą wiadomość, aby rozpocząć rozmowę. Jesteśmy tu, aby Cię wysłuchać.",
+        "empty_privileged_description": "Rozpocznij rozmowę - przywitaj się i napisz pierwszą wiadomość, aby nawiązać kontakt.",
+        "empty_readonly_description": "Gdy pojawią się wiadomości, zobaczysz je w tym miejscu.",
         "info_modal": {
             "title": "Informacje o czatach",
             "intro": "Nieaktywne czaty są automatycznie zamykane. Nie są usuwane i pozostają dostępne do odczytu.",
@@ -369,15 +399,42 @@
     "auth": {
         "login": {
             "title": "Witaj ponownie!",
-            "subtitle": "Zaloguj się korzystając z poniższego formularza, cieszymy się, że wróciłeś!",
+            "subtitle": "Zaloguj się, aby kontynuować. Miło znów Cię widzieć!",
             "no_account": "Nie masz konta?",
-            "register_link": "Zarejestruj się"
+            "register_link": "Zarejestruj się",
+            "forgot_password": "Nie pamiętasz hasła?"
         },
         "register": {
             "title": "Utwórz nowe konto!",
             "subtitle": "Zarejestruj się korzystając z poniższego formularza, cieszymy się, że do nas dołączasz!",
             "has_account": "Masz już konto?",
-            "login_link": "Zaloguj się"
+            "login_link": "Zaloguj się",
+            "policy_prefix": "Rejestrując się, akceptuję",
+            "policy_link": "warunki użytkowania i politykę prywatności",
+            "submit_error": "Nie udało się utworzyć konta. Spróbuj ponownie."
+        },
+        "fields": {
+            "email": "Email",
+            "email_placeholder": "Wpisz swój adres e-mail",
+            "password": "Hasło",
+            "password_placeholder": "Wpisz swoje hasło",
+            "full_name": "Imię lub ksywka",
+            "full_name_placeholder": "Jak mamy się do Ciebie zwracać?",
+            "confirm_password": "Potwierdź hasło",
+            "confirm_password_placeholder": "Wpisz hasło ponownie",
+            "recovery_code": "Kod odzyskiwania",
+            "recovery_code_placeholder": "Wpisz kod odzyskiwania konta",
+            "new_password": "Nowe hasło"
+        },
+        "actions": {
+            "login": "Zaloguj się",
+            "register": "Utwórz konto",
+            "reset_password": "Zresetuj hasło"
+        },
+        "cover": {
+            "headline": "Jesteśmy tu, aby Cię wysłuchać",
+            "subline": "Bezpieczne i anonimowe wsparcie psychologiczne - zawsze blisko.",
+            "credit": "Grafika autorstwa"
         },
         "register_chat_support": {
             "title": "Załóż konto, aby zacząć rozmowę",
@@ -438,10 +495,12 @@
         "change_avatar_label": "Bezpośredni link do zdjęcia",
         "change_avatar_tutorial": "Aby zmienić zdjęcie profilowe, wklej bezpośredni link do zdjęcia w pole poniżej. Aby uzyskać link do zdjęcia, kliknij prawym przyciskiem myszy na zdjęcie, które chcesz użyć i wybierz opcję 'Kopiuj adres obrazu'."
     },
-
     "articles": {
         "read_more": "Czytaj więcej",
         "title": "Tworzymy przestrzeń bez tabu, dla Ciebie!",
+        "featured": "Najnowszy",
+        "all_categories": "Wszystkie",
+        "filter_label": "Filtruj według kategorii",
         "add_article": "Nowy artykuł",
         "category_required": "Kategoria jest wymagana",
         "more_articles": "Więcej artykułów",
@@ -458,7 +517,6 @@
             "restored": "Przywrócono niezapisaną wersję",
             "discarded": "Odrzucono zapisaną wersję"
         },
-
         "dashboard": {
             "subtitle": "Zarządzaj artykułami",
             "title": "W tej sekcji znajdziesz wszystkie Twoje artykuły, zarówno opublikowane, jak i te w trakcie tworzenia.",
@@ -471,7 +529,6 @@
             "published": "Opublikowane",
             "deleted": "Usunięte"
         },
-
         "status": {
             "published": "Opublikowany",
             "draft": "Szkic",
@@ -497,8 +554,8 @@
         "save_draft_warning": {
             "title": "Zapisać jako wersja robocza?",
             "status_change": "Zapisanie jako wersja robocza zmieni status artykułu z „{{from}}” na „{{to}}”.",
-            "published_warning": "Uwaga: artykuł przestanie być widoczny publicznie w zakładce Artykuły i nie będzie już dostępny do czytania dla odwiedzających — do czasu ponownej publikacji.",
-            "autosave_hint": "Nie musisz zapisywać jako wersja robocza, aby nie stracić zmian — zapisują się one automatycznie na tym urządzeniu i możesz do nich wrócić później.",
+            "published_warning": "Uwaga: artykuł przestanie być widoczny publicznie w zakładce Artykuły i nie będzie już dostępny do czytania dla odwiedzających - do czasu ponownej publikacji.",
+            "autosave_hint": "Nie musisz zapisywać jako wersja robocza, aby nie stracić zmian - zapisują się one automatycznie na tym urządzeniu i możesz do nich wrócić później.",
             "confirm": "Zapisz jako wersja robocza",
             "cancel": "Anuluj"
         },
@@ -520,7 +577,6 @@
             "card_heading": "Kafelek na liście artykułów",
             "article_heading": "Pełny widok artykułu"
         },
-
         "manage": "Zarządzaj",
         "form": {
             "title": "Tytuł",
@@ -658,14 +714,14 @@
             "mock_msg3": "Rozumiem. Chcesz mi o tym opowiedzieć? Jestem tu dla Ciebie.",
             "mock_msg4": "Tak, chciałbym porozmawiać.",
             "conv2_name": "Wolontariusz Michał",
-            "conv2_msg1": "Witaj! To bezpieczna przestrzeń — możesz podzielić się czym chcesz.",
+            "conv2_msg1": "Witaj! To bezpieczna przestrzeń - możesz podzielić się czym chcesz.",
             "conv2_msg2": "Nie wiem tak naprawdę od czego zacząć…",
             "conv2_msg3": "To zupełnie normalne. Nie ma pośpiechu. Możemy iść krok po kroku.",
             "conv2_msg4": "Dziękuję, to pomaga.",
             "conv3_name": "Wolontariusz Kasia",
             "conv3_msg1": "Cześć! Cieszę się, że się odezwałeś/aś.",
             "conv3_msg2": "Ostatnio czuję się przytłoczony/a wszystkim.",
-            "conv3_msg3": "To brzmi naprawdę trudno. Nie jesteś w tym sam/a — porozmawiajmy o tym razem.",
+            "conv3_msg3": "To brzmi naprawdę trudno. Nie jesteś w tym sam/a - porozmawiajmy o tym razem.",
             "conv3_msg4": "Bardzo bym to docenił/a."
         },
         "articles_preview": {
@@ -685,7 +741,7 @@
         },
         "final_cta": {
             "title": "Nie musisz radzić sobie sam/a",
-            "subtitle": "Zrób pierwszy krok — wypełnij formularz i otrzymaj darmowe wsparcie od przeszkolonych wolontariuszy.",
+            "subtitle": "Zrób pierwszy krok - wypełnij formularz i otrzymaj darmowe wsparcie od przeszkolonych wolontariuszy.",
             "cta_mentee": "Potrzebuję wsparcia",
             "cta_volunteer": "Chcę pomagać"
         },
@@ -717,6 +773,55 @@
                     "desc": "Zalążek naszego projektu powstał przez Internet i także tu, w sieci, chcemy tworzyć naszą społeczność. Choć mieszkamy w różnych rejonach Polski, pracujemy razem nad wspólnym celem i wiemy, że skutecznie pomagać można także online. Dla niektórych właśnie taka forma może okazać się jedyną dostępną. Stworzyliśmy bezpieczną platformę w formie czatu przeznaczoną do kontaktu pomiędzy osobami będącymi w kryzysie a wolontariuszami niosącymi wsparcie. Istota takiej pomocy sprowadza się do rozmów jeden na jeden w regularnych odstępach czasu. Jeśli, podobnie jak my, uważasz, że nowe technologie mogą mieć także dobroczynny wpływ na zdrowie psychiczne, to witaj na pokładzie!"
                 }
             ]
+        },
+        "hero": {
+            "title": "Cokolwiek chodzi Ci po głowie, jesteśmy tu, żeby wysłuchać",
+            "title_lead": "Cokolwiek chodzi Ci po głowie, jesteśmy tu, żeby",
+            "title_words": ["wysłuchać", "porozmawiać", "zrozumieć", "wesprzeć", "być obok"],
+            "subtitle": "Darmowa i w pełni anonimowa pomoc psychologiczna w formie czatu. Rozmawiasz z człowiekiem - nie robotem"
+        },
+        "pitch": {
+            "help": {
+                "title": "Potrzebuję pomocy",
+                "subtitle": "Zapisz się na wymianę wiadomości z wolontariuszem",
+                "cta": "Dołącz za darmo"
+            },
+            "volunteer": {
+                "title": "Chcę pomagać",
+                "subtitle": "Zostań wolontariuszem",
+                "cta": "Dołącz za darmo"
+            }
+        },
+        "topics": {
+            "heading": "O czym chcesz porozmawiać?",
+            "relationship": "Problemy w związku",
+            "negative_thoughts": "Negatywne myśli",
+            "low_mood": "Złe samopoczucie",
+            "depression": "Depresja",
+            "addiction": "Alkoholizm",
+            "other": "Inne / nie wiem"
+        },
+        "steps": {
+            "heading": "Jak działamy?",
+            "step1": {
+                "title": "Złóż formularz",
+                "subtitle": "Zapisz się na wymianę wiadomości z wolontariuszem"
+            },
+            "step2": {
+                "title": "Szukamy dla Ciebie wolontariusza",
+                "subtitle": "Poczekaj, aż znajdziemy dla Ciebie wolną osobę, która z Tobą porozmawia"
+            },
+            "step3": {
+                "title": "Wejdź do zakładki \"Rozmowy\"",
+                "subtitle": "Aby zacząć wymianę wiadomości z przydzielonym wolontariuszem"
+            },
+            "step4": {
+                "title": "Wracaj do nas regularnie",
+                "subtitle": "Rozmowę możesz kontynuować kiedy chcesz!"
+            }
+        },
+        "articles_section": {
+            "heading": "Artykuły"
         }
     },
     "admin": {
@@ -831,7 +936,6 @@
             "education_label": "Wybierz poziom wykształcenia",
             "phone_number_label": "Podaj numer telefonu",
             "contact_label": "Preferowany kontakt",
-
             "contact_options": {
                 "email": "Email",
                 "phone": "Telefon"
@@ -923,7 +1027,6 @@
             ],
             "name_label": "Podaj imię, ksywkę lub jak mamy się do Ciebie zwracać?",
             "contact_label": "Preferowany kontakt",
-
             "contact_options": {
                 "email": "Email",
                 "phone": "Telefon",
@@ -954,7 +1057,6 @@
             }
         },
         "referral_source_label": "Skąd wiesz o Fundacji Peryskop?",
-
         "referral_source_options": {
             "friend": "Znajomy",
             "social_media": "Media społecznościowe",
@@ -964,6 +1066,8 @@
         "back": "Wróć",
         "next": "Dalej",
         "submit": "Wyślij",
+        "step_indicator": "Krok {{current}} z {{total}}",
+        "submit_error": "Nie udało się wysłać formularza. Spróbuj ponownie.",
         "homepage": "Powrót na stronę główną",
         "retry": "Kliknij tutaj, aby wypełnić formularz jeszcze raz"
     },
@@ -1047,7 +1151,8 @@
         "themes": "Problemy",
         "reason": "Powód dołączenia",
         "did_help": "Czy pomogał wcześniej",
-        "education": "Wykształcenie"
+        "education": "Wykształcenie",
+        "unknown_name": "Nieznane"
     },
     "form_status": {
         "accepted": "Zaakceptowany",
@@ -1112,33 +1217,94 @@
             "title": "Ważna informacja",
             "subtitle": "Zanim przejdziesz dalej, prosimy o chwilę uwagi"
         },
-
         "content": {
             "p1": "Jeśli wypełniasz ten formularz, to znaczy, że coś Cię porusza. I to już wystarczy.",
-            "p2": "Nie musisz się zastanawiać, czy Twój kryzys „jest wystarczająco poważny” — każda trudność zasługuje na uwagę, bo Ty zasługujesz na wsparcie.",
-            "p3": "Jesteśmy tutaj, żeby Ci towarzyszyć — nie jednorazowo, ale regularnie, krok po kroku, w Twoim tempie.",
-
+            "p2": "Nie musisz się zastanawiać, czy Twój kryzys „jest wystarczająco poważny” - każda trudność zasługuje na uwagę, bo Ty zasługujesz na wsparcie.",
+            "p3": "Jesteśmy tutaj, żeby Ci towarzyszyć - nie jednorazowo, ale regularnie, krok po kroku, w Twoim tempie.",
             "chat_section": {
                 "title": "Regularny kontakt na czacie",
                 "p4": "Jeśli zapisujesz się na regularny kontakt z wolontariuszem na czacie, postaraj się być obecna / obecny w ustalonym czasie.",
-                "p5": "Każde zgłoszenie to realny czas, energia i zaangażowanie — zarówno z naszej strony, jak i ze strony wolontariuszy.",
+                "p5": "Każde zgłoszenie to realny czas, energia i zaangażowanie - zarówno z naszej strony, jak i ze strony wolontariuszy.",
                 "p6": "Gdy ktoś nie pojawia się na czacie, inna osoba może nie otrzymać wsparcia, a osoby gotowe pomagać mogą poczuć bezsilność."
             },
-
-            "p7": "Rozumiemy, że rozpoczęcie rozmowy bywa trudne. Jeśli coś Cię powstrzymuje — napisz o tym. Nie oceniamy.",
+            "p7": "Rozumiemy, że rozpoczęcie rozmowy bywa trudne. Jeśli coś Cię powstrzymuje - napisz o tym. Nie oceniamy.",
             "p8": "Prosimy tylko, by nie zostawiać nas w zawieszeniu. Ten system działa wtedy, gdy jesteśmy w nim razem.",
             "footer": "Dziękujemy, że jesteś."
         },
-
         "footer": {
             "scroll_hint": "Przewiń, aby kontynuować",
             "cta": "Rozpocznij"
+        },
+        "continue": "Kontynuuj"
+    },
+    "how_it_works": {
+        "title": "Jak to działa?",
+        "subtitle": "Zobacz w krótkiej, przykładowej rozmowie, jak działa Fundacja Peryskop.",
+        "chat_title": "Peryskop",
+        "chat_subtitle": "3 osoby",
+        "log_label": "Przykładowa rozmowa o tym, jak działa Peryskop",
+        "today": "Dzisiaj",
+        "typing": "{{name}} pisze...",
+        "composer": "Napisz wiadomość...",
+        "skip": "Pomiń",
+        "replay": "Odtwórz ponownie",
+        "personas": {
+            "ola_name": "Ola",
+            "ola_role": "wolontariuszka",
+            "michal_name": "Michał",
+            "michal_role": "koordynator",
+            "kasia_name": "Kasia",
+            "kasia_role": "superwizorka"
+        },
+        "script": {
+            "hello": "Cześć! 👋 Cieszymy się, że tu jesteś. W kilku wiadomościach opowiemy Ci, jak działa Peryskop.",
+            "what": "Peryskop to darmowa i w pełni anonimowa pomoc psychologiczna w formie czatu. Rozmawiasz z człowiekiem - nie z robotem.",
+            "form": "Wszystko zaczyna się od krótkiego formularza. Piszesz w nim, z czym przychodzisz - dzięki temu możemy dobrać dla Ciebie odpowiednią osobę.",
+            "match": "Potem szukamy wolnej osoby z naszego zespołu wolontariuszy. Gdy ją znajdziemy, damy Ci znać mailem, a rozmowa pojawi się w zakładce \"Rozmowy\".",
+            "talk": "Rozmawiacie jeden na jeden, regularnie i w tempie, które Ci odpowiada.",
+            "safe": "Osoby wspierające są przeszkolone i pozostają pod stałą opieką superwizyjną, więc możesz czuć się bezpiecznie.",
+            "pace": "Nikt Cię tu nie ocenia. To Ty decydujesz, czym chcesz się podzielić - i możesz wracać do rozmowy, kiedy tylko chcesz.",
+            "get_help": "Zacznij, kiedy poczujesz, że to dobry moment.",
+            "volunteer": "Lub jeśli chcesz pomagać, kliknij, aby zostać wolontariuszem."
+        },
+        "cta": {
+            "get_help": "Otrzymaj pomoc",
+            "volunteer": "Chcę pomagać"
         }
     },
     "donations": {
         "nav": "Wesprzyj nas",
-        "hero_title": "Wesprzyj Fundację Peryskop",
-        "hero_subtitle": "Razem możemy sprawić, by wsparcie psychologiczne było dostępne dla każdego.",
+        "hero_title": "Wesprzyj, abyśmy mogli dalej wspierać",
+        "hero_subtitle": "Dzięki dotacjom możemy świadczyć nasze usługi za darmo oraz rozwijać naszą działalność.",
+        "hero_cta": "Przekaż darowiznę",
+        "hero_secondary": "Poznaj naszą misję",
+        "read_more": "Czytaj więcej",
+        "read_less": "Zwiń",
+        "collage": {
+            "aria": "Sposoby wsparcia Fundacji",
+            "stat_value": "100%",
+            "stat_label": "środków idzie na bezpłatne wsparcie",
+            "stat_cta": "Przekaż darowiznę",
+            "photo1_label": "Wsparcie",
+            "photo1_title": "Rozmowa 1 na 1, gdy jej potrzebujesz",
+            "photo2_label": "Online",
+            "photo2_title": "Wsparcie dostępne z każdego miejsca",
+            "social_title": "Dołącz do osób, które już pomagają",
+            "social_cta": "Wspieram",
+            "cta_title": "Wesprzyj online",
+            "cta_desc": "Szybka wpłata przez pomagam.pl",
+            "cta_bar": "Wpłać teraz"
+        },
+        "ways": {
+            "title": "Wesprzeć nas można w kilka minut",
+            "subtitle": "Twoja darowizna w całości zasila bezpłatne wsparcie psychologiczne - online i pod stałą superwizją.",
+            "item1_title": "Wybierz kwotę",
+            "item1_desc": "Dowolna wpłata ma znaczenie - to Ty decydujesz, jak bardzo chcesz pomóc.",
+            "item2_title": "Wpłać w minutę",
+            "item2_desc": "Online przez pomagam.pl albo zwykłym przelewem na konto Fundacji.",
+            "item3_title": "Realnie pomagasz",
+            "item3_desc": "Finansujesz anonimowe, bezpłatne rozmowy dla osób w kryzysie."
+        },
         "what_is": {
             "title": "Czym jest Fundacja Peryskop?",
             "p1": "Pomysł na powstanie projektu narodził się w wyniku kryzysu osobistego i potrzeby wsparcia w trudnym czasie. Z doświadczenia wiemy, jak ogromną rolę odgrywają w takiej sytuacji towarzyszące nam osoby.",
@@ -1151,10 +1317,16 @@
             "p8": "Możemy tworzyć wspólnie unikalne miejsce, w którym osoby doświadczające trudnych emocji będą zaopiekowane przez naszych wolontariuszy, pozostających pod stałą opieką superwizyjną.",
             "p9": "Razem widzimy więcej, możemy więcej i jesteśmy lepiej przygotowani do stawiania czoła nieustannej podróży, jaką jest życie."
         },
+        "photos": {
+            "helping_hands": "Dłonie splecione w geście wsparcia",
+            "phone": "Osoba korzystająca z telefonu",
+            "computer": "Osoba korzystająca z komputera",
+            "hands_computer": "Dłonie na klawiaturze komputera"
+        },
         "goals": {
             "title": "Nasze cele",
             "goal1_title": "Dostępne wsparcie",
-            "goal1_desc": "Zapewnienie darmowego, anonimowego wsparcia psychologicznego każdemu, kto tego potrzebuje — niezależnie od miejsca zamieszkania czy sytuacji finansowej.",
+            "goal1_desc": "Zapewnienie darmowego, anonimowego wsparcia psychologicznego każdemu, kto tego potrzebuje - niezależnie od miejsca zamieszkania czy sytuacji finansowej.",
             "goal2_title": "Przeszkoleni wolontariusze",
             "goal2_desc": "Budowanie społeczności dobrze przeszkolonych wolontariuszy, którzy oferują empatyczne wsparcie pod superwizją w rozmowach jeden na jeden.",
             "goal3_title": "Przełamywanie tabu",
@@ -1175,10 +1347,11 @@
             "subtitle": "Nasze usługi są całkowicie bezpłatne, ale bez pomocy darczyńców nie możemy realizować naszej misji.",
             "supporters": "{{count}}+ osób już wsparło ten projekt",
             "cta": "Wesprzyj teraz",
-            "bank_title": "Przelew bankowy",
-            "bank_number": "62 1870 1045 2083 1080 5210 0001",
             "copy_account": "Skopiuj numer konta",
-            "or": "lub wesprzyj poprzez"
+            "circle_cta": "Wesprzyj",
+            "ring_primary": "Wesprzyj Fundację Peryskop",
+            "ring_secondary": "Każda wpłata to czyjaś rozmowa",
+            "transfer_label": "Wolisz przelew?"
         },
         "homepage_preview": {
             "title": "Wesprzyj naszą misję",

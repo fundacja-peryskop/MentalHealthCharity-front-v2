@@ -1,7 +1,8 @@
-import { Button } from "@/components/ui/button";
+import { Input, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { PlusCircle, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { CtaButton } from "../../../layout/CtaButton";
+import { useIconColor } from "../../../layout/useIconColor";
 import { Permissions } from "../../../shared/constants";
 import usePermissions from "../../../shared/hooks/usePermissions";
 
@@ -13,29 +14,29 @@ interface Props {
 const ArticlesHeading = ({ onSearch, search }: Props) => {
     const { t } = useTranslation();
     const { hasPermissions } = usePermissions();
+    const icon = useIconColor();
 
     return (
-        <div className="flex flex-wrap gap-3 md:flex-nowrap">
-            <div className="bg-card/80 flex flex-1 items-center gap-2 rounded-full border px-4 py-2.5 backdrop-blur-sm">
-                <Search className="text-muted-foreground size-4 shrink-0" />
-                <label htmlFor="articles-search" className="sr-only">
-                    {t("common.search")}
-                </label>
-                <input
-                    id="articles-search"
-                    className="text-foreground placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent text-sm outline-none"
-                    placeholder={t("common.search")}
+        <XStack gap="$md" flexWrap="wrap" alignItems="center">
+            <YStack flex={1} minWidth={240}>
+                <Input
                     value={search}
-                    onChange={(e) => onSearch(e.target.value)}
+                    onChangeText={onSearch}
+                    placeholder={t("common.search")}
+                    aria-label={t("common.search")}
+                    prefix={<Search size={18} color={icon.muted} />}
                 />
-            </div>
-            {hasPermissions(Permissions.CREATE_ARTICLE) && (
-                <Button className="gap-1.5 rounded-full" render={<Link to="/articles/dashboard" />}>
-                    <PlusCircle className="size-5" />
-                    {t("articles.add_article")}
-                </Button>
-            )}
-        </div>
+            </YStack>
+
+            {hasPermissions(Permissions.CREATE_ARTICLE) ? (
+                <CtaButton href="/articles/dashboard" variant="primary" borderRadius="$md">
+                    <PlusCircle size={18} color={icon.inverse} />
+                    <Typography variant="regularSemibold" color="$primaryText">
+                        {t("articles.add_article")}
+                    </Typography>
+                </CtaButton>
+            ) : null}
+        </XStack>
     );
 };
 

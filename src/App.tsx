@@ -7,7 +7,6 @@ import { posthogKey } from "./api";
 import { UserProvider } from "./modules/auth/components/AuthProvider";
 import Layout from "./modules/shared/components/Layout";
 import Loader from "./modules/shared/components/Loader";
-import Navbar from "./modules/shared/components/Navbar";
 import RootRouter from "./modules/shared/components/RootRouter";
 import TechnicalBreakScreen from "./modules/shared/components/TechnicalBreakScreen";
 import { APP_TIME_ZONE, parseApiDate } from "./modules/shared/helpers/dateTime";
@@ -148,7 +147,6 @@ function App() {
                 <UserProvider>
                     <BrowserRouter>
                         <Layout>
-                            <Navbar />
                             <RootRouter />
                         </Layout>
                     </BrowserRouter>

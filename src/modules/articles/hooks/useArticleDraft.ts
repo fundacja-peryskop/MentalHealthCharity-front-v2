@@ -16,7 +16,7 @@ interface StoredDraft {
     values: DraftText;
 }
 
-/** Text-only subset persisted locally — the banner (File) is intentionally excluded. */
+/** Text-only subset persisted locally - the banner (File) is intentionally excluded. */
 const pickText = (v: CreateArticleValues): DraftText => ({
     title: v.title,
     content: v.content,
@@ -49,7 +49,7 @@ const pruneOldDrafts = () => {
             }
         }
     } catch {
-        // localStorage unavailable (private mode / disabled) — nothing to prune
+        // localStorage unavailable (private mode / disabled) - nothing to prune
     }
 };
 
@@ -107,7 +107,7 @@ export function useArticleDraft(formik: FormikProps<CreateArticleValues>, storag
                 localStorage.setItem(storageKey, JSON.stringify({ savedAt, values: pickText(values) }));
                 setLastLocalSavedAt(savedAt);
             } catch {
-                /* quota / unavailable — ignore */
+                /* quota / unavailable - ignore */
             }
         }, DEBOUNCE_MS);
         return () => clearTimeout(handle);

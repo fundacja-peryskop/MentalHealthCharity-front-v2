@@ -38,4 +38,14 @@ export default [
             },
         },
     },
+    {
+        // Node tooling scripts (not part of the browser bundle).
+        files: ["scripts/**/*.js"],
+        languageOptions: {
+            globals: {
+                process: "readonly",
+                console: "readonly",
+            },
+        },
+    },
 ];

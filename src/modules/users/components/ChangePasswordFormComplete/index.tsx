@@ -1,10 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useFormik } from "formik";
+import { Button, YStack } from "@fundacja-peryskop/ui";
+import { Form, FormikProvider, useFormik } from "formik";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import * as Yup from "yup";
+import { FormTextField } from "../../../layout/form/FormTextField";
 import { validation } from "../../../shared/constants";
 
 export interface ChangePasswordCompletePayload {
@@ -46,57 +45,22 @@ const ChangePasswordFormComplete = ({ onSubmit, isLoading }: Props) => {
     });
 
     return (
-        <form onSubmit={formik.handleSubmit} noValidate className="flex w-full flex-col gap-4">
-            {!token && (
-                <div className="space-y-1.5">
-                    <Label htmlFor="token">{t("form.token")}</Label>
-                    <Input
-                        id="token"
-                        name="token"
-                        value={formik.values.token}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
+        <FormikProvider value={formik}>
+            <Form noValidate>
+                <YStack gap="$lg">
+                    {!token ? <FormTextField name="token" label={t("form.token")} /> : null}
+                    <FormTextField
+                        name="password"
+                        label={t("change_password_form_complete.new_password")}
+                        type="password"
                     />
-                    {formik.touched.token && formik.errors.token && (
-                        <p className="text-destructive text-sm">{formik.errors.token}</p>
-                    )}
-                </div>
-            )}
-
-            <div className="space-y-1.5">
-                <Label htmlFor="password">{t("change_password_form_complete.new_password")}</Label>
-                <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={formik.values.password}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                />
-                {formik.touched.password && formik.errors.password && (
-                    <p className="text-destructive text-sm">{formik.errors.password}</p>
-                )}
-            </div>
-
-            <div className="space-y-1.5">
-                <Label htmlFor="confirm_password">{t("common.password_confirmation")}</Label>
-                <Input
-                    id="confirm_password"
-                    name="confirm_password"
-                    type="password"
-                    value={formik.values.confirm_password}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                />
-                {formik.touched.confirm_password && formik.errors.confirm_password && (
-                    <p className="text-destructive text-sm">{formik.errors.confirm_password}</p>
-                )}
-            </div>
-
-            <Button type="submit" disabled={isLoading}>
-                {t("form.submit")}
-            </Button>
-        </form>
+                    <FormTextField name="confirm_password" label={t("common.password_confirmation")} type="password" />
+                    <Button variant="primary" fullWidth disabled={isLoading}>
+                        {t("form.submit")}
+                    </Button>
+                </YStack>
+            </Form>
+        </FormikProvider>
     );
 };
 

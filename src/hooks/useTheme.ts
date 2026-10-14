@@ -11,7 +11,9 @@ function getStoredTheme(): Theme {
     } catch {
         // localStorage unavailable
     }
-    return "system";
+    // The UI exposes no theme switch - the product is light-only by design - so
+    // default to light rather than following the OS ("system").
+    return "light";
 }
 
 function getSystemTheme(): "light" | "dark" {

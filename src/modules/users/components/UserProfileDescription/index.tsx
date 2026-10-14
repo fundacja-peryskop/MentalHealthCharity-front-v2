@@ -1,10 +1,13 @@
-import { Button } from "@/components/ui/button";
+import { Button, XStack } from "@fundacja-peryskop/ui";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { useFormik } from "formik";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import Markdown from "../../../shared/components/Markdown";
 import SimpleCard from "../../../shared/components/SimpleCard";
+
+/** Marks a `<button>` as non-submitting; DS Button doesn't type `type`. */
+const NON_SUBMIT = { type: "button" } as object;
 
 interface Props {
     content: string;
@@ -22,7 +25,7 @@ const UserProfileDescription = ({ content, isOwner, onSubmit }: Props) => {
     });
 
     return (
-        <SimpleCard subtitle={t("profile.description_subtitle")} className="flex flex-col gap-2.5">
+        <SimpleCard subtitle={t("profile.description_subtitle")}>
             {isOwner ? (
                 <form onSubmit={formik.handleSubmit}>
                     <div className="relative z-[99999] block min-h-[600px]" onClick={() => editorRef.current?.focus()}>
@@ -35,19 +38,19 @@ const UserProfileDescription = ({ content, isOwner, onSubmit }: Props) => {
                         />
                     </div>
                     {formik.dirty && (
-                        <div className="flex gap-2.5">
-                            <Button type="submit">{t("common.save")}</Button>
+                        <XStack gap="$md">
+                            <Button variant="primary">{t("common.save")}</Button>
                             <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
+                                variant="mutedPrimary"
+                                {...NON_SUBMIT}
+                                onPress={() => {
                                     formik.resetForm();
                                     editorRef.current?.setMarkdown(content);
                                 }}
                             >
                                 {t("common.cancel")}
                             </Button>
-                        </div>
+                        </XStack>
                     )}
                 </form>
             ) : (

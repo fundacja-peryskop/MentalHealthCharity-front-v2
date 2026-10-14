@@ -1,20 +1,20 @@
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button, XStack, YStack } from "@fundacja-peryskop/ui";
 import { Form, Formik } from "formik";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import * as Yup from "yup";
+import { AppLink } from "../../../layout/AppLink";
+import { FormTextField } from "../../../layout/form/FormTextField";
+import Loader from "../../../shared/components/Loader";
 import { LoginFormValues } from "../../types";
 
 interface Props {
     onSubmit: (values: LoginFormValues) => void;
-    disabled?: boolean;
+    /** Submission in progress - disables the form and shows a spinner. */
+    loading?: boolean;
     initial?: LoginFormValues;
 }
 
-const LoginForm = ({ onSubmit, initial, disabled }: Props) => {
+const LoginForm = ({ onSubmit, initial, loading = false }: Props) => {
     const { t } = useTranslation();
 
     const validationSchema = Yup.object({
@@ -22,64 +22,39 @@ const LoginForm = ({ onSubmit, initial, disabled }: Props) => {
         password: Yup.string().min(8, t("validation.incorrect_password_format")).required(t("validation.required")),
     });
 
-    const initialValues = {
-        email: "",
-        password: "",
-        ...initial,
-    };
+    const initialValues: LoginFormValues = { email: "", password: "", ...initial };
 
     return (
         <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-            {({ errors, touched, handleChange, handleBlur, values }) => (
-                <Form className="flex flex-col gap-4">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={values.email}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        {touched.email && errors.email && <p className="text-destructive text-sm">{errors.email}</p>}
-                    </div>
+            <Form>
+                <YStack gap="$lg">
+                    <FormTextField
+                        name="email"
+                        type="email"
+                        label={t("auth.fields.email")}
+                        placeholder={t("auth.fields.email_placeholder")}
+                        autoFocus
+                    />
 
-                    <div className="space-y-1.5">
-                        <Label htmlFor="password">Hasło</Label>
-                        <Input
-                            id="password"
+                    <YStack gap="$sm">
+                        <FormTextField
                             name="password"
                             type="password"
-                            value={values.password}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
+                            label={t("auth.fields.password")}
+                            placeholder={t("auth.fields.password_placeholder")}
                         />
-                        {touched.password && errors.password && (
-                            <p className="text-destructive text-sm">{errors.password}</p>
-                        )}
-                    </div>
+                        <XStack justifyContent="flex-end">
+                            <AppLink href="/auth/forget-password" variant="smallSemibold" color="$primary">
+                                {t("auth.login.forgot_password")}
+                            </AppLink>
+                        </XStack>
+                    </YStack>
 
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Checkbox id="remember" defaultChecked />
-                            <Label htmlFor="remember" className="cursor-pointer text-sm">
-                                Zapamiętaj mnie
-                            </Label>
-                        </div>
-                        <Link
-                            to="/auth/forget-password"
-                            className="text-primary-brand text-sm font-medium no-underline hover:underline"
-                        >
-                            Przypomnij hasło
-                        </Link>
-                    </div>
-
-                    <Button type="submit" className="w-full" disabled={disabled}>
-                        Zaloguj
+                    <Button variant="primary" fullWidth disabled={loading}>
+                        {loading ? <Loader variant="small" size={20} /> : t("auth.actions.login")}
                     </Button>
-                </Form>
-            )}
+                </YStack>
+            </Form>
         </Formik>
     );
 };

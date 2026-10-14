@@ -4,6 +4,7 @@ import React from "react";
 import assert from "node:assert/strict";
 import { test, afterEach } from "node:test";
 import { act, create, ReactTestRenderer } from "react-test-renderer";
+import { PeryskopProvider } from "@fundacja-peryskop/ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useChatFeed from "../src/modules/chat/hooks/useChatFeed";
 import useChatListSync from "../src/modules/chat/hooks/useChatListSync";
@@ -232,11 +233,13 @@ test("participant dialog waits for success and retains selection after failure",
 });
 
 test("null and blank chat names render a safe label", () => {
+    // ChatItem is built on the Peryskop design system, which (like the app's
+    // main.tsx) needs its theme provider around it.
     mount(
-        <>
+        <PeryskopProvider defaultTheme="light">
             <ChatItem chat={{ id: 42, name: null, is_active: true, unread_count: 0 } as any} selected={false} />
             <ChatItem chat={{ id: 43, name: "  ", is_active: true, unread_count: 0 } as any} selected={false} />
-        </>
+        </PeryskopProvider>
     );
     const tree = JSON.stringify(renderer.toJSON());
     assert(tree.includes("Chat #42") && tree.includes("Chat #43"));

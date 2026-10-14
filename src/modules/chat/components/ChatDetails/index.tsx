@@ -51,7 +51,7 @@ const ChatDetails = ({
     });
 
     return (
-        <ChatSidebarPanel>
+        <ChatSidebarPanel onClose={onClose}>
             {/* Header */}
             <div className="border-border/50 flex h-16 items-center justify-between border-b px-4">
                 <h3 className="text-foreground text-sm font-semibold">

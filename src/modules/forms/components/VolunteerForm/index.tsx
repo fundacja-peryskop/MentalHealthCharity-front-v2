@@ -1,50 +1,155 @@
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { useFormik } from "formik";
-import { ArrowLeft, ArrowRight, CheckCircle, Home } from "lucide-react";
-import { useRef, useState } from "react";
+import { Typography, YStack } from "@fundacja-peryskop/ui";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import { useUser } from "../../../auth/components/AuthProvider";
-import { DateTimePicker } from "../../../shared/components/DatePicker";
-import InternalLink from "../../../shared/components/InternalLink";
+import { CtaButton } from "../../../layout/CtaButton";
+import { FormSelectField } from "../../../layout/form/FormSelectField";
+import { FormTextField } from "../../../layout/form/FormTextField";
+import { FormTextareaField } from "../../../layout/form/FormTextareaField";
+import { phoneRegex, sanitizePhone } from "../../../shared/constants";
 import { VolunteerFormValues } from "../../types";
-import FormWrapper from "../FormWrapper";
+import { FormWizard } from "../../wizard/components/FormWizard";
+import { ChipMultiSelect } from "../../wizard/fields/ChipMultiSelect";
+import { ConsentField } from "../../wizard/fields/ConsentField";
+import { DateField } from "../../wizard/fields/DateField";
+import type { WizardStep } from "../../wizard/types";
+import { useFormWizard } from "../../wizard/useFormWizard";
 
-interface Props {
-    onSubmit: (values: VolunteerFormValues) => void;
-    initStep?: number;
-}
+const STORAGE_KEY = "peryskop:form:volunteer:v1";
+/** Consent is never persisted - it must be re-affirmed each time. */
+const PERSIST_OMIT: (keyof VolunteerFormValues)[] = ["tos"];
 
-const THEME_OPTIONS = [
-    { value: "no", key: "no" },
-    { value: "depression", key: "depression" },
-    { value: "alcoholism", key: "alcoholism" },
-    { value: "drug_addiction", key: "drug_addiction" },
-    { value: "self_harm", key: "self_harm" },
-    { value: "suicidal_thoughts", key: "suicidal_thoughts" },
-    { value: "eating_disorders", key: "eating_disorders" },
-    { value: "domestic_violence", key: "domestic_violence" },
-    { value: "homelessness", key: "homelessness" },
-    { value: "sexual_assault", key: "sexual_assault" },
-    { value: "grief_loss", key: "grief_loss" },
-    { value: "trauma", key: "trauma" },
-    { value: "anxiety", key: "anxiety" },
-    { value: "burnout", key: "burnout" },
-    { value: "loneliness", key: "loneliness" },
+const digitsOnly = (value: string) => value.replace(/[^0-9]/g, "");
+
+const THEME_VALUES = [
+    "no",
+    "depression",
+    "alcoholism",
+    "drug_addiction",
+    "self_harm",
+    "suicidal_thoughts",
+    "eating_disorders",
+    "domestic_violence",
+    "homelessness",
+    "sexual_assault",
+    "grief_loss",
+    "trauma",
+    "anxiety",
+    "burnout",
+    "loneliness",
 ];
 
-const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
+interface Props {
+    onSubmit: (values: VolunteerFormValues) => void | Promise<void>;
+    /** Render the success state immediately (the user has already applied). */
+    startCompleted?: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Step fields - module-scoped so they keep identity across renders.
+// ---------------------------------------------------------------------------
+
+function AgeField() {
+    const { t } = useTranslation();
+    return (
+        <FormTextField
+            name="age"
+            label={t("form.volunteer.age_label")}
+            keyboardType="numeric"
+            autoFocus
+            sanitize={digitsOnly}
+        />
+    );
+}
+
+function EducationField() {
+    const { t } = useTranslation();
+    const options = ["elementary", "high_school", "bachelor", "master", "phd"].map((k) => ({
+        value: k,
+        label: t(`form.volunteer.education.${k}`),
+    }));
+    return (
+        <FormSelectField
+            name="education"
+            label={t("form.volunteer.education_label")}
+            placeholder="---"
+            options={options}
+        />
+    );
+}
+
+function PhoneField() {
+    const { t } = useTranslation();
+    return (
+        <FormTextField
+            name="phone"
+            label={t("form.volunteer.phone_number_label")}
+            keyboardType="phone-pad"
+            autoComplete={"tel" as never}
+            placeholder="+48 600 700 800"
+            autoFocus
+            sanitize={sanitizePhone}
+        />
+    );
+}
+
+function ReasonField() {
+    const { t } = useTranslation();
+    return <FormTextareaField name="description" label={t("form.volunteer.reason_label")} rows={5} autoFocus />;
+}
+
+function DatesField() {
+    return <DateField name="interview_meeting_dates" />;
+}
+
+function SourceExperienceFields() {
+    const { t } = useTranslation();
+    const sourceOptions = [
+        { value: "friend", label: t("form.referral_source_options.friend") },
+        { value: "socialMedia", label: t("form.referral_source_options.social_media") },
+        { value: "google", label: t("form.referral_source_options.google") },
+    ];
+    const experienceOptions = ["yes_professional", "yes_personal", "no"].map((k) => ({
+        value: k,
+        label: t(`form.volunteer.prior_experience.${k}`),
+    }));
+    return (
+        <YStack gap="$lg">
+            <FormSelectField
+                name="source"
+                label={t("form.referral_source_label")}
+                placeholder="---"
+                options={sourceOptions}
+            />
+            <FormSelectField
+                name="did_help"
+                label={t("form.volunteer.prior_experience_label")}
+                placeholder="---"
+                options={experienceOptions}
+            />
+        </YStack>
+    );
+}
+
+function ThemesConsentFields() {
+    const { t } = useTranslation();
+    const options = THEME_VALUES.map((value) => ({ value, label: t(`form.volunteer.issues_to_avoid.${value}`) }));
+    return (
+        <YStack gap="$lg">
+            <YStack gap="$sm">
+                <Typography variant="regularSemibold">{t("form.volunteer.issues_to_avoid_label")}</Typography>
+                <ChipMultiSelect name="themes" options={options} />
+            </YStack>
+            <ConsentField name="tos" />
+        </YStack>
+    );
+}
+
+// ---------------------------------------------------------------------------
+
+const VolunteerForm = ({ onSubmit, startCompleted = false }: Props) => {
     const { t } = useTranslation();
     const { user } = useUser();
-
-    const [step, setStep] = useState(initStep);
-    const [direction, setDirection] = useState(1);
-    const prevStepRef = useRef(step);
 
     const initialValues: VolunteerFormValues = {
         age: "",
@@ -60,349 +165,100 @@ const VolunteerForm = ({ onSubmit, initStep = 0 }: Props) => {
         interview_meeting_dates: [],
     };
 
-    const validationSchemas = [
-        Yup.object({
-            age: Yup.number().min(18, t("validation.age.min")).required(t("validation.required")),
-        }),
-        Yup.object({
-            education: Yup.string().required(t("validation.required")),
-        }),
-        Yup.object({
-            phone: Yup.string()
-                .trim()
-                .matches(/^\+?(?=[0-9 ()-]*[0-9])[0-9 ()-]+$/, t("volunteer_phone.invalid"))
-                .required(t("validation.required")),
-            contacts: Yup.array().of(Yup.string()).min(1, t("validation.required")),
-        }),
-        Yup.object({
-            description: Yup.string().min(10, t("validation.description.tooShort")).required(t("validation.required")),
-        }),
-        Yup.object({
-            interview_meeting_dates: Yup.array().min(1, t("validation.required")),
-        }),
-        Yup.object({
-            source: Yup.string().required(t("validation.required")),
-            did_help: Yup.string().required(t("validation.required")),
-        }),
-        Yup.object({
-            themes: Yup.array(),
-            tos: Yup.boolean().oneOf([true], t("validation.consent.required")),
-        }),
+    const text = (kind: "title" | "subtitle", index: number) =>
+        t(`form.volunteer.${kind}.${index}`, { contact: user?.email });
+
+    const steps: WizardStep<VolunteerFormValues>[] = [
+        {
+            id: "age",
+            title: text("title", 0),
+            subtitle: text("subtitle", 0),
+            schema: Yup.object({
+                age: Yup.number().min(18, t("validation.age.min")).required(t("validation.required")),
+            }),
+            Field: AgeField,
+        },
+        {
+            id: "education",
+            title: text("title", 1),
+            subtitle: text("subtitle", 1),
+            schema: Yup.object({ education: Yup.string().required(t("validation.required")) }),
+            Field: EducationField,
+        },
+        {
+            id: "phone",
+            title: text("title", 2),
+            subtitle: text("subtitle", 2),
+            schema: Yup.object({
+                phone: Yup.string()
+                    .trim()
+                    .matches(phoneRegex, t("volunteer_phone.invalid"))
+                    .required(t("validation.required")),
+                contacts: Yup.array().of(Yup.string()).min(1, t("validation.required")),
+            }),
+            Field: PhoneField,
+        },
+        {
+            id: "reason",
+            title: text("title", 3),
+            subtitle: text("subtitle", 3),
+            schema: Yup.object({
+                description: Yup.string()
+                    .min(10, t("validation.description.tooShort"))
+                    .required(t("validation.required")),
+            }),
+            Field: ReasonField,
+        },
+        {
+            id: "dates",
+            title: text("title", 4),
+            subtitle: text("subtitle", 4),
+            schema: Yup.object({ interview_meeting_dates: Yup.array().min(1, t("validation.required")) }),
+            Field: DatesField,
+        },
+        {
+            id: "source",
+            title: text("title", 5),
+            subtitle: text("subtitle", 5),
+            schema: Yup.object({
+                source: Yup.string().required(t("validation.required")),
+                did_help: Yup.string().required(t("validation.required")),
+            }),
+            Field: SourceExperienceFields,
+        },
+        {
+            id: "themes",
+            title: text("title", 6),
+            subtitle: text("subtitle", 6),
+            schema: Yup.object({
+                themes: Yup.array(),
+                tos: Yup.boolean().oneOf([true], t("validation.consent.required")),
+            }),
+            Field: ThemesConsentFields,
+        },
     ];
 
-    const LAST_STEP = validationSchemas.length - 1;
-
-    const formik = useFormik({
+    const wizard = useFormWizard<VolunteerFormValues>({
+        steps,
         initialValues,
-        validationSchema: validationSchemas[step],
-        onSubmit: (values) => {
-            if (step === LAST_STEP) {
-                onSubmit(values);
-                setDirection(1);
-                prevStepRef.current = step;
-                setStep(validationSchemas.length);
-            } else {
-                setDirection(1);
-                prevStepRef.current = step;
-                setStep((prevStep) => prevStep + 1);
-            }
-        },
+        storageKey: STORAGE_KEY,
+        persistOmit: PERSIST_OMIT,
+        onSubmit,
+        startCompleted,
     });
 
-    const handleBack = () => {
-        setDirection(-1);
-        prevStepRef.current = step;
-        setStep((prevStep) => (prevStep > 0 ? prevStep - 1 : prevStep));
-    };
-
-    const handleAgeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const text = e.target.value;
-        const formattedText = text.replace(/[^0-9]/g, "");
-        formik.setFieldValue("age", formattedText);
-    };
-
-    const handleThemeToggle = (value: string) => {
-        const current = formik.values.themes;
-        const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value];
-        formik.setFieldValue("themes", next);
-    };
-
-    // Success state
-    if (step > LAST_STEP) {
-        return (
-            <FormWrapper subtitle="" title="" progress={100} direction={direction}>
-                <div className="flex flex-col items-center py-6 text-center">
-                    <div className="bg-primary-brand/10 mb-5 flex size-16 items-center justify-center rounded-full">
-                        <CheckCircle className="text-primary-brand size-8" />
-                    </div>
-                    <h2 className="text-foreground text-2xl font-bold">
-                        {t("form.volunteer.title.7", { defaultValue: "Dziękujemy!" })}
-                    </h2>
-                    <p className="text-muted-foreground mt-2 max-w-sm text-[15px]">
-                        {t("form.volunteer.subtitle.7", {
-                            defaultValue: "Twoje zgłoszenie zostało wysłane. Skontaktujemy się z Tobą wkrótce.",
-                        })}
-                    </p>
-                    <div className="mt-8 flex w-full flex-col gap-2.5">
-                        <Button className="w-full gap-2" render={<Link to="/" />}>
-                            <Home className="size-4" />
-                            {t("form.homepage")}
-                        </Button>
-                    </div>
-                </div>
-            </FormWrapper>
-        );
-    }
-
-    return (
-        <FormWrapper
-            subtitle={t(`form.volunteer.subtitle.${step}`, { contact: user?.email })}
-            title={t(`form.volunteer.title.${step}`, { contact: user?.email })}
-            progress={((step + 1) / (LAST_STEP + 2)) * 100}
-            stepIndicator={`${step + 1} / ${validationSchemas.length}`}
-            direction={direction}
-        >
-            <form onSubmit={formik.handleSubmit}>
-                {/* Step 0: Age */}
-                {step === 0 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="age">{t("form.volunteer.age_label")}</Label>
-                            <Input
-                                id="age"
-                                name="age"
-                                type="number"
-                                min={0}
-                                autoFocus
-                                value={formik.values.age}
-                                onChange={handleAgeInputChange}
-                                onBlur={formik.handleBlur}
-                                className="h-12"
-                            />
-                            {formik.touched.age && formik.errors.age && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.age}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Step 1: Education */}
-                {step === 1 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="education">{t("form.volunteer.education_label")}</Label>
-                            <select
-                                id="education"
-                                name="education"
-                                autoFocus
-                                value={formik.values.education}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="border-input focus-visible:border-ring focus-visible:ring-ring/30 h-12 w-full rounded-xl border bg-transparent px-3 py-1 text-sm transition-colors outline-none focus-visible:ring-2"
-                            >
-                                <option value="">---</option>
-                                <option value="elementary">{t("form.volunteer.education.elementary")}</option>
-                                <option value="high_school">{t("form.volunteer.education.high_school")}</option>
-                                <option value="bachelor">{t("form.volunteer.education.bachelor")}</option>
-                                <option value="master">{t("form.volunteer.education.master")}</option>
-                                <option value="phd">{t("form.volunteer.education.phd")}</option>
-                            </select>
-                            {formik.touched.education && formik.errors.education && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.education}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Step 2: Phone */}
-                {step === 2 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="phone">{t("form.volunteer.phone_number_label")}</Label>
-                            <Input
-                                id="phone"
-                                name="phone"
-                                type="tel"
-                                autoComplete="tel"
-                                aria-invalid={Boolean(formik.touched.phone && formik.errors.phone)}
-                                autoFocus
-                                value={formik.values.phone}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="h-12"
-                            />
-                            {formik.touched.phone && formik.errors.phone && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.phone}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Step 3: Description / Motivation */}
-                {step === 3 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="description">{t("form.volunteer.reason_label")}</Label>
-                            <textarea
-                                id="description"
-                                name="description"
-                                autoFocus
-                                autoComplete="off"
-                                value={formik.values.description}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                rows={5}
-                                className="border-input focus-visible:border-ring focus-visible:ring-ring/30 w-full rounded-xl border bg-transparent px-4 py-3 text-sm leading-relaxed transition-colors outline-none focus-visible:ring-2"
-                            />
-                            {formik.touched.description && formik.errors.description && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.description}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Step 4: Interview dates */}
-                {step === 4 && (
-                    <div className="flex w-full flex-col items-center gap-5">
-                        <DateTimePicker
-                            values={formik.values.interview_meeting_dates}
-                            onChange={(newValue) => formik.setFieldValue("interview_meeting_dates", newValue)}
-                        />
-                        {formik.touched.interview_meeting_dates && formik.errors.interview_meeting_dates && (
-                            <span role="alert" className="text-destructive text-sm">
-                                {formik.errors.interview_meeting_dates as string}
-                            </span>
-                        )}
-                    </div>
-                )}
-
-                {/* Step 5: Source + Experience */}
-                {step === 5 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="source">{t("form.referral_source_label")}</Label>
-                            <select
-                                id="source"
-                                name="source"
-                                autoFocus
-                                value={formik.values.source}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="border-input focus-visible:border-ring focus-visible:ring-ring/30 h-12 w-full rounded-xl border bg-transparent px-3 py-1 text-sm transition-colors outline-none focus-visible:ring-2"
-                            >
-                                <option value="">---</option>
-                                <option value="friend">{t("form.referral_source_options.friend")}</option>
-                                <option value="socialMedia">{t("form.referral_source_options.social_media")}</option>
-                                <option value="google">{t("form.referral_source_options.google")}</option>
-                            </select>
-                            {formik.touched.source && formik.errors.source && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.source}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <Label htmlFor="did_help">{t("form.volunteer.prior_experience_label")}</Label>
-                            <select
-                                id="did_help"
-                                name="did_help"
-                                value={formik.values.did_help}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                className="border-input focus-visible:border-ring focus-visible:ring-ring/30 h-12 w-full rounded-xl border bg-transparent px-3 py-1 text-sm transition-colors outline-none focus-visible:ring-2"
-                            >
-                                <option value="">---</option>
-                                <option value="yes_professional">
-                                    {t("form.volunteer.prior_experience.yes_professional")}
-                                </option>
-                                <option value="yes_personal">
-                                    {t("form.volunteer.prior_experience.yes_personal")}
-                                </option>
-                                <option value="no">{t("form.volunteer.prior_experience.no")}</option>
-                            </select>
-                            {formik.touched.did_help && formik.errors.did_help && (
-                                <p role="alert" className="text-destructive text-sm">
-                                    {formik.errors.did_help as string}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Step 6: Themes to avoid + TOS */}
-                {step === 6 && (
-                    <div className="flex flex-col gap-5">
-                        <div className="space-y-3">
-                            <Label>{t("form.volunteer.issues_to_avoid_label")}</Label>
-                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                                {THEME_OPTIONS.map((opt) => (
-                                    <label
-                                        key={opt.value}
-                                        className={cn(
-                                            "border-border hover:bg-muted/50 flex cursor-pointer items-center gap-2.5 rounded-xl border px-3.5 py-3 transition-all",
-                                            formik.values.themes.includes(opt.value) &&
-                                                "border-primary-brand bg-primary-brand/5 ring-primary-brand/20 ring-1"
-                                        )}
-                                    >
-                                        <Checkbox
-                                            checked={formik.values.themes.includes(opt.value)}
-                                            onCheckedChange={() => handleThemeToggle(opt.value)}
-                                        />
-                                        <span className="text-sm">
-                                            {t(`form.volunteer.issues_to_avoid.${opt.key}`)}
-                                        </span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        <label className="flex cursor-pointer items-start gap-3 rounded-xl p-0">
-                            <Checkbox
-                                id="tos"
-                                checked={formik.values.tos}
-                                onCheckedChange={(checked) => formik.setFieldValue("tos", checked)}
-                                className="mt-0.5"
-                            />
-                            <span className="text-muted-foreground text-sm leading-relaxed">
-                                {t("crisis.tos_label", { defaultValue: "Wyrażam zgodę na" })}{" "}
-                                <InternalLink target="_blank" to="/tos">
-                                    {t("crisis.tos_link", {
-                                        defaultValue: "warunki użytkowania i politykę prywatności",
-                                    })}
-                                </InternalLink>
-                            </span>
-                        </label>
-                        {formik.touched.tos && formik.errors.tos && (
-                            <span role="alert" className="text-destructive text-sm">
-                                {formik.errors.tos}
-                            </span>
-                        )}
-                    </div>
-                )}
-
-                {/* Navigation */}
-                <div className="mt-8 flex items-center justify-between gap-3">
-                    <Button variant="ghost" type="button" onClick={handleBack} disabled={step === 0} className="gap-2">
-                        <ArrowLeft className="size-4" />
-                        {t("form.back")}
-                    </Button>
-                    <Button type="submit" className="gap-2">
-                        {step === LAST_STEP ? t("form.submit") : t("form.next")}
-                        {step < LAST_STEP && <ArrowRight className="size-4" />}
-                    </Button>
-                </div>
-            </form>
-        </FormWrapper>
+    const successContent = (
+        <YStack gap="$lg" width="100%" alignItems="center">
+            <Typography variant="regularRegular" muted align="center">
+                {t("form.volunteer.subtitle.7")}
+            </Typography>
+            <CtaButton href="/" variant="primary" fullWidth>
+                {t("form.homepage")}
+            </CtaButton>
+        </YStack>
     );
+
+    return <FormWizard wizard={wizard} successTitle={t("form.volunteer.title.7")} successContent={successContent} />;
 };
 
 export default VolunteerForm;

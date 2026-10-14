@@ -27,7 +27,7 @@
     --color-text-light: #5a7b8f;
     --color-text-muted: #8a9dab;
 
-    /* Shadows — calm, layered system */
+    /* Shadows - calm, layered system */
     --shadow-xs: 0 1px 2px rgba(26, 51, 68, 0.04);
     --shadow-sm: 0 1px 3px rgba(26, 51, 68, 0.06), 0 1px 2px rgba(26, 51, 68, 0.04);
     --shadow-md: 0 4px 8px rgba(26, 51, 68, 0.06), 0 2px 4px rgba(26, 51, 68, 0.04);
@@ -45,7 +45,7 @@
     --breakpoint-xl: 1536px;
 }
 
-/* shadcn/ui semantic color tokens — light theme */
+/* shadcn/ui semantic color tokens - light theme */
 :root {
     --background: #f6f9f9;
     --foreground: #1a3344;
@@ -81,7 +81,7 @@
     --sidebar-ring: #0da69e;
 }
 
-/* shadcn/ui semantic color tokens — dark theme */
+/* shadcn/ui semantic color tokens - dark theme */
 .dark {
     --background: #0f1e28;
     --foreground: #e4ebf0;
@@ -582,6 +582,50 @@ select optgroup {
     padding: 0;
     border-radius: 0;
     font-size: inherit;
+}
+
+/* ---- Chat message micro-interactions ---- */
+@keyframes chat-msg-in-left {
+    from {
+        opacity: 0;
+        transform: translate3d(-6px, 8px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+@keyframes chat-msg-in-right {
+    from {
+        opacity: 0;
+        transform: translate3d(6px, 8px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+.chat-msg-in-left {
+    animation: chat-msg-in-left 0.22s ease-out both;
+}
+.chat-msg-in-right {
+    animation: chat-msg-in-right 0.22s ease-out both;
+}
+
+/* Delete/action affordance: hidden until the row is hovered or keyboard-focused. */
+.chat-msg-actions {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.chat-msg-row:hover .chat-msg-actions,
+.chat-msg-row:focus-within .chat-msg-actions {
+    opacity: 1;
+}
+/* Touch devices can't hover - keep the action reachable. */
+@media (hover: none) {
+    .chat-msg-actions {
+        opacity: 1;
+    }
 }
 
 /* ---- Reduced motion ---- */

@@ -1,10 +1,11 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowRightCircle } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { PillButton } from "../../../layout/admin";
+import { useIconColor } from "../../../layout/useIconColor";
 import Modal from "../../../shared/components/Modal";
 import formatDate from "../../../shared/helpers/formatDate";
 import { ReportTranslationKeys } from "../../constants";
@@ -18,6 +19,7 @@ interface Props {
 
 const ReportCard = ({ report }: Props) => {
     const { t } = useTranslation();
+    const c = useIconColor();
     const [loading, setLoading] = useState(false);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const { refetch } = useQuery(
@@ -44,56 +46,86 @@ const ReportCard = ({ report }: Props) => {
 
     return (
         <>
-            <div className="bg-card rounded-[10px] border-2 border-black/10 px-5 pb-5 shadow-md">
-                <div className="flex flex-wrap items-center justify-between gap-5 py-4">
-                    <div className="max-w-[800px] flex-grow">
-                        <h6 className="text-foreground font-bold">{report.subject}</h6>
-                        <p className="text-foreground text-sm break-words">{report.description}</p>
-                    </div>
+            <YStack
+                width="100%"
+                gap="$lg"
+                padding="$xl"
+                borderRadius="$lg"
+                backgroundColor="$background"
+                {...shadows.small}
+            >
+                <XStack flexWrap="wrap" alignItems="flex-start" justifyContent="space-between" gap="$lg">
+                    <YStack flex={1} minWidth={0} maxWidth={800} gap="$xs">
+                        <Typography variant="regularSemibold" tag="h3">
+                            {report.subject}
+                        </Typography>
+                        <Typography variant="smallRegular" muted width="100%">
+                            {report.description}
+                        </Typography>
+                    </YStack>
 
-                    <div className="flex min-w-[200px] flex-col">
-                        <p className="text-foreground text-sm">{formatDate(report.creation_date)}</p>
-                        <p className="text-foreground text-xs">Autor: {report.created_by.full_name}</p>
-                        <p className="text-foreground text-xs">Email: {report.created_by.email}</p>
-                    </div>
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-2.5">
-                    <div className="flex gap-2.5 max-md:w-full md:ml-[15px]">
-                        <Button
-                            className="w-full gap-2.5 px-5 py-[5px] text-base"
-                            onClick={() => setShowConfirmationModal(true)}
-                        >
-                            Rozstrzygnij
-                            <ArrowRightCircle className="size-5" />
-                        </Button>
-                    </div>
-                    <Badge variant="destructive" className="gap-2.5 px-3 py-1">
-                        <AlertCircle className="size-4" />
-                        {t(ReportTranslationKeys[report.report_type])}
-                    </Badge>
-                </div>
-            </div>
+                    <YStack minWidth={200} gap="$xs">
+                        <Typography variant="smallRegular">{formatDate(report.creation_date)}</Typography>
+                        <Typography variant="tinyRegular" muted>
+                            {t("report.author", { defaultValue: "Autor" })}: {report.created_by.full_name}
+                        </Typography>
+                        <Typography variant="tinyRegular" muted>
+                            Email: {report.created_by.email}
+                        </Typography>
+                    </YStack>
+                </XStack>
+
+                <XStack flexWrap="wrap" alignItems="center" justifyContent="space-between" gap="$sm">
+                    <PillButton icon={ArrowRightCircle} variant="solid" onPress={() => setShowConfirmationModal(true)}>
+                        {t("report.resolve", { defaultValue: "Rozstrzygnij" })}
+                    </PillButton>
+                    <XStack
+                        alignItems="center"
+                        gap="$xs"
+                        paddingHorizontal="$md"
+                        paddingVertical="$xs"
+                        borderRadius="$full"
+                        backgroundColor="$dangerSoft"
+                    >
+                        <AlertCircle size={15} color={c.danger} />
+                        <Typography variant="tinyBold" color="$dangerTextSoft">
+                            {t(ReportTranslationKeys[report.report_type])}
+                        </Typography>
+                    </XStack>
+                </XStack>
+            </YStack>
+
             <Modal
                 title={t("report.confirmation_modal_title")}
                 open={showConfirmationModal}
                 onClose={() => setShowConfirmationModal(false)}
             >
-                <div className="flex flex-col gap-5">
-                    <p className="max-w-[700px]">{t("report.confirmation_modal_text")}</p>
-                    {loading && <p>{t("common.loading")}</p>}
-                    <div className="flex gap-5">
-                        <Button
-                            onClick={() =>
+                <YStack gap="$lg">
+                    <Typography variant="regularRegular" muted maxWidth={700} width="100%">
+                        {t("report.confirmation_modal_text")}
+                    </Typography>
+                    {loading && (
+                        <Typography variant="smallRegular" muted>
+                            {t("common.loading")}
+                        </Typography>
+                    )}
+                    <XStack gap="$sm" flexWrap="wrap">
+                        <PillButton
+                            variant="solid"
+                            disabled={loading}
+                            onPress={() =>
                                 mutate({
                                     user_report_id: report.id,
                                 })
                             }
                         >
                             {t("common.confirm")}
-                        </Button>
-                        <Button variant="outline">{t("common.cancel")}</Button>
-                    </div>
-                </div>
+                        </PillButton>
+                        <PillButton disabled={loading} onPress={() => setShowConfirmationModal(false)}>
+                            {t("common.cancel")}
+                        </PillButton>
+                    </XStack>
+                </YStack>
             </Modal>
         </>
     );

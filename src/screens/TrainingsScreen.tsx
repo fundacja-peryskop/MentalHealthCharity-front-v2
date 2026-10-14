@@ -1,14 +1,13 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Download, ExternalLink, FileText, Image as ImageIcon } from "lucide-react";
+import { Section, Stack, Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
+import { Download, ExternalLink, FileText, Image as ImageIcon, type LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import systemUsageInfographic from "../assets/static/courses/system_usage_infographic_assets_1_pl.png";
 import volunteerCheatSheet from "../assets/static/courses/volunteer_cheat_sheet_pl.png";
 import volunteerHandbookPart1 from "../assets/static/courses/volunteer_handbook_part_1_pl.pdf";
 import volunteerHandbookPart2 from "../assets/static/courses/volunteer_handbook_part_2_pl.pdf";
-import AnimatedSection from "../modules/shared/components/AnimatedSection";
-import Card from "../modules/shared/components/Card";
-import Container from "../modules/shared/components/Container";
+import { PageContainer } from "../modules/layout/PageContainer";
+import { useIconColor } from "../modules/layout/useIconColor";
 
 type TrainingAsset = {
     id: string;
@@ -19,8 +18,11 @@ type TrainingAsset = {
     format: string;
 };
 
+const ANCHOR_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
+
 const TrainingsScreen = () => {
     const { t } = useTranslation();
+    const c = useIconColor();
 
     const trainings: TrainingAsset[] = [
         {
@@ -57,88 +59,153 @@ const TrainingsScreen = () => {
         },
     ];
 
+    const LinkButton = ({
+        href,
+        download,
+        primary,
+        icon: Icon,
+        children,
+    }: {
+        href: string;
+        download?: boolean;
+        primary?: boolean;
+        icon: LucideIcon;
+        children: ReactNode;
+    }) => (
+        <a
+            href={href}
+            style={ANCHOR_RESET}
+            {...(download ? { download: true } : { target: "_blank", rel: "noreferrer" })}
+        >
+            <XStack
+                alignItems="center"
+                gap="$xs"
+                paddingHorizontal="$lg"
+                paddingVertical="$sm"
+                borderRadius="$full"
+                borderWidth={primary ? 0 : 1}
+                borderColor="$borderColor"
+                backgroundColor={primary ? "$primary" : "$backgroundTransparent"}
+                cursor="pointer"
+                hoverStyle={{ backgroundColor: primary ? "$primaryHover" : "$backgroundHover" }}
+            >
+                <Icon size={16} color={primary ? c.inverse : c.color} />
+                <Typography variant="regularSemibold" color={primary ? "$primaryText" : "$color"}>
+                    {children}
+                </Typography>
+            </XStack>
+        </a>
+    );
+
     return (
-        <div>
-            <div className="from-primary-brand-50 to-background bg-gradient-to-b px-5 pt-12 pb-8 md:pt-20 md:pb-12">
-                <div className="mx-auto flex max-w-[1200px] flex-col gap-3">
-                    <p className="text-primary-brand text-sm font-semibold tracking-[0.24em] uppercase">
+        <YStack>
+            {/* Header band */}
+            <Section backgroundColor="$primarySoft" paddingTop="$xxxl" paddingBottom="$xl" alignItems="center">
+                <PageContainer gap="$sm" maxWidth={1200}>
+                    <Typography
+                        variant="tinyBold"
+                        color="$primary"
+                        style={{ textTransform: "uppercase", letterSpacing: 3 }}
+                    >
                         {t("trainings.eyebrow")}
-                    </p>
-                    <h1 className="text-foreground text-3xl font-bold md:text-4xl">{t("trainings.title")}</h1>
-                    <p className="text-muted-foreground max-w-[720px] text-base md:text-lg">
+                    </Typography>
+                    <Typography variant="title2" tag="h1">
+                        {t("trainings.title")}
+                    </Typography>
+                    <Typography variant="largeRegular" muted maxWidth={720} width="100%">
                         {t("trainings.subtitle")}
-                    </p>
-                </div>
-            </div>
+                    </Typography>
+                </PageContainer>
+            </Section>
 
-            <Container className="pb-12">
-                <div className="grid gap-8 md:grid-cols-2">
-                    {trainings.map((training, index) => {
-                        const previewTitle = t("trainings.preview_title", { title: training.title });
-                        return (
-                            <AnimatedSection as="article" key={training.id} delay={index * 90}>
-                                <Card className="flex h-full flex-col gap-6 md:gap-7">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div className="flex items-center gap-2">
-                                            <Badge variant="info">{training.format}</Badge>
-                                            <Badge variant="outline">{t("common.preview")}</Badge>
-                                        </div>
-                                        <span className="text-muted-foreground">
-                                            {training.kind === "pdf" ? (
-                                                <FileText className="size-4" aria-hidden="true" />
-                                            ) : (
-                                                <ImageIcon className="size-4" aria-hidden="true" />
-                                            )}
-                                        </span>
-                                    </div>
+            {/* Grid */}
+            <Section paddingVertical="$xxxl" alignItems="center">
+                <PageContainer maxWidth={1200}>
+                    <XStack flexWrap="wrap" gap="$xl">
+                        {trainings.map((training) => {
+                            const previewTitle = t("trainings.preview_title", { title: training.title });
+                            const KindIcon = training.kind === "pdf" ? FileText : ImageIcon;
+                            return (
+                                <YStack
+                                    key={training.id}
+                                    tag="article"
+                                    width="100%"
+                                    $md={{ width: "48%" }}
+                                    gap="$lg"
+                                    padding="$xl"
+                                    borderRadius="$lg"
+                                    backgroundColor="$background"
+                                    {...shadows.small}
+                                >
+                                    <XStack alignItems="center" justifyContent="space-between" gap="$sm">
+                                        <XStack
+                                            alignItems="center"
+                                            gap="$xs"
+                                            paddingHorizontal="$sm"
+                                            paddingVertical={2}
+                                            borderRadius="$full"
+                                            backgroundColor="$primarySoft"
+                                        >
+                                            <Typography variant="tinyBold" color="$primaryTextSoft">
+                                                {training.format}
+                                            </Typography>
+                                        </XStack>
+                                        <KindIcon size={18} color={c.muted} aria-hidden />
+                                    </XStack>
 
-                                    <div className="bg-muted/40 border-border/60 mt-2 overflow-hidden rounded-xl border md:mt-3">
+                                    <Stack
+                                        overflow="hidden"
+                                        borderRadius="$md"
+                                        borderWidth={1}
+                                        borderColor="$borderColor"
+                                        backgroundColor="$backgroundHover"
+                                    >
                                         {training.kind === "pdf" ? (
                                             <iframe
                                                 title={previewTitle}
                                                 src={`${training.file}#page=1&view=fitH`}
-                                                className="h-[320px] w-full"
+                                                style={{ height: 320, width: "100%", border: 0, display: "block" }}
                                                 loading="lazy"
                                             />
                                         ) : (
                                             <img
                                                 src={training.file}
                                                 alt={previewTitle}
-                                                className="h-[320px] w-full object-cover"
                                                 loading="lazy"
+                                                style={{
+                                                    height: 320,
+                                                    width: "100%",
+                                                    objectFit: "cover",
+                                                    display: "block",
+                                                }}
                                             />
                                         )}
-                                    </div>
+                                    </Stack>
 
-                                    <div className="mt-2 mt-4 flex flex-col gap-0">
-                                        <h2 className="text-foreground text-xl font-semibold md:text-2xl">
+                                    <YStack gap="$xs">
+                                        <Typography variant="title3" tag="h2">
                                             {training.title}
-                                        </h2>
-                                        <p className="text-muted-foreground text-sm md:text-base">
+                                        </Typography>
+                                        <Typography variant="regularRegular" muted width="100%">
                                             {training.description}
-                                        </p>
-                                    </div>
+                                        </Typography>
+                                    </YStack>
 
-                                    <div className="mt-4 flex flex-wrap gap-3">
-                                        <Button
-                                            variant="outline"
-                                            render={<a href={training.file} target="_blank" rel="noreferrer" />}
-                                        >
-                                            <ExternalLink className="size-4" />
+                                    <XStack flexWrap="wrap" gap="$sm">
+                                        <LinkButton href={training.file} icon={ExternalLink}>
                                             {t("trainings.open")}
-                                        </Button>
-                                        <Button render={<a href={training.file} download />}>
-                                            <Download className="size-4" />
+                                        </LinkButton>
+                                        <LinkButton href={training.file} download primary icon={Download}>
                                             {t("common.download")}
-                                        </Button>
-                                    </div>
-                                </Card>
-                            </AnimatedSection>
-                        );
-                    })}
-                </div>
-            </Container>
-        </div>
+                                        </LinkButton>
+                                    </XStack>
+                                </YStack>
+                            );
+                        })}
+                    </XStack>
+                </PageContainer>
+            </Section>
+        </YStack>
     );
 };
 

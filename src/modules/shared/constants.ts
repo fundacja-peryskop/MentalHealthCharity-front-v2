@@ -92,3 +92,15 @@ export const validation = {
     email: Yup.string().email(i18n.t("validation.invalid_email")).required(i18n.t("validation.required")),
     token: Yup.string().required(i18n.t("validation.required")),
 };
+
+/**
+ * Permissive international phone number (the rule from main's "accept
+ * international phones" fix): an optional leading `+`, then digits, spaces,
+ * hyphens and parentheses, with at least one digit - e.g. `+48 600 700 800`,
+ * `(22) 123-45-67`. Apply to a trimmed value; pair with the
+ * `volunteer_phone.invalid` message, which lists exactly these characters.
+ */
+export const phoneRegex = /^\+?(?=[0-9 ()-]*[0-9])[0-9 ()-]+$/;
+
+/** Strip characters that can't appear in a phone number (keeps digits and `+ () - space`). */
+export const sanitizePhone = (value: string) => value.replace(/[^\d+ ()-]/g, "");

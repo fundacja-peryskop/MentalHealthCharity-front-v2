@@ -30,7 +30,7 @@ const MessageContent = ({ content, isOwnMessage = false }: Props) => {
     const renderLink = ({ attributes, content: text }: IntermediateRepresentation) => {
         const url = parseSafeHttpUrl(String(attributes.href ?? ""));
 
-        // Unsafe or unparseable scheme — show the original text, not a link.
+        // Unsafe or unparseable scheme - show the original text, not a link.
         if (!url) return <>{text}</>;
 
         // Foundation / same-origin / allowlisted links skip the gate and open directly.
@@ -52,7 +52,7 @@ const MessageContent = ({ content, isOwnMessage = false }: Props) => {
     };
 
     return (
-        <p className="text-start text-[15px] leading-relaxed [overflow-wrap:anywhere] break-words">
+        <p className="text-start text-[16px] leading-relaxed [overflow-wrap:anywhere] break-words">
             <Linkify
                 as="span"
                 options={{

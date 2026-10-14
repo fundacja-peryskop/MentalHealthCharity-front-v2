@@ -1,7 +1,4 @@
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     CircleOff,
@@ -10,16 +7,24 @@ import {
     Loader2,
     MessageCircle,
     RotateCw,
-    UserCog,
     UserCheck,
+    UserCog,
     UserPlus,
     Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import { User } from "../modules/auth/types";
+import {
+    AdminPageHeader,
+    type Column,
+    DataTable,
+    FilterPills,
+    type PillTone,
+    PillButton,
+    StatusPill,
+} from "../modules/layout/admin";
 import MenteeFormPreviewModal from "../modules/forms/components/MenteeFormPreviewModal";
 import ManualPairModal from "../modules/matching/components/ManualPairModal";
 import adminRematchDecisionMutation from "../modules/matching/queries/adminRematchDecisionMutation";
@@ -39,13 +44,13 @@ import editUserAsAdminMutation from "../modules/users/queries/editUserAsAdminMut
 
 type ViewMode = "waiting" | "matched" | "paused";
 
-const statusClassName: Record<MenteeMatchingStatus, string> = {
-    [MenteeMatchingStatus.WAITING]: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    [MenteeMatchingStatus.REMATCH_REQUESTED]: "bg-orange-500/15 text-orange-700 dark:text-orange-400",
-    [MenteeMatchingStatus.MATCHED]: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    [MenteeMatchingStatus.PAUSED]: "bg-slate-500/15 text-slate-700 dark:text-slate-400",
-    [MenteeMatchingStatus.DECLINED]: "bg-destructive/15 text-destructive",
-    [MenteeMatchingStatus.CLOSED]: "bg-muted text-muted-foreground",
+const statusTone: Record<MenteeMatchingStatus, PillTone> = {
+    [MenteeMatchingStatus.WAITING]: "warning",
+    [MenteeMatchingStatus.REMATCH_REQUESTED]: "warning",
+    [MenteeMatchingStatus.MATCHED]: "success",
+    [MenteeMatchingStatus.PAUSED]: "neutral",
+    [MenteeMatchingStatus.DECLINED]: "danger",
+    [MenteeMatchingStatus.CLOSED]: "neutral",
 };
 
 const MatchingMenteesScreen = () => {
@@ -126,16 +131,10 @@ const MatchingMenteesScreen = () => {
 
     const emptyStateText =
         viewMode === "waiting"
-            ? t("matching.no_waiting_mentees", {
-                  defaultValue: "Brak osob oczekujacych na sparowanie.",
-              })
+            ? t("matching.no_waiting_mentees", { defaultValue: "Brak osób oczekujących na sparowanie." })
             : viewMode === "matched"
-              ? t("matching.no_matched_mentees", {
-                    defaultValue: "Brak sparowanych osob w kryzysie.",
-                })
-              : t("matching.no_paused_mentees", {
-                    defaultValue: "Brak wstrzymanych osob po zamknieciu czatu.",
-                });
+              ? t("matching.no_matched_mentees", { defaultValue: "Brak sparowanych osób w kryzysie." })
+              : t("matching.no_paused_mentees", { defaultValue: "Brak wstrzymanych osób po zamknięciu czatu." });
 
     const statusLabels: Record<MenteeMatchingStatus, string> = {
         [MenteeMatchingStatus.WAITING]: t("matching.mentee_status.waiting", { defaultValue: "Do sparowania" }),
@@ -144,252 +143,222 @@ const MatchingMenteesScreen = () => {
         }),
         [MenteeMatchingStatus.MATCHED]: t("matching.mentee_status.matched", { defaultValue: "Sparowany" }),
         [MenteeMatchingStatus.PAUSED]: t("matching.mentee_status.paused", { defaultValue: "Wstrzymany" }),
-        [MenteeMatchingStatus.DECLINED]: t("matching.mentee_status.declined", { defaultValue: "Zrezygnowal" }),
-        [MenteeMatchingStatus.CLOSED]: t("matching.mentee_status.closed", { defaultValue: "Zamkniety" }),
+        [MenteeMatchingStatus.DECLINED]: t("matching.mentee_status.declined", { defaultValue: "Zrezygnował" }),
+        [MenteeMatchingStatus.CLOSED]: t("matching.mentee_status.closed", { defaultValue: "Zamknięty" }),
     };
 
-    const renderRows = (mentees: MenteeMatchingItem[]) =>
-        mentees.map((item) => {
-            const { user, state } = item;
-            const canManualPair =
-                viewMode === "waiting" &&
-                !state.current_chat_id &&
-                !state.excluded_from_automation &&
-                [MenteeMatchingStatus.WAITING, MenteeMatchingStatus.REMATCH_REQUESTED].includes(state.status);
-            const canResolvePaused = viewMode === "paused" && state.status === MenteeMatchingStatus.PAUSED;
-            const isResolvingPaused = isAdminRematchDecisionPending;
-            const isManualRematch =
-                state.status === MenteeMatchingStatus.REMATCH_REQUESTED &&
-                !state.auto_matching_enabled &&
-                !state.excluded_from_automation;
-            const canPreviewForm = Boolean(state.help_form_id);
-            const automationBadge = state.excluded_from_automation
-                ? {
-                      variant: "destructive" as const,
-                      label: t("matching.excluded", { defaultValue: "Wykluczony" }),
-                  }
-                : isManualRematch
-                  ? {
-                        variant: "outline" as const,
-                        label: t("matching.manual_rematch", { defaultValue: "Ręczny rematch" }),
-                    }
-                  : state.status === MenteeMatchingStatus.MATCHED
-                    ? {
-                          variant: "success" as const,
-                          label: t("matching.active_pair", { defaultValue: "Aktywna para" }),
-                      }
-                    : state.auto_matching_enabled
-                      ? {
-                            variant: "secondary" as const,
-                            label: t("common.enabled", { defaultValue: "Wlaczona" }),
-                        }
-                      : {
-                            variant: "outline" as const,
-                            label: t("common.disabled", { defaultValue: "Wylaczona" }),
-                        };
+    const getAutomation = (item: MenteeMatchingItem): { tone: PillTone; label: string } => {
+        const { state } = item;
+        const isManualRematch =
+            state.status === MenteeMatchingStatus.REMATCH_REQUESTED &&
+            !state.auto_matching_enabled &&
+            !state.excluded_from_automation;
+        if (state.excluded_from_automation) {
+            return { tone: "danger", label: t("matching.excluded", { defaultValue: "Wykluczony" }) };
+        }
+        if (isManualRematch) {
+            return { tone: "neutral", label: t("matching.manual_rematch", { defaultValue: "Ręczny rematch" }) };
+        }
+        if (state.status === MenteeMatchingStatus.MATCHED) {
+            return { tone: "success", label: t("matching.active_pair", { defaultValue: "Aktywna para" }) };
+        }
+        if (state.auto_matching_enabled) {
+            return { tone: "info", label: t("common.enabled", { defaultValue: "Włączona" }) };
+        }
+        return { tone: "neutral", label: t("common.disabled", { defaultValue: "Wyłączona" }) };
+    };
 
-            return (
-                <TableRow key={`${state.user_id}-${state.status}`}>
-                    <TableCell>
-                        <div className="flex min-w-[180px] flex-col">
-                            <span className="text-foreground font-medium">{user.full_name || user.email}</span>
-                            <span className="text-muted-foreground text-xs">ID: {user.id}</span>
-                        </div>
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                        <Badge className={cn("border-0", statusClassName[state.status])}>
-                            {statusLabels[state.status]}
-                        </Badge>
-                    </TableCell>
-                    <TableCell>{formatDate(state.queued_at)}</TableCell>
-                    <TableCell>{state.matched_at ? formatDate(state.matched_at) : "-"}</TableCell>
-                    <TableCell>
-                        <Badge variant={automationBadge.variant}>{automationBadge.label}</Badge>
-                    </TableCell>
-                    <TableCell>
-                        <div className="flex flex-wrap items-center gap-2">
-                            {state.current_chat_id && (
-                                <Link
-                                    to={`/chat/${state.current_chat_id}`}
-                                    className={cn(buttonVariants({ variant: "default", size: "sm" }), "no-underline")}
-                                >
-                                    <MessageCircle className="size-4" />
-                                    {t("chat.go_to_chat")}
-                                </Link>
-                            )}
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => state.help_form_id && setPreviewFormId(state.help_form_id)}
-                                disabled={!canPreviewForm}
-                                title={
-                                    canPreviewForm
-                                        ? t("matching.view_form", { defaultValue: "Zobacz formularz" })
-                                        : t("matching.no_form_available", { defaultValue: "Brak formularza" })
-                                }
+    const columns: Column<MenteeMatchingItem>[] = [
+        {
+            key: "name",
+            header: t("common.name", { defaultValue: "Imię" }),
+            flex: 2,
+            render: ({ user }) => (
+                <YStack gap="$xs" minWidth={0}>
+                    <Typography variant="regularSemibold">{user.full_name || user.email}</Typography>
+                    <Typography variant="tinyRegular" muted>
+                        ID: {user.id}
+                    </Typography>
+                </YStack>
+            ),
+        },
+        {
+            key: "email",
+            header: t("common.email", { defaultValue: "Email" }),
+            flex: 2,
+            render: ({ user }) => (
+                <Typography variant="smallRegular" muted width="100%">
+                    {user.email}
+                </Typography>
+            ),
+        },
+        {
+            key: "status",
+            header: t("common.status", { defaultValue: "Status" }),
+            width: 180,
+            render: ({ state }) => (
+                <StatusPill tone={statusTone[state.status]}>{statusLabels[state.status]}</StatusPill>
+            ),
+        },
+        {
+            key: "queued",
+            header: t("matching.queued_at", { defaultValue: "W kolejce od" }),
+            width: 150,
+            render: ({ state }) => (
+                <Typography variant="smallRegular" muted>
+                    {formatDate(state.queued_at)}
+                </Typography>
+            ),
+        },
+        {
+            key: "matched",
+            header: t("matching.matched_at", { defaultValue: "Sparowany od" }),
+            width: 150,
+            render: ({ state }) => (
+                <Typography variant="smallRegular" muted>
+                    {state.matched_at ? formatDate(state.matched_at) : "-"}
+                </Typography>
+            ),
+        },
+        {
+            key: "automation",
+            header: t("matching.automation", { defaultValue: "Automatyzacja" }),
+            width: 150,
+            render: (item) => {
+                const automation = getAutomation(item);
+                return <StatusPill tone={automation.tone}>{automation.label}</StatusPill>;
+            },
+        },
+        {
+            key: "actions",
+            header: t("common.actions", { defaultValue: "Akcje" }),
+            width: 380,
+            render: (item) => {
+                const { user, state } = item;
+                const canManualPair =
+                    viewMode === "waiting" &&
+                    !state.current_chat_id &&
+                    !state.excluded_from_automation &&
+                    [MenteeMatchingStatus.WAITING, MenteeMatchingStatus.REMATCH_REQUESTED].includes(state.status);
+                const canResolvePaused = viewMode === "paused" && state.status === MenteeMatchingStatus.PAUSED;
+                const isManualRematch =
+                    state.status === MenteeMatchingStatus.REMATCH_REQUESTED &&
+                    !state.auto_matching_enabled &&
+                    !state.excluded_from_automation;
+                const canPreviewForm = Boolean(state.help_form_id);
+
+                return (
+                    <XStack flexWrap="wrap" alignItems="center" gap="$sm">
+                        {state.current_chat_id && (
+                            <PillButton icon={MessageCircle} variant="solid" to={`/chat/${state.current_chat_id}`}>
+                                {t("chat.go_to_chat")}
+                            </PillButton>
+                        )}
+                        <PillButton
+                            icon={FileText}
+                            disabled={!canPreviewForm}
+                            onPress={() => state.help_form_id && setPreviewFormId(state.help_form_id)}
+                        >
+                            {canPreviewForm
+                                ? t("matching.view_form", { defaultValue: "Zobacz formularz" })
+                                : t("matching.no_form_available", { defaultValue: "Brak formularza" })}
+                        </PillButton>
+                        <PillButton icon={UserCog} onPress={() => setUserToEdit(user)}>
+                            {t("users.edit_user", { defaultValue: "Edytuj użytkownika" })}
+                        </PillButton>
+                        {canManualPair && (
+                            <PillButton
+                                icon={UserPlus}
+                                disabled={volunteersQuery.isLoading}
+                                onPress={() => setSelectedMentee(item)}
                             >
-                                <FileText className="size-4" />
-                                {canPreviewForm
-                                    ? t("matching.view_form", { defaultValue: "Zobacz formularz" })
-                                    : t("matching.no_form_available", { defaultValue: "Brak formularza" })}
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => setUserToEdit(user)}>
-                                <UserCog className="size-4" />
-                                {t("users.edit_user", { defaultValue: "Edytuj użytkownika" })}
-                            </Button>
-                            {canManualPair && (
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setSelectedMentee(item)}
-                                    disabled={volunteersQuery.isLoading}
+                                {isManualRematch
+                                    ? t("matching.manual_rematch_pair_submit", { defaultValue: "Sparuj ręcznie" })
+                                    : t("matching.manual_pair_submit", { defaultValue: "Sparuj" })}
+                            </PillButton>
+                        )}
+                        {canResolvePaused && (
+                            <>
+                                <PillButton
+                                    icon={isAdminRematchDecisionPending ? Loader2 : RotateCw}
+                                    spinning={isAdminRematchDecisionPending}
+                                    disabled={isAdminRematchDecisionPending}
+                                    onPress={() => setPausedDecision({ item, wantsRematch: true })}
                                 >
-                                    <UserPlus className="size-4" />
-                                    {isManualRematch
-                                        ? t("matching.manual_rematch_pair_submit", { defaultValue: "Sparuj ręcznie" })
-                                        : t("matching.manual_pair_submit", { defaultValue: "Sparuj" })}
-                                </Button>
-                            )}
-                            {canResolvePaused && (
-                                <>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => setPausedDecision({ item, wantsRematch: true })}
-                                        disabled={isResolvingPaused}
-                                        title={t("matching.restore_to_queue_description", {
-                                            defaultValue:
-                                                "Osoba wróci do kolejki parowania i może zostać ponownie połączona z wolontariuszem.",
-                                        })}
-                                    >
-                                        {isResolvingPaused ? (
-                                            <Loader2 className="size-4 animate-spin" />
-                                        ) : (
-                                            <RotateCw className="size-4" />
-                                        )}
-                                        {t("matching.restore_to_queue", { defaultValue: "Przywróć do kolejki" })}
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() => setPausedDecision({ item, wantsRematch: false })}
-                                        disabled={isResolvingPaused}
-                                        title={t("matching.mark_support_closed_description", {
-                                            defaultValue:
-                                                "Osoba nie wróci do kolejki parowania. Przypadek zostanie oznaczony jako zakończony.",
-                                        })}
-                                    >
-                                        {isResolvingPaused ? (
-                                            <Loader2 className="size-4 animate-spin" />
-                                        ) : (
-                                            <CircleOff className="size-4" />
-                                        )}
-                                        {t("matching.mark_support_closed", { defaultValue: "Zakończ obsługę" })}
-                                    </Button>
-                                </>
-                            )}
-                        </div>
-                    </TableCell>
-                </TableRow>
-            );
-        });
+                                    {t("matching.restore_to_queue", { defaultValue: "Przywróć do kolejki" })}
+                                </PillButton>
+                                <PillButton
+                                    icon={isAdminRematchDecisionPending ? Loader2 : CircleOff}
+                                    spinning={isAdminRematchDecisionPending}
+                                    disabled={isAdminRematchDecisionPending}
+                                    tone="danger"
+                                    onPress={() => setPausedDecision({ item, wantsRematch: false })}
+                                >
+                                    {t("matching.mark_support_closed", { defaultValue: "Zakończ obsługę" })}
+                                </PillButton>
+                            </>
+                        )}
+                    </XStack>
+                );
+            },
+        },
+    ];
 
     return (
         <AdminLayout>
-            <div className="bg-card border-border/50 rounded-xl border p-6 shadow-sm">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-primary-brand/10 flex size-11 items-center justify-center rounded-lg">
-                            <Users className="text-primary-brand size-5" />
-                        </div>
-                        <div>
-                            <h1 className="text-foreground text-xl font-bold">
-                                {t("matching.mentees_title", { defaultValue: "Osoby w kryzysie" })}
-                            </h1>
-                            <p className="text-muted-foreground text-sm">
-                                {t("matching.mentees_subtitle", {
-                                    defaultValue: "Status osob w kryzysie w automatycznym parowaniu.",
-                                })}
-                            </p>
-                        </div>
-                    </div>
+            <YStack width="100%" gap="$lg">
+                <AdminPageHeader
+                    icon={Users}
+                    tone="primary"
+                    title={t("matching.mentees_title", { defaultValue: "Osoby w kryzysie" })}
+                    subtitle={t("matching.mentees_subtitle", {
+                        defaultValue: "Status osób w kryzysie w automatycznym parowaniu.",
+                    })}
+                    actions={
+                        <FilterPills
+                            ariaLabel={t("matching.mentees_title", { defaultValue: "Osoby w kryzysie" })}
+                            value={viewMode}
+                            onChange={(value) => setViewMode(value as ViewMode)}
+                            options={[
+                                {
+                                    value: "waiting",
+                                    label: t("matching.mentees_waiting", { defaultValue: "Do sparowania" }),
+                                    icon: Clock,
+                                    count: waitingQuery.data?.length ?? 0,
+                                },
+                                {
+                                    value: "matched",
+                                    label: t("matching.mentees_matched", { defaultValue: "Sparowani" }),
+                                    icon: UserCheck,
+                                    count: matchedQuery.data?.length ?? 0,
+                                },
+                                {
+                                    value: "paused",
+                                    label: t("matching.mentees_paused", { defaultValue: "Wstrzymane" }),
+                                    icon: CircleOff,
+                                    count: pausedQuery.data?.length ?? 0,
+                                },
+                            ]}
+                        />
+                    }
+                />
 
-                    <div className="flex flex-wrap gap-2">
-                        <Button
-                            variant={viewMode === "waiting" ? "default" : "outline"}
-                            onClick={() => setViewMode("waiting")}
-                        >
-                            <Clock className="size-4" />
-                            {t("matching.mentees_waiting", { defaultValue: "Do sparowania" })}
-                            <Badge variant="secondary" className="ml-1">
-                                {waitingQuery.data?.length ?? 0}
-                            </Badge>
-                        </Button>
-                        <Button
-                            variant={viewMode === "matched" ? "default" : "outline"}
-                            onClick={() => setViewMode("matched")}
-                        >
-                            <UserCheck className="size-4" />
-                            {t("matching.mentees_matched", { defaultValue: "Sparowani" })}
-                            <Badge variant="secondary" className="ml-1">
-                                {matchedQuery.data?.length ?? 0}
-                            </Badge>
-                        </Button>
-                        <Button
-                            variant={viewMode === "paused" ? "default" : "outline"}
-                            onClick={() => setViewMode("paused")}
-                        >
-                            <CircleOff className="size-4" />
-                            {t("matching.mentees_paused", { defaultValue: "Wstrzymane" })}
-                            <Badge variant="secondary" className="ml-1">
-                                {pausedQuery.data?.length ?? 0}
-                            </Badge>
-                        </Button>
-                    </div>
-                </div>
-            </div>
+                <DataTable
+                    columns={columns}
+                    rows={items}
+                    rowKey={({ state }) => `${state.user_id}-${state.status}`}
+                    isLoading={activeQuery.isLoading}
+                    loadingText={t("common.loading", { defaultValue: "Ładowanie..." })}
+                    emptyText={emptyStateText}
+                    minWidth={1340}
+                />
 
-            <div className="mt-5 w-full min-w-0">
-                <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-sm">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{t("common.name", { defaultValue: "Imie" })}</TableHead>
-                                <TableHead>{t("common.email", { defaultValue: "Email" })}</TableHead>
-                                <TableHead>{t("common.status", { defaultValue: "Status" })}</TableHead>
-                                <TableHead>{t("matching.queued_at", { defaultValue: "W kolejce od" })}</TableHead>
-                                <TableHead>{t("matching.matched_at", { defaultValue: "Sparowany od" })}</TableHead>
-                                <TableHead>{t("matching.automation", { defaultValue: "Automatyzacja" })}</TableHead>
-                                <TableHead>{t("common.actions", { defaultValue: "Akcje" })}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {activeQuery.isLoading ? (
-                                <TableRow>
-                                    <TableCell colSpan={7} className="text-muted-foreground h-24 text-center">
-                                        {t("common.loading", { defaultValue: "Ladowanie..." })}
-                                    </TableCell>
-                                </TableRow>
-                            ) : items.length > 0 ? (
-                                renderRows(items)
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={7} className="text-muted-foreground h-24 text-center">
-                                        {emptyStateText}
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-            </div>
-
-            {activeQuery.isError && (
-                <p className="text-destructive mt-3">
-                    {t("common.no_data", { defaultValue: "Nie udalo sie pobrac danych." })}
-                </p>
-            )}
+                {activeQuery.isError && (
+                    <Typography variant="smallRegular" color="$danger">
+                        {t("common.no_data", { defaultValue: "Nie udało się pobrać danych." })}
+                    </Typography>
+                )}
+            </YStack>
 
             {selectedMentee && (
                 <ManualPairModal
@@ -447,15 +416,24 @@ const MatchingMenteesScreen = () => {
                     }
                     className="sm:max-w-xl"
                 >
-                    <div className="flex flex-col gap-4">
-                        <div className="border-border bg-muted/30 rounded-lg border p-3">
-                            <p className="text-foreground text-sm font-medium">
+                    <YStack gap="$lg">
+                        <YStack
+                            gap="$xs"
+                            padding="$md"
+                            borderRadius="$md"
+                            borderWidth={1}
+                            borderColor="$borderColor"
+                            backgroundColor="$backgroundHover"
+                        >
+                            <Typography variant="smallSemibold">
                                 {pausedDecision.item.user.full_name || pausedDecision.item.user.email}
-                            </p>
-                            <p className="text-muted-foreground text-xs">{pausedDecision.item.user.email}</p>
-                        </div>
+                            </Typography>
+                            <Typography variant="tinyRegular" muted>
+                                {pausedDecision.item.user.email}
+                            </Typography>
+                        </YStack>
 
-                        <p className="text-muted-foreground text-sm leading-relaxed">
+                        <Typography variant="smallRegular" muted width="100%">
                             {pausedDecision.wantsRematch
                                 ? t("matching.restore_to_queue_description", {
                                       defaultValue:
@@ -465,30 +443,29 @@ const MatchingMenteesScreen = () => {
                                       defaultValue:
                                           "Osoba nie wróci do kolejki parowania. Przypadek zostanie oznaczony jako zakończony.",
                                   })}
-                        </p>
+                        </Typography>
 
-                        <div className="flex justify-end gap-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setPausedDecision(null)}
+                        <XStack justifyContent="flex-end" gap="$sm" flexWrap="wrap">
+                            <PillButton
                                 disabled={isAdminRematchDecisionPending}
+                                onPress={() => setPausedDecision(null)}
                             >
                                 {t("common.cancel", { defaultValue: "Anuluj" })}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant={pausedDecision.wantsRematch ? "default" : "destructive"}
-                                onClick={confirmPausedDecision}
+                            </PillButton>
+                            <PillButton
+                                variant="solid"
+                                tone={pausedDecision.wantsRematch ? "primary" : "danger"}
+                                icon={isAdminRematchDecisionPending ? Loader2 : undefined}
+                                spinning={isAdminRematchDecisionPending}
                                 disabled={isAdminRematchDecisionPending}
+                                onPress={confirmPausedDecision}
                             >
-                                {isAdminRematchDecisionPending && <Loader2 className="size-4 animate-spin" />}
                                 {pausedDecision.wantsRematch
                                     ? t("matching.restore_to_queue", { defaultValue: "Przywróć do kolejki" })
                                     : t("matching.mark_support_closed", { defaultValue: "Zakończ obsługę" })}
-                            </Button>
-                        </div>
-                    </div>
+                            </PillButton>
+                        </XStack>
+                    </YStack>
                 </Modal>
             )}
         </AdminLayout>

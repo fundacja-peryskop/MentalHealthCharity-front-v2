@@ -1,76 +1,55 @@
+import { YStack } from "@fundacja-peryskop/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import Confetti from "react-confetti";
+import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { useUser } from "../modules/auth/components/AuthProvider";
 import MenteeForm from "../modules/forms/components/MenteeForm";
 import { getCanUserSendFormQueryOptions } from "../modules/forms/queries/getCanUserSendFormQueryOptions";
 import sendFormMutation from "../modules/forms/queries/sendFormMutation";
 import { formTypes, MenteeForm as MenteeFormType, MenteeFormValues } from "../modules/forms/types";
-import Container from "../modules/shared/components/Container";
 import Loader from "../modules/shared/components/Loader";
 
 const MenteeFormScreen = () => {
+    const { t } = useTranslation();
     const { user } = useUser();
     const queryClient = useQueryClient();
-    const [showConfetti, setShowConfetti] = useState(false);
+
     const { data: canSendMenteeForm, isLoading: isFormStatusLoading } = useQuery(
-        getCanUserSendFormQueryOptions(
-            { form_type: formTypes.MENTEE },
-            {
-                enabled: !!user,
-            }
-        )
+        getCanUserSendFormQueryOptions({ form_type: formTypes.MENTEE }, { enabled: !!user })
     );
-    const [step, setStep] = useState(0);
 
-    useEffect(() => {
-        if (canSendMenteeForm?.can_send_form === false) {
-            setStep(5);
-        }
-    }, [canSendMenteeForm?.can_send_form]);
-
-    const { mutate, isPending } = useMutation({
+    const { mutateAsync } = useMutation({
         mutationFn: sendFormMutation,
-
-        onSuccess: () => {
-            setShowConfetti(true);
-            setStep(5);
-            queryClient.invalidateQueries({ queryKey: ["can-user-send-form", { form_type: formTypes.MENTEE }] });
-        },
+        onSuccess: () =>
+            queryClient.invalidateQueries({ queryKey: ["can-user-send-form", { form_type: formTypes.MENTEE }] }),
+        onError: () =>
+            toast.error(t("form.submit_error", { defaultValue: "Nie udało się wysłać formularza. Spróbuj ponownie." })),
     });
 
-    const handleSubmit = (values: MenteeFormValues) => {
-        const { tos: _tos, email: _email, ...formValues } = values;
+    // The wizard awaits this; throwing keeps the user on the last step to retry.
+    // `tos` and `email` are intentionally not sent (consent + account email).
+    const handleSubmit = async (values: MenteeFormValues) => {
         const fields: MenteeFormType = {
-            ...formValues,
+            name: values.name,
+            age: values.age,
+            description: values.description,
+            source: values.source,
             contact_preference: values.contact_preference as MenteeFormType["contact_preference"],
-            contacts: values.contacts.map((contact) => ({
-                name: contact,
-                value: contact,
-            })),
+            contacts: values.contacts.map((contact) => ({ name: contact, value: contact })),
             phone: values.phone !== "" ? values.phone : "0",
         };
-
-        mutate({
-            fields,
-            form_type: formTypes.MENTEE,
-        });
+        await mutateAsync({ fields, form_type: formTypes.MENTEE });
     };
 
-    return (
-        <Container
-            parentClassName="items-center min-h-[100vh] md:min-h-[calc(100vh-100px)]"
-            className="flex items-center justify-center py-10"
-        >
-            {isFormStatusLoading ? (
+    if (isFormStatusLoading) {
+        return (
+            <YStack style={{ minHeight: "100dvh" }} alignItems="center" justifyContent="center">
                 <Loader />
-            ) : (
-                <MenteeForm isLoading={isPending} onSubmit={handleSubmit} step={step} setStep={setStep} />
-            )}
+            </YStack>
+        );
+    }
 
-            {showConfetti && <Confetti recycle={false} width={window.innerWidth} height={window.innerHeight} />}
-        </Container>
-    );
+    return <MenteeForm onSubmit={handleSubmit} startCompleted={canSendMenteeForm?.can_send_form === false} />;
 };
 
 export default MenteeFormScreen;

@@ -21,7 +21,7 @@ export const apiClient = {
 
     /**
      * POST z FormData (multipart/form-data).
-     * Nie ustawiamy ręcznie Content-Type — przeglądarka doda boundary.
+     * Nie ustawiamy ręcznie Content-Type - przeglądarka doda boundary.
      * Jeśli w opts.headers jest Content-Type, zostanie usunięty.
      */
     postFormData: (url: string, formData?: FormData, opts?: RequestInit) => {

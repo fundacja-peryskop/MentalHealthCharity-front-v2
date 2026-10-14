@@ -7,7 +7,7 @@ const FOUNDATION_DOMAINS = ["fundacjaperyskop.org"];
 export const OFFICIAL_FUNDRAISER_URL = "https://pomagam.pl/rw9bkc";
 
 // Specific full URLs (path included) that are trusted even though their domain
-// is not ours — e.g. the foundation's official fundraiser page. Only these exact
+// is not ours - e.g. the foundation's official fundraiser page. Only these exact
 // pages skip the gate; the rest of the domain is still treated as external.
 const ALLOWED_URLS = [OFFICIAL_FUNDRAISER_URL];
 
@@ -37,7 +37,7 @@ const SAFE_PROTOCOLS = ["http:", "https:"];
 
 // Top-level domains frequently abused for phishing/scams. Links using them are
 // blocked outright rather than shown with a "continue anyway" option. Tune this
-// list as needed — it is intentionally cautious for a vulnerable audience.
+// list as needed - it is intentionally cautious for a vulnerable audience.
 const SUSPICIOUS_TLDS = [
     ".ru",
     ".su",
@@ -117,7 +117,7 @@ export function isTrustedUrl(url: URL): boolean {
 
 /**
  * True when the URL points at a known donation/fundraising platform but is NOT
- * our own allowlisted fundraiser — i.e. a potentially unofficial collection the
+ * our own allowlisted fundraiser - i.e. a potentially unofficial collection the
  * user should be warned about.
  */
 export function isDonationPlatformUrl(url: URL): boolean {
@@ -142,13 +142,13 @@ export function assessUrlThreats(url: URL): UrlThreat[] {
     const threats: UrlThreat[] = [];
     const host = url.hostname.toLowerCase();
 
-    // Not encrypted — passwords/data could be intercepted in transit.
+    // Not encrypted - passwords/data could be intercepted in transit.
     if (url.protocol === "http:") threats.push("insecure");
 
     // Raw IP address instead of a real site name.
     if (isIpHost(host)) threats.push("ip-host");
 
-    // Punycode / internationalized host — classic homograph spoofing trick.
+    // Punycode / internationalized host - classic homograph spoofing trick.
     if (host.includes("xn--")) threats.push("punycode");
 
     // Embedded credentials (e.g. http://fundacjaperyskop.org@evil.com) hide the real host.
