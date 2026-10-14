@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
+import { useUser } from "../../auth/components/AuthProvider";
 import type { PitchCardContent, PitchTone } from "../content";
 import { ChairIllustration } from "../illustrations/ChairIllustration";
 import { ChatWindowMockup } from "../illustrations/ChatWindowMockup";
@@ -84,12 +85,18 @@ function seedBlobOrigin(event: MouseEvent<HTMLElement>) {
  */
 export function PitchCard({ tone, titleKey, subtitleKey, cta }: PitchCardContent) {
     const { t } = useTranslation();
+    const { user } = useUser();
     const { surface, fill } = TONE[tone];
     const art = cornerArt(tone);
 
+    // A signed-in person who is already assigned to an active chat does not need
+    // to start a new intake flow - either card takes them straight to their
+    // conversations instead of the help / volunteer form.
+    const href = user?.is_assigned_to_chat ? "/chat" : cta.href;
+
     return (
         <RouterLink
-            to={cta.href}
+            to={href}
             className={CARD_CLASS}
             aria-label={`${t(titleKey)} - ${t(cta.labelKey)}`}
             style={{ "--fill": fill } as CSSProperties}
