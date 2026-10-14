@@ -1,6 +1,6 @@
-import { Input, YStack } from "@fundacja-peryskop/ui";
+import { Input, Stack, Typography, YStack } from "@fundacja-peryskop/ui";
 import { useMutation } from "@tanstack/react-query";
-import { MessageSquare, Plus, Search } from "lucide-react";
+import { MessageSquare, Plus, RotateCcw, Search } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
@@ -41,7 +41,7 @@ const ManageChatsScreen = () => {
     const [showCreateChatModal, setShowCreateChatModal] = useState(false);
     const [selectedChatToEdit, setSelectedChatToEdit] = useState<Chat | null>(null);
     const [selectedChatToAddParticipant, setSelectedChatToAddParticipant] = useState<Chat | null>(null);
-    const { chats, handleLoadChats, handleRefetch } = useChatList(debouncedQuery, chatFilter);
+    const { chats, isError, handleLoadChats, handleRefetch } = useChatList(debouncedQuery, chatFilter);
 
     const { mutate: editChat } = useMutation({
         mutationFn: editChatMutation,
@@ -123,6 +123,33 @@ const ManageChatsScreen = () => {
                     />
                 </YStack>
 
+                {/* Loading the list failed - offer a retry. */}
+                {isError && (
+                    <YStack role="alert" padding="$md" gap="$xs" borderRadius="$md" backgroundColor="$dangerSoft">
+                        <Typography variant="smallRegular" color="$dangerTextSoft">
+                            {t("chat.list_error")}
+                        </Typography>
+                        <Stack
+                            tag="button"
+                            role="button"
+                            onPress={() => void handleRefetch()}
+                            alignSelf="flex-start"
+                            flexDirection="row"
+                            alignItems="center"
+                            gap="$xs"
+                            padding={0}
+                            borderWidth={0}
+                            cursor="pointer"
+                            backgroundColor="$backgroundTransparent"
+                        >
+                            <RotateCcw size={14} color="#d3180c" aria-hidden />
+                            <Typography variant="smallSemibold" color="$dangerTextSoft">
+                                {t("chat.retry_list")}
+                            </Typography>
+                        </Stack>
+                    </YStack>
+                )}
+
                 {/* Chat list */}
                 <ChatManager
                     onLoadMore={handleLoadChats}
@@ -141,7 +168,7 @@ const ManageChatsScreen = () => {
                             : editChat({
                                   id: chat.id,
                                   is_active: true,
-                                  name: chat.name,
+                                  name: chat.name ?? "",
                               })
                     }
                     onEditChat={(chat) => setSelectedChatToEdit(chat)}

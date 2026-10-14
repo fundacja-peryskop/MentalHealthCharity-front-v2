@@ -1,22 +1,25 @@
-import { Select, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
+import { Typography, YStack } from "@fundacja-peryskop/ui";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ClipboardList } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { AdminPageHeader, FilterPills } from "../modules/layout/admin";
+import { AdminPageHeader } from "../modules/layout/admin";
 import MenteeFormsTable from "../modules/forms/components/MenteeFormsTable";
-import { translatedFormStatus, translateFormSorting } from "../modules/forms/constants";
+import FormsFilters from "../modules/forms/components/FormsFilters";
 import { getFormsInfiniteQueryOptions } from "../modules/forms/queries/getFormsQueryOptions";
 import queueMenteeFormMutation from "../modules/forms/queries/queueMenteeFormMutation";
 import { formSorting, formStatus, formTypes } from "../modules/forms/types";
 import AdminLayout from "../modules/shared/components/AdminLayout";
+import useDebounce from "../modules/shared/hooks/useDebounce";
 
 const ManageMenteeFormsScreen = () => {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const [status, setStatus] = useState<formStatus>(formStatus.WAITED);
     const [sort, setSort] = useState<formSorting>(formSorting.NEWEST);
+    const [search, setSearch] = useState("");
+    const debouncedSearch = useDebounce(search.trim(), 350);
     const [queueingFormId, setQueueingFormId] = useState<number | null>(null);
 
     const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery(
@@ -24,6 +27,7 @@ const ManageMenteeFormsScreen = () => {
             form_status: status,
             form_type: formTypes.MENTEE,
             sort,
+            search: debouncedSearch || undefined,
             size: 25,
         })
     );
@@ -60,31 +64,20 @@ const ManageMenteeFormsScreen = () => {
                     subtitle={t("manage_mentee_forms.subtitle")}
                 />
 
-                <XStack flexWrap="wrap" alignItems="flex-end" gap="$md">
-                    <FilterPills
-                        ariaLabel={t("common.status", { defaultValue: "Status" })}
-                        value={status}
-                        onChange={(value) => setStatus(value as formStatus)}
-                        options={Object.keys(formStatus).map((option) => ({
-                            value: option,
-                            label: translatedFormStatus[option as formStatus],
-                        }))}
-                    />
-                    <YStack width={220}>
-                        <Select
-                            value={sort}
-                            onValueChange={(value) => setSort(value as formSorting)}
-                            options={Object.values(formSorting).map((option) => ({
-                                value: option,
-                                label: translateFormSorting[option],
-                            }))}
-                        />
-                    </YStack>
-                </XStack>
+                <FormsFilters
+                    search={search}
+                    onSearchChange={setSearch}
+                    status={status}
+                    onStatusChange={setStatus}
+                    sort={sort}
+                    onSortChange={setSort}
+                />
 
                 <div className="w-full min-w-0">
                     <div className="w-full max-w-full overflow-x-auto overflow-y-hidden">
                         <MenteeFormsTable
+                            key={`${status}:${sort}:${debouncedSearch}`}
+                            isSearching={Boolean(debouncedSearch)}
                             data={forms}
                             total={totalForms}
                             hasNextPage={Boolean(hasNextPage)}

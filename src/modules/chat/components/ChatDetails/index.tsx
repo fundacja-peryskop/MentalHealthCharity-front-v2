@@ -1,3 +1,4 @@
+import getChatName from "../../helpers/getChatName";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import resolveAssetUrl from "@/modules/shared/helpers/resolveAssetUrl";
@@ -69,9 +70,9 @@ const ChatDetails = ({
             <div className="flex-1 overflow-y-auto p-4">
                 <div className="mb-6 flex flex-col items-center text-center">
                     <div className="bg-primary-brand/15 text-primary-brand mb-3 flex size-16 items-center justify-center rounded-full text-xl font-bold">
-                        {chat.name.charAt(0).toUpperCase()}
+                        {getChatName(chat).charAt(0).toUpperCase()}
                     </div>
-                    <h4 className="text-foreground text-base font-semibold">{chat.name}</h4>
+                    <h4 className="text-foreground text-base font-semibold">{getChatName(chat)}</h4>
                     <p className="text-muted-foreground mt-1 text-xs">
                         {t("common.created_at", { date: formatDate(chat.creation_date) })}
                     </p>

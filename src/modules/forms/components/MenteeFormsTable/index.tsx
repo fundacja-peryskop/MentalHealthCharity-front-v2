@@ -16,6 +16,7 @@ interface Props {
     hasNextPage: boolean;
     isFetchingNextPage: boolean;
     isInitialLoading?: boolean;
+    isSearching?: boolean;
     loadMore: () => Promise<unknown>;
     onQueueForm: (form: FormResponse<MenteeForm>) => void;
     queueingFormId?: number | null;
@@ -27,6 +28,7 @@ const MenteeFormsTable = ({
     hasNextPage,
     isFetchingNextPage,
     isInitialLoading,
+    isSearching = false,
     loadMore,
     onQueueForm,
     queueingFormId,
@@ -49,7 +51,9 @@ const MenteeFormsTable = ({
     if (!isInitialLoading && data.length === 0) {
         return (
             <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed">
-                <p className="text-muted-foreground text-sm">{t("common.no_data", { defaultValue: "Brak danych" })}</p>
+                <p className="text-muted-foreground text-sm">
+                    {isSearching ? t("forms_search.no_results") : t("common.no_data", { defaultValue: "Brak danych" })}
+                </p>
             </div>
         );
     }

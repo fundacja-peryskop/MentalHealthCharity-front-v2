@@ -1,4 +1,7 @@
 {
+    "volunteer_phone": {
+        "invalid": "Podaj numer telefonu używając cyfr, opcjonalnie + na początku, spacji, myślników i nawiasów."
+    },
     "common": {
         "navigation": {
             "home": "Strona główna",
@@ -203,6 +206,9 @@
         "confirmation_modal_text": "Zgłoszenie zostanie zamknięte i nie będzie można go ponownie otworzyć. Czy na pewno chcesz zamknąć zgłoszenie jako rozwiązane?"
     },
     "chat": {
+        "unnamed": "Czat #{{id}}",
+        "list_error": "Nie udało się pobrać rozmów.",
+        "retry_list": "Spróbuj ponownie",
         "conntecting": "Łączenie z rozmówcą...",
         "open": "Połaczono",
         "admin_chat": "Czat koordynacyjny",
@@ -600,6 +606,11 @@
         "chat_list_title": "Zarządzaj czatami"
     },
     "matching": {
+        "user_history_load_error": "Nie udało się pobrać historii.",
+        "user_history_retry": "Spróbuj ponownie",
+        "user_history_refresh": "Odśwież",
+        "user_history_load_more": "Pokaż więcej",
+        "user_history_records": "Formularze i rozmowy",
         "manual_pairing_created": "Czat utworzony ręcznie",
         "matching_status": "Parowanie",
         "move_form_to_queue": "Przenieś do sparowania",
@@ -1086,6 +1097,12 @@
         "title": "Dodaj nowych podopiecznych łącząc ich z wolontariuszami",
         "subtitle": "Zarządzaj formularzami podopiecznych"
     },
+    "forms_search": {
+        "search_label": "Szukaj formularzy",
+        "search_placeholder": "Imię, nazwisko, e-mail, telefon lub treść zgłoszenia",
+        "clear_search": "Wyczyść wyszukiwanie",
+        "no_results": "Brak formularzy pasujących do wyszukiwania w wybranym statusie."
+    },
     "manage_volunteer_forms": {
         "title": "Rekrutuj nowych wolontariuszy",
         "subtitle": "Zarządzaj formularzami wolontariuszy",
@@ -1351,5 +1368,19 @@
         "content_warning": "Poniższa lista zawiera tematy, które mogą być trudne. Zaznacz te, z którymi chcesz uzyskać wsparcie.",
         "under_18_title": "Masz poniżej 18 lat?",
         "under_18_text": "Jeśli masz mniej niż 18 lat, dostępna jest specjalna pomoc dla Ciebie. Zadzwoń na bezpłatny Telefon Zaufania dla Młodzieży: 116 111."
+    },
+    "pinned_forms": {
+        "title": "Przypięte formularze",
+        "empty_hint": "Przypnij formularz ikoną pinezki, aby mieć do niego szybki dostęp niezależnie od filtrów.",
+        "pin": "Przypnij",
+        "unpin": "Odepnij",
+        "unpin_all": "Odepnij wszystkie",
+        "unpin_all_confirm": "Na pewno?",
+        "collapse": "Zwiń",
+        "expand": "Rozwiń",
+        "limit_reached": "Możesz przypiąć maksymalnie {{limit}} formularzy. Odepnij któryś, aby zrobić miejsce.",
+        "all_forms": "Wszystkie formularze",
+        "limit_hint": "Osiągnięto limit przypiętych formularzy",
+        "load_error": "Nie udało się wczytać przypiętego formularza (#{{id}})"
     }
 }

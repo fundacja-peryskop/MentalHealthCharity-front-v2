@@ -1,4 +1,13 @@
 {
+    "volunteer_phone": {
+        "invalid": "Enter a phone number using digits, an optional leading +, spaces, hyphens and parentheses."
+    },
+    "forms_search": {
+        "search_label": "Search applications",
+        "search_placeholder": "Name, email, phone or application text",
+        "clear_search": "Clear search",
+        "no_results": "No matching applications in the selected status."
+    },
     "common": {
         "navigation": {
             "home": "Homepage",
@@ -264,6 +273,11 @@
         "chat_list_title": "Manage chats"
     },
     "matching": {
+        "user_history_load_error": "Could not load the history.",
+        "user_history_retry": "Try again",
+        "user_history_refresh": "Refresh",
+        "user_history_load_more": "Show more",
+        "user_history_records": "Forms and conversations",
         "manual_pairing_created": "Chat created manually",
         "matching_status": "Matching",
         "move_form_to_queue": "Move to matching",
@@ -488,6 +502,9 @@
         }
     },
     "chat": {
+        "unnamed": "Chat #{{id}}",
+        "list_error": "Could not load chats.",
+        "retry_list": "Try again",
         "leaving": {
             "badge": "External link",
             "destination_blocked": "Blocked link:",
@@ -760,5 +777,19 @@
                 }
             }
         }
+    },
+    "pinned_forms": {
+        "title": "Pinned forms",
+        "empty_hint": "Pin a form with the pin icon to keep it within reach no matter which filter is active.",
+        "pin": "Pin",
+        "unpin": "Unpin",
+        "unpin_all": "Unpin all",
+        "unpin_all_confirm": "Are you sure?",
+        "collapse": "Collapse",
+        "expand": "Expand",
+        "limit_reached": "You can pin up to {{limit}} forms. Unpin one to make room.",
+        "all_forms": "All forms",
+        "limit_hint": "Pinned forms limit reached",
+        "load_error": "Could not load the pinned form (#{{id}})"
     }
 }

@@ -14,7 +14,7 @@ const createChatMutation = async (payload: CreateChatPayload): Promise<Chat> => 
         });
 
         if (!res.ok) {
-            throw handleApiError(res);
+            throw await handleApiError(await res.json());
         }
 
         return await res.json();

@@ -1,5 +1,6 @@
 import { Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import getChatName from "../../helpers/getChatName";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     AlarmClockPlus,
@@ -49,10 +50,16 @@ const ChatWindow = () => {
     const parsedChatId = id ? Number(id) : Number.NaN;
     const chatId = Number.isInteger(parsedChatId) && parsedChatId > 0 ? parsedChatId : undefined;
     const [chatFilter, setChatFilter] = useState<"active" | "closed">("active");
-    const { data, aggregatedData, loadNextPage, searchQuery, setSearchQuery, isSearching } = useChatListLoader(
-        100,
-        chatFilter
-    );
+    const {
+        data,
+        aggregatedData,
+        loadNextPage,
+        searchQuery,
+        setSearchQuery,
+        isSearching,
+        isError: isListError,
+        refetch: refetchList,
+    } = useChatListLoader(100, chatFilter);
     const effectiveData = aggregatedData || data;
     const isMobile = useIsMobile();
     const [showDetails, setShowDetails] = useState(!isMobile);
@@ -147,8 +154,9 @@ const ChatWindow = () => {
 
     const canCloseChat =
         selectedChat &&
-        !selectedChat.is_supervisor_chat &&
+        selectedChat.chat_type !== "SUPERVISION" &&
         selectedChat.is_active &&
+        selectedChat.status === "ACTIVE" &&
         (hasPermissions(Permissions.EDIT_CHAT_DATA) || hasPermissions(Permissions.MANAGE_CHATS));
     const canUseChatAttachments = selectedChat ? !selectedChat.is_group_chat : false;
     const canSnoozeAutoClose = Boolean(
@@ -298,6 +306,9 @@ const ChatWindow = () => {
                         }}
                     >
                         <ChatSidebar
+                            listVersion={effectiveData?.revision}
+                            isError={isListError}
+                            onRetry={() => void refetchList()}
                             data={effectiveData}
                             loadMore={loadNextPage}
                             currentChatId={chatId}
@@ -343,7 +354,7 @@ const ChatWindow = () => {
                                 {selectedChat ? (
                                     <XStack alignItems="center" gap="$md" flex={1} minWidth={0}>
                                         <ChatAvatar
-                                            name={selectedChat.name}
+                                            name={getChatName(selectedChat)}
                                             size={40}
                                             dimmed={!selectedChat.is_active}
                                         />
@@ -353,7 +364,7 @@ const ChatWindow = () => {
                                             numberOfLines={1}
                                             style={{ minWidth: 0 }}
                                         >
-                                            {selectedChat.name}
+                                            {getChatName(selectedChat)}
                                         </Typography>
                                     </XStack>
                                 ) : chatId ? (

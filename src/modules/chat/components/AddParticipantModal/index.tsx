@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
@@ -20,15 +20,21 @@ interface Props {
 
 const AddParticipantModal = ({ chat, onSuccess, allowedRoles, ...props }: Props) => {
     const { t } = useTranslation();
+    const queryClient = useQueryClient();
 
     const validationSchema = Yup.object({
         participant: Yup.object().required(t("chat.participant_required")),
         chat_id: Yup.number().required(t("chat.id_required")),
     });
 
-    const { mutate } = useMutation({
+    const { mutate, isPending } = useMutation({
         mutationFn: addParticipantMutation,
-        onSuccess,
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: ["chats"] });
+            void queryClient.invalidateQueries({ queryKey: ["chat", { id: chat.id }] });
+            onSuccess?.();
+            props.onClose();
+        },
     });
 
     const formik = useFormik<{
@@ -41,18 +47,24 @@ const AddParticipantModal = ({ chat, onSuccess, allowedRoles, ...props }: Props)
         },
         validationSchema,
         onSubmit: (values) => {
-            if (values.participant) {
+            if (values.participant && !isPending) {
                 mutate({
-                    chat_id: values.chat_id,
+                    chat_id: chat.id,
                     participant_id: values.participant?.id,
                 });
-                props.onClose();
             }
         },
     });
 
     return (
-        <Modal {...props} title={t("chat.add_participant")}>
+        <Modal
+            {...props}
+            hideCloseButton={isPending}
+            onClose={() => {
+                if (!isPending) props.onClose();
+            }}
+            title={t("chat.add_participant")}
+        >
             <form onSubmit={formik.handleSubmit} noValidate className="flex min-h-[200px] flex-col gap-4">
                 <SearchUser
                     onChange={(user) => {
@@ -61,7 +73,7 @@ const AddParticipantModal = ({ chat, onSuccess, allowedRoles, ...props }: Props)
                     value={formik.values.participant}
                     allowedRoles={allowedRoles}
                 />
-                <Button disabled={!formik.dirty} type="submit">
+                <Button disabled={!formik.dirty || isPending} type="submit">
                     {!formik.dirty ? t("common.make_changes_to_save") : t("common.submit")}
                 </Button>
             </form>

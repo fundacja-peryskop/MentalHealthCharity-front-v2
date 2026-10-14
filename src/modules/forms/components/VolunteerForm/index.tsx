@@ -190,7 +190,10 @@ const VolunteerForm = ({ onSubmit, startCompleted = false }: Props) => {
             title: text("title", 2),
             subtitle: text("subtitle", 2),
             schema: Yup.object({
-                phone: Yup.string().matches(phoneRegex, t("validation.phone")).required(t("validation.required")),
+                phone: Yup.string()
+                    .trim()
+                    .matches(phoneRegex, t("volunteer_phone.invalid"))
+                    .required(t("validation.required")),
                 contacts: Yup.array().of(Yup.string()).min(1, t("validation.required")),
             }),
             Field: PhoneField,

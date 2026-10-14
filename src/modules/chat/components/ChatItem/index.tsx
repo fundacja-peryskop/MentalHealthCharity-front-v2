@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { isToday } from "date-fns";
 import formatDate from "../../../shared/helpers/formatDate";
 import { parseApiDate } from "../../../shared/helpers/dateTime";
+import getChatName from "../../helpers/getChatName";
 import ChatAvatar from "../ChatAvatar";
 import { Chat } from "../../types";
 
@@ -35,6 +36,8 @@ const ChatItem = ({ chat, selected, readed, onClick, compact = false }: Props) =
     const showUnreadIndicator = chat.unread_count > 0 && !readed;
     const { is_active } = chat;
     const lastMessage = chat.last_message;
+    // Never trust the raw name: null / blank names get a safe "Chat #id" label.
+    const name = getChatName(chat);
 
     if (compact) {
         return (
@@ -42,8 +45,8 @@ const ChatItem = ({ chat, selected, readed, onClick, compact = false }: Props) =
                 to={`/chat/${chat.id}`}
                 onClick={onClick}
                 aria-current={selected ? "true" : undefined}
-                aria-label={chat.name}
-                title={chat.name}
+                aria-label={name}
+                title={name}
                 style={{ textDecoration: "none", display: "block" }}
             >
                 <XStack justifyContent="center" paddingVertical="$xs">
@@ -54,7 +57,7 @@ const ChatItem = ({ chat, selected, readed, onClick, compact = false }: Props) =
                         borderWidth={2}
                         borderColor={selected ? "$primary" : "transparent"}
                     >
-                        <ChatAvatar name={chat.name} size={44} dimmed={!is_active} />
+                        <ChatAvatar name={name} size={44} dimmed={!is_active} />
                         {showUnreadIndicator && (
                             <Stack
                                 position="absolute"
@@ -100,7 +103,7 @@ const ChatItem = ({ chat, selected, readed, onClick, compact = false }: Props) =
                 pressStyle={{ backgroundColor: "$backgroundPress" }}
                 animation="quick"
             >
-                <ChatAvatar name={chat.name} size={48} dimmed={!is_active} />
+                <ChatAvatar name={name} size={48} dimmed={!is_active} />
 
                 <YStack flex={1} minWidth={0} gap={2}>
                     <XStack alignItems="center" justifyContent="space-between" gap="$sm">
@@ -110,7 +113,7 @@ const ChatItem = ({ chat, selected, readed, onClick, compact = false }: Props) =
                             numberOfLines={1}
                             style={{ flex: 1, minWidth: 0 }}
                         >
-                            {chat.name}
+                            {name}
                         </Typography>
                         {lastMessage && (
                             <Typography variant="tinyRegular" color="$colorMuted" style={{ flexShrink: 0 }}>

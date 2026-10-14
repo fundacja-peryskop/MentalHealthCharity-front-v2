@@ -94,12 +94,13 @@ export const validation = {
 };
 
 /**
- * Permissive international phone number: an optional leading `+` country code
- * (e.g. `+48`), then 7–19 more characters of digits, spaces, hyphens, dots or
- * parentheses. Intentionally lenient - it accepts the common ways people write
- * a number rather than enforcing a single strict format.
+ * Permissive international phone number (the rule from main's "accept
+ * international phones" fix): an optional leading `+`, then digits, spaces,
+ * hyphens and parentheses, with at least one digit - e.g. `+48 600 700 800`,
+ * `(22) 123-45-67`. Apply to a trimmed value; pair with the
+ * `volunteer_phone.invalid` message, which lists exactly these characters.
  */
-export const phoneRegex = /^\+?[0-9][0-9\s().-]{6,19}$/;
+export const phoneRegex = /^\+?(?=[0-9 ()-]*[0-9])[0-9 ()-]+$/;
 
-/** Strip characters that can't appear in a phone number (keeps digits and `+ () - . space`). */
-export const sanitizePhone = (value: string) => value.replace(/[^\d+\s().-]/g, "");
+/** Strip characters that can't appear in a phone number (keeps digits and `+ () - space`). */
+export const sanitizePhone = (value: string) => value.replace(/[^\d+ ()-]/g, "");

@@ -1,6 +1,6 @@
 import { Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
-import { useQuery } from "@tanstack/react-query";
-import { FileText, History, Loader2, MessageCircle } from "lucide-react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { ChevronDown, FileText, History, Loader2, MessageCircle, RefreshCw, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -69,11 +69,10 @@ const MatchingUserHistoryScreen = () => {
     const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
     const selectedUserId = Number(searchParams.get("user_id") ?? "");
-    const [selectedUser, setSelectedUser] = useState<User | undefined>();
     const [previewFormId, setPreviewFormId] = useState<number | null>(null);
     const queryEnabled = Number.isInteger(selectedUserId) && selectedUserId > 0;
 
-    const timelineQuery = useQuery(
+    const timelineQuery = useInfiniteQuery(
         userTimelineQueryOptions(
             {
                 user_id: selectedUserId,
@@ -82,7 +81,8 @@ const MatchingUserHistoryScreen = () => {
         )
     );
 
-    const timeline = timelineQuery.data;
+    const timeline = timelineQuery.data?.pages[0];
+    const events = useMemo(() => timelineQuery.data?.pages.flatMap((page) => page.events) ?? [], [timelineQuery.data]);
     const error = timelineQuery.error;
     const isNotFound = error instanceof ApiError && error.status === 404;
     const isWrongRole = error instanceof ApiError && error.status === 409;
@@ -114,7 +114,7 @@ const MatchingUserHistoryScreen = () => {
     const existingChatIds = useMemo(() => new Set(timeline?.chats.map((chat) => chat.id) ?? []), [timeline?.chats]);
 
     const handleUserChange = (user?: User) => {
-        setSelectedUser(user);
+        setPreviewFormId(null);
         if (user) {
             setSearchParams({ user_id: String(user.id) });
         } else {
@@ -226,11 +226,13 @@ const MatchingUserHistoryScreen = () => {
 
                 <InfoCard>
                     <YStack maxWidth={768} width="100%">
+                        {/* Driven by the URL: the picker shows whoever the loaded timeline is
+                            for, and remounts when the selected user id changes. */}
                         <SearchUser
-                            value={selectedUser}
+                            key={selectedUserId}
+                            value={timeline?.user}
                             onChange={handleUserChange}
                             allowedRoles={[Roles.USER]}
-                            disabled={timelineQuery.isFetching}
                             hideRoleFilter
                         />
                     </YStack>
@@ -265,7 +267,31 @@ const MatchingUserHistoryScreen = () => {
                     </InfoCard>
                 )}
 
-                {timeline && (
+                {timelineQuery.isError && !isNotFound && !isWrongRole && (
+                    <InfoCard>
+                        <YStack role="alert" gap="$md" alignItems="flex-start">
+                            <Typography variant="regularSemibold">
+                                {t("matching.user_history_load_error", {
+                                    defaultValue: "Nie udało się pobrać historii.",
+                                })}
+                            </Typography>
+                            <PillButton
+                                icon={RotateCcw}
+                                disabled={timelineQuery.isFetching}
+                                // A failed "load more" resumes that page instead of starting over.
+                                onPress={() =>
+                                    timelineQuery.isFetchNextPageError
+                                        ? void timelineQuery.fetchNextPage()
+                                        : void timelineQuery.refetch()
+                                }
+                            >
+                                {t("matching.user_history_retry", { defaultValue: "Spróbuj ponownie" })}
+                            </PillButton>
+                        </YStack>
+                    </InfoCard>
+                )}
+
+                {timeline && !isNotFound && !isWrongRole && (
                     <>
                         <InfoCard>
                             <XStack flexWrap="wrap" alignItems="flex-start" justifyContent="space-between" gap="$sm">
@@ -277,11 +303,21 @@ const MatchingUserHistoryScreen = () => {
                                         {timeline.user.email}
                                     </Typography>
                                 </YStack>
-                                {timeline.summary.matching_status && (
-                                    <StatusPill tone={statusTone[timeline.summary.matching_status]}>
-                                        {statusLabels[timeline.summary.matching_status]}
-                                    </StatusPill>
-                                )}
+                                <XStack alignItems="center" gap="$sm">
+                                    {timeline.summary.matching_status && (
+                                        <StatusPill tone={statusTone[timeline.summary.matching_status]}>
+                                            {statusLabels[timeline.summary.matching_status]}
+                                        </StatusPill>
+                                    )}
+                                    <PillButton
+                                        icon={RefreshCw}
+                                        disabled={timelineQuery.isFetching}
+                                        spinning={timelineQuery.isRefetching}
+                                        onPress={() => void timelineQuery.refetch()}
+                                    >
+                                        {t("matching.user_history_refresh", { defaultValue: "Odśwież" })}
+                                    </PillButton>
+                                </XStack>
                             </XStack>
 
                             <XStack flexWrap="wrap" gap="$sm" marginTop="$lg">
@@ -308,15 +344,63 @@ const MatchingUserHistoryScreen = () => {
                             </XStack>
                         </InfoCard>
 
+                        {/* All of this person's forms and chats, collapsed by default. */}
+                        <InfoCard>
+                            <details>
+                                <summary style={{ cursor: "pointer", listStyle: "none" }}>
+                                    <XStack alignItems="center" gap="$sm">
+                                        <ChevronDown size={18} aria-hidden />
+                                        <Typography variant="regularSemibold" tag="span">
+                                            {t("matching.user_history_records", {
+                                                defaultValue: "Formularze i rozmowy",
+                                            })}
+                                        </Typography>
+                                    </XStack>
+                                </summary>
+                                <XStack flexWrap="wrap" gap="$xl" marginTop="$lg">
+                                    <YStack flex={1} minWidth={240} gap="$sm" alignItems="flex-start">
+                                        {timeline.forms.map((form) => (
+                                            <PillButton
+                                                key={form.id}
+                                                icon={FileText}
+                                                onPress={() => setPreviewFormId(form.id)}
+                                            >
+                                                #{form.id} · {formatDate(form.creation_date, "dd/MM/yyyy")}
+                                            </PillButton>
+                                        ))}
+                                    </YStack>
+                                    <YStack flex={1} minWidth={240} gap="$sm" alignItems="flex-start">
+                                        {timeline.chats.map((chat) => (
+                                            <PillButton key={chat.id} icon={MessageCircle} to={`/chat/${chat.id}`}>
+                                                #{chat.id} · {formatDate(chat.creation_date, "dd/MM/yyyy")}
+                                            </PillButton>
+                                        ))}
+                                    </YStack>
+                                </XStack>
+                            </details>
+                        </InfoCard>
+
+                        {/* Events from every loaded page; each event has a stable id. */}
                         <DataTable
                             columns={columns}
-                            rows={timeline.events}
-                            rowKey={(event) => `${event.event_type}-${event.occurred_at}-${event.chat_id ?? "no-chat"}`}
+                            rows={events}
+                            rowKey={(event) => event.id}
                             emptyText={t("matching.user_history_no_events", {
                                 defaultValue: "Brak historii operacyjnej dla tej osoby.",
                             })}
                             minWidth={1200}
                         />
+                        {timelineQuery.hasNextPage && (
+                            <XStack justifyContent="center">
+                                <PillButton
+                                    disabled={timelineQuery.isFetching}
+                                    spinning={timelineQuery.isFetchingNextPage}
+                                    onPress={() => void timelineQuery.fetchNextPage()}
+                                >
+                                    {t("matching.user_history_load_more", { defaultValue: "Pokaż więcej" })}
+                                </PillButton>
+                            </XStack>
+                        )}
                     </>
                 )}
             </YStack>

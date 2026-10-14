@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { useLocation } from "react-router-dom";
+import useChatListSync from "../../../chat/hooks/useChatListSync";
 import MenteeRematchPrompt from "../../../matching/components/MenteeRematchPrompt";
 import VolunteerAvailabilityPrompt from "../../../matching/components/VolunteerAvailabilityPrompt";
 import { AnnouncementBar } from "../../../layout/AnnouncementBar";
@@ -25,6 +26,10 @@ const AUTH_SCREEN_PATHS = new Set([
 
 const Layout = ({ children }: Props) => {
     const { pathname } = useLocation();
+    // Live chat-list sync (WebSocket + fallback polling) must run exactly once and
+    // on every route - including /chat and /admin, where the global header is
+    // hidden - so it lives here rather than in AppHeader.
+    useChatListSync();
     const isAdminScreen = pathname.includes("/admin");
     const isChatScreen = pathname.startsWith("/chat");
     // The auth screens are full-bleed, standalone split-screen pages.

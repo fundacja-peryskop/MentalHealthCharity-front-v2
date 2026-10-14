@@ -1,5 +1,5 @@
 import { Avatar, Button, Chip, Input, Person, Stack, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
-import { Loader2, PanelLeftClose, PanelLeftOpen, Plus, Search, X } from "lucide-react";
+import { Loader2, PanelLeftClose, PanelLeftOpen, Plus, RotateCcw, Search, X } from "lucide-react";
 import { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -30,6 +30,9 @@ const IconButton = ({ onClick, label, children }: { onClick?: () => void; label:
 );
 
 interface Props {
+    listVersion?: string;
+    isError?: boolean;
+    onRetry?: () => void;
     data?: Pagination<Chat>;
     currentChatId?: number;
     loadMore?: () => Promise<void>;
@@ -57,6 +60,9 @@ interface Props {
  */
 const ChatSidebar = ({
     data,
+    isError,
+    listVersion,
+    onRetry,
     currentChatId,
     loadMore,
     searchQuery,
@@ -81,6 +87,8 @@ const ChatSidebar = ({
     /** Virtualized, paginated list reused by both the full panel and the rail. */
     const renderList = (compact: boolean) => {
         if (!data) {
+            // A failed first load shows the retry message instead of a skeleton.
+            if (isError) return <Stack flex={1} />;
             return compact ? (
                 <YStack gap="$sm" paddingTop="$sm" alignItems="center" role="status" aria-label={t("chat.chat_list")}>
                     {Array.from({ length: 7 }, (_, i) => (
@@ -129,7 +137,10 @@ const ChatSidebar = ({
         const rowCount = items.length + (hasMore ? 1 : 0);
 
         return (
+            // Keyed by the server's list revision: when the list changes, the
+            // loader's cache of "already requested" ranges is reset with it.
             <InfiniteLoader
+                key={listVersion}
                 isRowLoaded={({ index }) => index < items.length}
                 loadMoreRows={() => (hasMore && loadMore ? loadMore() : Promise.resolve())}
                 rowCount={rowCount}
@@ -213,6 +224,11 @@ const ChatSidebar = ({
                     {onNewChat && (
                         <IconButton onClick={onNewChat} label={t("chat.create_new_chat")}>
                             <Plus className="size-5" />
+                        </IconButton>
+                    )}
+                    {isError && (
+                        <IconButton onClick={onRetry} label={t("chat.retry_list")}>
+                            <RotateCcw className="text-destructive size-5" />
                         </IconButton>
                     )}
                 </YStack>
@@ -301,6 +317,41 @@ const ChatSidebar = ({
                     </Button>
                 )}
             </YStack>
+
+            {/* Loading the list failed (first load or a background refresh). */}
+            {isError && (
+                <YStack
+                    role="alert"
+                    marginHorizontal="$lg"
+                    marginTop="$md"
+                    padding="$md"
+                    gap="$xs"
+                    borderRadius="$md"
+                    backgroundColor="$dangerSoft"
+                >
+                    <Typography variant="smallRegular" color="$dangerTextSoft">
+                        {t("chat.list_error")}
+                    </Typography>
+                    <Stack
+                        tag="button"
+                        role="button"
+                        onPress={onRetry}
+                        alignSelf="flex-start"
+                        flexDirection="row"
+                        alignItems="center"
+                        gap="$xs"
+                        padding={0}
+                        borderWidth={0}
+                        cursor="pointer"
+                        backgroundColor="$backgroundTransparent"
+                    >
+                        <RotateCcw size={14} color="#d3180c" aria-hidden />
+                        <Typography variant="smallSemibold" color="$dangerTextSoft">
+                            {t("chat.retry_list")}
+                        </Typography>
+                    </Stack>
+                </YStack>
+            )}
 
             {/* List */}
             <Stack flex={1} minHeight={0} marginTop="$md">

@@ -84,11 +84,13 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
         return () => media.removeEventListener("change", onChange);
     }, []);
 
+    // Own cache key: this first-page snapshot must not share an entry with the
+    // paginated chat feed. It is refreshed with every other `["chats", ...]`
+    // query by the app-wide `useChatListSync` (mounted in the Layout).
     const { data: chats } = useQuery(
-        getChatsQueryOptions({ size: 50, page: 1 }, { enabled: !!user, queryKey: ["chats"] })
+        getChatsQueryOptions({ size: 50, page: 1 }, { enabled: !!user, queryKey: ["chats", "navigation", user?.id] })
     );
-    const hasChats = !!chats && chats.total > 0;
-    const hasUnread = hasChats && chats.items.some((chat) => chat.unread_count > 0);
+    const hasUnread = !!chats?.items.some((chat) => chat.unread_count > 0);
 
     // Close the mobile menu after navigating.
     useEffect(() => {
@@ -103,7 +105,9 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
         if (hasPermissions(Permissions.VIEW_TRAININGS)) {
             items.push({ label: t("common.navigation.trainings"), href: "/trainings" });
         }
-        if (hasChats) {
+        // Every signed-in person gets the conversations tab (even before their
+        // first chat exists), with an unread dot when any chat has new messages.
+        if (user) {
             items.push({ label: t("common.navigation.chat"), href: "/chat", indicator: hasUnread });
         }
         if (!user) {
@@ -113,7 +117,7 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
             items.push({ label: t("common.navigation.admin"), href: "/admin/" });
         }
         return items;
-    }, [t, hasChats, hasUnread, user, hasPermissions]);
+    }, [t, hasUnread, user, hasPermissions]);
 
     const brandMark = (
         <RouterLink to="/" style={LINK_RESET} aria-label={brand.name}>

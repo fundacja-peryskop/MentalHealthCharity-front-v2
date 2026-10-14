@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import Modal from "../../../shared/components/Modal";
 import { Roles } from "../../../users/constants";
@@ -17,20 +17,35 @@ const allowedAutoGroupRoles = [Roles.ADMIN, Roles.VOLUNTEER, Roles.VOLUNTEERSUPE
 
 const CreateChatModal = ({ onSuccess, ...props }: Props) => {
     const { t } = useTranslation();
+    const queryClient = useQueryClient();
 
-    const { mutate } = useMutation({
+    const { mutate, isPending } = useMutation({
         mutationFn: createChatMutation,
-        onSuccess,
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: ["chats"] });
+            onSuccess?.();
+            props.onClose();
+        },
     });
 
     const handleCreateChat = async (values: CreateChatFormValues) => {
-        mutate(convertToCreateChatPayload(values));
-        props.onClose();
+        if (!isPending) mutate(convertToCreateChatPayload(values));
     };
 
     return (
-        <Modal {...props} title={t("chat.create_new_chat")}>
-            <CreateChatForm onSubmit={handleCreateChat} allowedAutoGroupRoles={allowedAutoGroupRoles} />
+        <Modal
+            {...props}
+            hideCloseButton={isPending}
+            onClose={() => {
+                if (!isPending) props.onClose();
+            }}
+            title={t("chat.create_new_chat")}
+        >
+            <CreateChatForm
+                isPending={isPending}
+                onSubmit={handleCreateChat}
+                allowedAutoGroupRoles={allowedAutoGroupRoles}
+            />
         </Modal>
     );
 };
