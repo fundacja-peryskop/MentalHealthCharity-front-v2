@@ -111,7 +111,7 @@ const ChatHeaderActions = ({ actions }: Props) => {
             <Sheet open={open} onOpenChange={setOpen}>
                 <SheetContent side="bottom" className="rounded-t-2xl pb-[max(env(safe-area-inset-bottom),0.5rem)]">
                     <SheetHeader className="pb-0">
-                        <SheetTitle>{t("chat.actions_title", { defaultValue: "Opcje rozmowy" })}</SheetTitle>
+                        <SheetTitle>{t("chat.actions_title", { defaultValue: "Opcje czatu" })}</SheetTitle>
                     </SheetHeader>
                     <div className="flex flex-col px-2 pb-2" role="menu">
                         {actions.map((action, index) => {

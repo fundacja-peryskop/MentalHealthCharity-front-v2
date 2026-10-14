@@ -121,7 +121,7 @@ const ChatSidebar = ({
                     >
                         {searchQuery
                             ? t("chat.no_results", { defaultValue: "Brak wyników" })
-                            : t("chat.no_chats", { defaultValue: "Brak rozmów" })}
+                            : t("chat.no_chats", { defaultValue: "Brak czatów" })}
                     </Typography>
                 </YStack>
             );
@@ -166,7 +166,7 @@ const ChatSidebar = ({
                                                     gap="$sm"
                                                     role="status"
                                                     aria-label={t("chat.loading_more", {
-                                                        defaultValue: "Wczytywanie rozmów...",
+                                                        defaultValue: "Wczytywanie czatów...",
                                                     })}
                                                 >
                                                     <Loader2
@@ -178,7 +178,7 @@ const ChatSidebar = ({
                                                     {!compact && (
                                                         <Typography variant="smallRegular" muted>
                                                             {t("chat.loading_more", {
-                                                                defaultValue: "Wczytywanie rozmów...",
+                                                                defaultValue: "Wczytywanie czatów...",
                                                             })}
                                                         </Typography>
                                                     )}
@@ -216,7 +216,7 @@ const ChatSidebar = ({
                     {onToggleCollapsed && (
                         <IconButton
                             onClick={onToggleCollapsed}
-                            label={t("chat.expand_sidebar", { defaultValue: "Rozwiń listę rozmów" })}
+                            label={t("chat.expand_sidebar", { defaultValue: "Rozwiń listę czatów" })}
                         >
                             <PanelLeftOpen className="size-5" />
                         </IconButton>
@@ -254,12 +254,12 @@ const ChatSidebar = ({
             <YStack paddingHorizontal="$lg" paddingTop="$lg" gap="$md">
                 <XStack alignItems="center" justifyContent="space-between" gap="$sm">
                     <Typography variant="title3" tag="h1">
-                        {t("chat.conversations_title", { defaultValue: "Rozmowy" })}
+                        {t("chat.conversations_title", { defaultValue: "Czat" })}
                     </Typography>
                     {onToggleCollapsed && (
                         <IconButton
                             onClick={onToggleCollapsed}
-                            label={t("chat.collapse_sidebar", { defaultValue: "Zwiń listę rozmów" })}
+                            label={t("chat.collapse_sidebar", { defaultValue: "Zwiń listę czatów" })}
                         >
                             <PanelLeftClose className="size-5" />
                         </IconButton>

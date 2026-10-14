@@ -352,7 +352,7 @@ const MatchingUserHistoryScreen = () => {
                                         <ChevronDown size={18} aria-hidden />
                                         <Typography variant="regularSemibold" tag="span">
                                             {t("matching.user_history_records", {
-                                                defaultValue: "Formularze i rozmowy",
+                                                defaultValue: "Formularze i czaty",
                                             })}
                                         </Typography>
                                     </XStack>

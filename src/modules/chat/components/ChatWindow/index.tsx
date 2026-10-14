@@ -346,7 +346,7 @@ const ChatWindow = () => {
                                     <button
                                         onClick={() => navigate("/chat")}
                                         className="text-foreground -ml-2 flex size-10 items-center justify-center rounded-full transition-colors hover:bg-[#f2f4f5]"
-                                        aria-label={t("chat.back_to_list", { defaultValue: "Wróć do listy rozmów" })}
+                                        aria-label={t("chat.back_to_list", { defaultValue: "Wróć do listy czatów" })}
                                     >
                                         <ArrowLeft className="size-6" />
                                     </button>
@@ -399,7 +399,7 @@ const ChatWindow = () => {
                                     muted
                                     style={{ textAlign: "center", display: "block", width: "100%" }}
                                 >
-                                    {t("chat.select_conversation", { defaultValue: "Wybierz rozmowę z listy" })}
+                                    {t("chat.select_conversation", { defaultValue: "Wybierz czat z listy" })}
                                 </Typography>
                             </YStack>
                         )}

@@ -162,7 +162,7 @@ const AdminSettingsScreen = () => {
         {
             field: "conversation_timeout_days",
             id: "conversation-timeout",
-            label: t("chat.inactivity_settings.conversation_label", { defaultValue: "Chat z rozmową" }),
+            label: t("chat.inactivity_settings.conversation_label", { defaultValue: "Czat z rozmową" }),
             hint: t("chat.inactivity_settings.days_after_inactivity", { defaultValue: "Dni bez aktywności" }),
         },
         {

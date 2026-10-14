@@ -143,7 +143,7 @@ const VolunteerAvailabilityScreen = () => {
                         value={declaredCapacity ?? "-"}
                     />
                     <MetricTile
-                        label={t("matching.availability_active_chats", { defaultValue: "Aktywne rozmowy" })}
+                        label={t("matching.availability_active_chats", { defaultValue: "Aktywne czaty" })}
                         value={activeChatCount}
                     />
                     <MetricTile
