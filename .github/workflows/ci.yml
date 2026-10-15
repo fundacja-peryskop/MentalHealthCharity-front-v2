@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer push to the same PR or branch supersedes the running checks.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  # npm ci installs @fundacja-peryskop/ui from GitHub Packages.
+  packages: read
+
+env:
+  # Read access to @fundacja-peryskop packages. Prefer the built-in token
+  # (grant this repo access in the package's "Manage Actions access" settings);
+  # PACKAGES_TOKEN (classic PAT with read:packages) is the fallback.
+  PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN || github.token }}
+
+jobs:
+  lint:
+    name: Lint & format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          token: ${{ env.PACKAGES_TOKEN }}
+      - name: ESLint
+        run: npm run lint
+      - name: Prettier
+        run: npm run format:check
+      - name: Translations (pl.json is the source of truth)
+        run: npm run i18n:check
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          token: ${{ env.PACKAGES_TOKEN }}
+      - name: Unit tests (Vitest)
+        run: npm test
+      - name: Chat reliability tests
+        run: npm run test:chat
+
+  build:
+    name: Typecheck & build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          token: ${{ env.PACKAGES_TOKEN }}
+      # `build` type-checks the whole project (tsc -b) before bundling.
+      - name: Build
+        run: npm run build
+      - name: Upload bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
+          if-no-files-found: error
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      # Fails only when the PR adds or upgrades to a dependency with a known
+      # high/critical vulnerability; existing advisories are Dependabot's job.
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+
+  # Single required status for branch protection: passes only when every job
+  # above passed (or was skipped because it does not apply to this event).
+  ci:
+    name: CI passed
+    if: always()
+    needs: [lint, test, build, dependency-review]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check job results
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for result in $RESULTS; do
+            if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
+              exit 1
+            fi
+          done

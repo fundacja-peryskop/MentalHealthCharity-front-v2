@@ -4,7 +4,7 @@
 
 This is a build spec for the marketing homepage of Fundacja Peryskop, a free anonymous chat-based psychological support service. It describes layout, structure, content and component boundaries so the page can be implemented against the `peryskop/ui` design system.
 
-**Design tokens (color, type scale, spacing, radii, shadows) are not hardcoded anywhere in this document.** Every color, font, and spacing value mentioned below is a *visual description* of the reference screenshot only, to help you locate the right token - not a value to copy into code. Before building each section, search `peryskop/ui` for the matching token/component and use that instead of a literal value. Do not introduce new hex codes, px values, or ad-hoc font sizes if an equivalent already exists in the library.
+**Design tokens (color, type scale, spacing, radii, shadows) are not hardcoded anywhere in this document.** Every color, font, and spacing value mentioned below is a _visual description_ of the reference screenshot only, to help you locate the right token - not a value to copy into code. Before building each section, search `peryskop/ui` for the matching token/component and use that instead of a literal value. Do not introduce new hex codes, px values, or ad-hoc font sizes if an equivalent already exists in the library.
 
 Two reference screenshots were provided; they show the same page state (same carousel position), so treat them as a single source of truth.
 
@@ -61,6 +61,7 @@ Full-width teal/brand-colored strip above the header.
 Two large rounded cards side by side, equal width, roughly square-ish aspect ratio, each acting as a big clickable entry point.
 
 **Left card - pale pink/salmon background:**
+
 - Heading: `Potrzebuje pomocy`
 - Subtext: `Zapisz się na wymianę wiadomości z wolontariuszem`
 - Coral/red pill button: `Dołącz za darmo`
@@ -68,6 +69,7 @@ Two large rounded cards side by side, equal width, roughly square-ish aspect rat
 - Custom illustration (see §7): a person surrounded by speech bubbles and floating question marks, plus two small stylized chat-window mockups tucked into the bottom of the card.
 
 **Right card - pale mint/teal background:**
+
 - Heading: `Chcę pomagać`
 - Subtext: `Zostań wolontariuszem`
 - Teal pill button: `Dołącz za darmo`
@@ -156,6 +158,7 @@ Compose the page as a thin orchestration component that renders these sections i
 This does not exist in `peryskop/ui` and needs a clean, self-contained implementation.
 
 **Responsibilities**
+
 - Renders an arbitrary number of slides (here: step cards), not hardcoded to 2.
 - Desktop shows roughly two cards at once (partial reveal of the next card is acceptable/likely intentional, to hint there's more content); collapse to a single visible card per view on mobile.
 - Pagination dots reflect slide position; the active dot uses the brand teal fill, inactive dots are neutral/outline.

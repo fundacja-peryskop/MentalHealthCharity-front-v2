@@ -1,0 +1,45 @@
+# React Doctor: security, performance, correctness, accessibility and
+# architecture checks for React. Docs: https://www.react.doctor/ci
+#
+# Pull requests fail only on error-level issues they introduce (scope:
+# changed), so existing findings on main don't block unrelated work. Pushes to
+# main scan the whole project and publish the health score as a commit status.
+
+name: React Doctor
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  statuses: write
+
+concurrency:
+  group: react-doctor-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  react-doctor:
+    name: React Doctor
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Full history lets React Doctor find the merge base with the target
+      # branch and report only the issues this PR introduces.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: millionco/react-doctor@673ce802a375eeb4c3c5cb9a96d21eaeb7eafd93 # v2.3.1
+        with:
+          blocking: error
+          scope: ${{ github.event_name == 'pull_request' && 'changed' || 'full' }}
+          # Pin the CLI too, so a new rule release can't fail unrelated PRs.
+          # Dependabot doesn't track this; bump it deliberately.
+          version: 0.9.18
