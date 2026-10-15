@@ -1,11 +1,14 @@
 import js from "@eslint/js";
 import prettierPlugin from "eslint-plugin-prettier";
 import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import unusedImportsPlugin from "eslint-plugin-unused-imports";
 import tseslint from "typescript-eslint";
 
 export default [
     {
-        ignores: ["dist/**/*", "node_modules/**/*"],
+        // Build output, dependencies, the Tamagui compiler cache and test coverage.
+        ignores: ["dist/**/*", "node_modules/**/*", ".tamagui/**/*", "coverage/**/*"],
     },
     js.configs.recommended,
     ...tseslint.configs.recommended,
@@ -23,6 +26,8 @@ export default [
         },
         plugins: {
             react: reactPlugin,
+            "react-hooks": reactHooksPlugin,
+            "unused-imports": unusedImportsPlugin,
             prettier: prettierPlugin,
         },
         rules: {
@@ -31,6 +36,12 @@ export default [
             "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
             "@typescript-eslint/no-unused-expressions": "off",
             "react/prop-types": "off",
+            // A conditional hook call breaks React's hook order and crashes at runtime.
+            "react-hooks/rules-of-hooks": "error",
+            // Advisory: some existing effects omit dependencies on purpose.
+            "react-hooks/exhaustive-deps": "warn",
+            // Auto-fixable, so lint-staged removes unused imports on commit.
+            "unused-imports/no-unused-imports": "error",
         },
         settings: {
             react: {
@@ -40,7 +51,7 @@ export default [
     },
     {
         // Node tooling scripts (not part of the browser bundle).
-        files: ["scripts/**/*.js"],
+        files: ["scripts/**/*.js", "tests/**/*.js"],
         languageOptions: {
             globals: {
                 process: "readonly",
