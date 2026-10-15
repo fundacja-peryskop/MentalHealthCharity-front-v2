@@ -4,6 +4,9 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 const root = process.cwd();
+// Embedded in generated source: JSON.stringify keeps Windows backslashes from
+// being read as escape sequences.
+const stateModule = JSON.stringify(resolve("tests/chat-test-state.ts"));
 const temporary = await mkdtemp(join(root, "node_modules", ".chat-tests-"));
 try {
     const outfile = join(temporary, "chat.test.cjs");
@@ -30,9 +33,9 @@ try {
                     build.onLoad({ filter: /.*/, namespace: "test-shell" }, (args) => {
                         let contents;
                         if (args.path.endsWith("AuthProvider"))
-                            contents = `import {state} from '${resolve("tests/chat-test-state.ts")}'; export const useUser=()=>({user:state.user});`;
+                            contents = `import {state} from ${stateModule}; export const useUser=()=>({user:state.user});`;
                         else if (args.path === "react-use-websocket")
-                            contents = `import {state} from '${resolve("tests/chat-test-state.ts")}'; export const ReadyState={CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3,UNINSTANTIATED:-1}; export default (url,options)=>{state.socketOptions=options;return {readyState:state.socketState,getWebSocket:()=>({close:()=>{state.closedSockets++;}})};};`;
+                            contents = `import {state} from ${stateModule}; export const ReadyState={CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3,UNINSTANTIATED:-1}; export default (url,options)=>{state.socketOptions=options;return {readyState:state.socketState,getWebSocket:()=>({close:()=>{state.closedSockets++;}})};};`;
                         else if (args.path === "react-i18next")
                             contents = "export const useTranslation=()=>({t:(key)=>key});";
                         else if (args.path.endsWith("locales/i18n"))
