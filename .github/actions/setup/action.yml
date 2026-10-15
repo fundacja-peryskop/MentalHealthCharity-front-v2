@@ -16,9 +16,31 @@ runs:
         node-version-file: .nvmrc
         cache: npm
 
+    # Fail fast with a readable annotation instead of a 401 deep in the npm log.
+    # Annotations show on the PR's Checks tab and in the API without signing in.
+    - name: Check access to GitHub Packages
+      shell: bash
+      run: |
+        status=$(curl -s -o /dev/null -w '%{http_code}' \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          https://npm.pkg.github.com/@fundacja-peryskop%2fui)
+        if [ "$status" != "200" ]; then
+          echo "::error title=No access to @fundacja-peryskop/ui (HTTP $status)::Grant this repository Read access in the package settings (Manage Actions access), or add a PACKAGES_TOKEN repository secret (classic PAT with read:packages)."
+          exit 1
+        fi
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+
     - name: Install dependencies
       shell: bash
-      run: npm ci --no-audit --no-fund
+      run: |
+        set +e
+        npm ci --no-audit --no-fund 2>&1 | tee "$RUNNER_TEMP/npm-ci.log"
+        status=${PIPESTATUS[0]}
+        if [ "$status" -ne 0 ]; then
+          echo "::error title=npm ci failed::$(grep -m 5 'npm error' "$RUNNER_TEMP/npm-ci.log" | tr '\n' ' ')"
+        fi
+        exit "$status"
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
         # CI never commits, so skip installing the git hooks.
