@@ -287,12 +287,10 @@ const FormTableItem = ({ form, className, ...props }: Props) => {
         .map(([key, value]) => ({ key, value: renderFormFieldValue(key, value as unknown) }))
         .filter(({ value }) => hasDisplayValue(value));
 
-    const orderedRenderedFields = useMemo(() => {
-        const descriptionField = renderedFields.find(({ key }) => key === "description");
-        const otherFields = renderedFields.filter(({ key }) => key !== "description");
-
-        return descriptionField ? [...otherFields, descriptionField] : otherFields;
-    }, [renderedFields]);
+    // Plain computation, not a hook: this runs after the early return above.
+    const descriptionField = renderedFields.find(({ key }) => key === "description");
+    const otherFields = renderedFields.filter(({ key }) => key !== "description");
+    const orderedRenderedFields = descriptionField ? [...otherFields, descriptionField] : otherFields;
 
     const statusLabel = t(`form_status.${form.form_status.toLowerCase()}`, {
         defaultValue: form.form_status,
