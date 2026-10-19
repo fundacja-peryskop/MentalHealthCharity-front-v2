@@ -12,6 +12,7 @@ import { useIconColor } from "../modules/layout/useIconColor";
 import { matchingSettingsQueryOptions } from "../modules/matching/queries/matchingSettingsQueryOptions";
 import runMatchingMutation from "../modules/matching/queries/runMatchingMutation";
 import updateMatchingSettingsMutation from "../modules/matching/queries/updateMatchingSettingsMutation";
+import { RolePreviewPanel } from "../modules/role-preview/components/RolePreviewPanel";
 import AdminLayout from "../modules/shared/components/AdminLayout";
 import formatDate from "../modules/shared/helpers/formatDate";
 
@@ -319,6 +320,9 @@ const AdminSettingsScreen = () => {
                         </PillButton>
                     </XStack>
                 </YStack>
+
+                {/* Developer tool, administrators only */}
+                <RolePreviewPanel />
             </YStack>
         </AdminLayout>
     );

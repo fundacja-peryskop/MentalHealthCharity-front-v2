@@ -1384,5 +1384,17 @@
         "all_forms": "Wszystkie formularze",
         "limit_hint": "Osiągnięto limit przypiętych formularzy",
         "load_error": "Nie udało się wczytać przypiętego formularza (#{{id}})"
+    },
+    "role_preview": {
+        "panel_title": "Podgląd ról",
+        "panel_badge": "Narzędzie deweloperskie",
+        "panel_description": "Zobacz aplikację oczami innej roli - menu, dostępne strony i widoki. Zmienia się tylko interfejs w tej karcie przeglądarki.",
+        "panel_warning": "Zapytania do serwera nadal wysyłasz jako administrator: widzisz dane swojego konta, a każda zapisana zmiana dotyczy Twojego konta.",
+        "role_label": "Rola do podglądu",
+        "start": "Rozpocznij podgląd",
+        "bar_label": "Podgląd interfejsu",
+        "bar_title": "Podgląd jako",
+        "bar_hint": "Dane i akcje należą do konta administratora.",
+        "end": "Zakończ podgląd"
     }
 }

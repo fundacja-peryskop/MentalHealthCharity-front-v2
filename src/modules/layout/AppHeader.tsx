@@ -8,12 +8,13 @@ import { useTranslation } from "react-i18next";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { useUser } from "../auth/components/AuthProvider";
 import { getChatsQueryOptions } from "../chat/queries/getChatsQueryOptions";
-import { Permissions } from "../shared/constants";
 import usePermissions from "../shared/hooks/usePermissions";
 import { AppLink } from "./AppLink";
 import { CtaButton } from "./CtaButton";
-import { brand, type NavItem } from "./content";
+import { brand, isNavGroup, type NavEntry } from "./content";
 import { MobileMenu } from "./MobileMenu";
+import { NavDropdown } from "./NavDropdown";
+import { buildNavigation } from "./navigation";
 import { useIconColor } from "./useIconColor";
 
 const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex" };
@@ -97,27 +98,10 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
         setMenuOpen(false);
     }, [location.pathname, location.hash]);
 
-    const navItems = useMemo<NavItem[]>(() => {
-        const items: NavItem[] = [
-            { label: t("common.navigation.articles"), href: "/articles" },
-            { label: t("common.navigation.donations"), href: "/donations" },
-        ];
-        if (hasPermissions(Permissions.VIEW_TRAININGS)) {
-            items.push({ label: t("common.navigation.trainings"), href: "/trainings" });
-        }
-        // Every signed-in person gets the conversations tab (even before their
-        // first chat exists), with an unread dot when any chat has new messages.
-        if (user) {
-            items.push({ label: t("common.navigation.chat"), href: "/chat", indicator: hasUnread });
-        }
-        if (!user) {
-            items.push({ label: t("common.navigation.how_it_works"), href: "/how-it-works" });
-        }
-        if (hasPermissions(Permissions.ADMIN_DASHBOARD)) {
-            items.push({ label: t("common.navigation.admin"), href: "/admin/" });
-        }
-        return items;
-    }, [t, hasUnread, user, hasPermissions]);
+    const navEntries = useMemo<NavEntry[]>(
+        () => buildNavigation({ t, user, hasPermissions, hasUnread }),
+        [t, hasUnread, user, hasPermissions]
+    );
 
     const brandMark = (
         <RouterLink to="/" style={LINK_RESET} aria-label={brand.name}>
@@ -130,14 +114,18 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
         </RouterLink>
     );
 
-    const navLinksList = navItems.map((item) => (
-        <XStack key={item.href} alignItems="center" gap="$xs">
-            <AppLink href={item.href} variant="regularSemibold" color="$color" hoverStyle={{ color: "$primary" }}>
-                {item.label}
-            </AppLink>
-            {item.indicator ? <Stack width={8} height={8} borderRadius="$full" backgroundColor="$danger" /> : null}
-        </XStack>
-    ));
+    const navLinksList = navEntries.map((item) =>
+        isNavGroup(item) ? (
+            <NavDropdown key={item.id} group={item} pathname={location.pathname} />
+        ) : (
+            <XStack key={item.href} alignItems="center" gap="$xs">
+                <AppLink href={item.href} variant="regularSemibold" color="$color" hoverStyle={{ color: "$primary" }}>
+                    {item.label}
+                </AppLink>
+                {item.indicator ? <Stack width={8} height={8} borderRadius="$full" backgroundColor="$danger" /> : null}
+            </XStack>
+        )
+    );
 
     const accountArea = user ? (
         <XStack alignItems="center" gap="$sm">
@@ -224,7 +212,7 @@ export function AppHeader({ collapsed = false, reduceMotion = false }: AppHeader
             </XStack>
 
             {menuOpen ? (
-                <MobileMenu id={MENU_ID} items={navItems} pathname={location.pathname} onClose={closeMenu} />
+                <MobileMenu id={MENU_ID} entries={navEntries} pathname={location.pathname} onClose={closeMenu} />
             ) : null}
         </Header>
     );

@@ -6,8 +6,9 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { useUser } from "../auth/components/AuthProvider";
-import type { NavItem } from "./content";
+import { isNavGroup, type NavEntry, type NavItem } from "./content";
 import { CtaButton } from "./CtaButton";
+import { isActiveHref } from "./navigation";
 import { useIconColor } from "./useIconColor";
 
 /**
@@ -38,20 +39,53 @@ const STYLE = `
 /** Breathing room kept below the panel when it is capped to the viewport. */
 const VIEWPORT_MARGIN = 16;
 
-const normalizePath = (path: string) => path.replace(/\/+$/, "") || "/";
-
-/** A nav entry is "current" on its own route and any route nested under it. */
-function isActive(href: string, pathname: string): boolean {
-    if (href.includes("#")) return false;
-    const target = normalizePath(href);
-    const current = normalizePath(pathname);
-    return current === target || current.startsWith(`${target}/`);
+/** One tappable menu row: the label, an optional unread dot, and a chevron. */
+function MenuRow({ item, pathname }: { item: NavItem; pathname: string }) {
+    const { t } = useTranslation();
+    const icon = useIconColor();
+    const active = isActiveHref(item.href, pathname);
+    return (
+        <RouterLink to={item.href} className={`${CLASS}__link`} aria-current={active ? "page" : undefined}>
+            <XStack
+                minHeight={56}
+                alignItems="center"
+                justifyContent="space-between"
+                gap="$md"
+                paddingHorizontal="$lg"
+                borderRadius={16}
+                backgroundColor={active ? "$primarySoft" : "$backgroundTransparent"}
+                hoverStyle={{
+                    backgroundColor: active ? "$primarySoft" : "$backgroundHover",
+                }}
+                pressStyle={{
+                    backgroundColor: active ? "$primarySoft" : "$backgroundPress",
+                }}
+            >
+                <XStack alignItems="center" gap="$sm">
+                    <Typography variant="largeSemibold" tag="span" color={active ? "$primaryTextSoft" : "$color"}>
+                        {item.label}
+                    </Typography>
+                    {item.indicator ? (
+                        <Stack
+                            role="img"
+                            aria-label={t("common.navigation.aria.unread_messages")}
+                            width={8}
+                            height={8}
+                            borderRadius="$full"
+                            backgroundColor="$danger"
+                        />
+                    ) : null}
+                </XStack>
+                <ChevronRight size={20} color={active ? icon.primary : icon.muted} />
+            </XStack>
+        </RouterLink>
+    );
 }
 
 interface MobileMenuProps {
     /** DOM id, referenced by the toggle's `aria-controls`. */
     id: string;
-    items: NavItem[];
+    entries: NavEntry[];
     pathname: string;
     onClose: () => void;
 }
@@ -62,7 +96,7 @@ interface MobileMenuProps {
  * section (sign-in CTA, or profile + sign-out) at the bottom. Locks page scroll
  * while open; Escape or a tap on the backdrop closes it.
  */
-export function MobileMenu({ id, items, pathname, onClose }: MobileMenuProps) {
+export function MobileMenu({ id, entries, pathname, onClose }: MobileMenuProps) {
     const { t } = useTranslation();
     const { user, logout } = useUser();
     const icon = useIconColor();
@@ -116,54 +150,40 @@ export function MobileMenu({ id, items, pathname, onClose }: MobileMenuProps) {
                 >
                     <nav aria-label={t("common.navigation.main_menu")}>
                         <YStack gap="$xs">
-                            {items.map((item) => {
-                                const active = isActive(item.href, pathname);
-                                return (
-                                    <RouterLink
-                                        key={item.href}
-                                        to={item.href}
-                                        className={`${CLASS}__link`}
-                                        aria-current={active ? "page" : undefined}
+                            {entries.map((entry) =>
+                                isNavGroup(entry) ? (
+                                    // A group becomes a labelled section; its heading names the list.
+                                    <YStack
+                                        key={entry.id}
+                                        role="group"
+                                        aria-labelledby={`${id}-${entry.id}`}
+                                        gap="$xs"
+                                        marginVertical="$xs"
+                                        paddingVertical="$sm"
+                                        borderTopWidth={1}
+                                        borderBottomWidth={1}
+                                        borderColor="$borderColor"
                                     >
-                                        <XStack
-                                            minHeight={56}
-                                            alignItems="center"
-                                            justifyContent="space-between"
-                                            gap="$md"
+                                        <Typography
+                                            id={`${id}-${entry.id}`}
+                                            variant="smallBold"
+                                            tag="span"
+                                            muted
                                             paddingHorizontal="$lg"
-                                            borderRadius={16}
-                                            backgroundColor={active ? "$primarySoft" : "$backgroundTransparent"}
-                                            hoverStyle={{
-                                                backgroundColor: active ? "$primarySoft" : "$backgroundHover",
-                                            }}
-                                            pressStyle={{
-                                                backgroundColor: active ? "$primarySoft" : "$backgroundPress",
-                                            }}
+                                            paddingTop="$xs"
+                                            textTransform="uppercase"
+                                            letterSpacing={0.6}
                                         >
-                                            <XStack alignItems="center" gap="$sm">
-                                                <Typography
-                                                    variant="largeSemibold"
-                                                    tag="span"
-                                                    color={active ? "$primaryTextSoft" : "$color"}
-                                                >
-                                                    {item.label}
-                                                </Typography>
-                                                {item.indicator ? (
-                                                    <Stack
-                                                        role="img"
-                                                        aria-label={t("common.navigation.aria.unread_messages")}
-                                                        width={8}
-                                                        height={8}
-                                                        borderRadius="$full"
-                                                        backgroundColor="$danger"
-                                                    />
-                                                ) : null}
-                                            </XStack>
-                                            <ChevronRight size={20} color={active ? icon.primary : icon.muted} />
-                                        </XStack>
-                                    </RouterLink>
-                                );
-                            })}
+                                            {entry.label}
+                                        </Typography>
+                                        {entry.items.map((item) => (
+                                            <MenuRow key={item.href} item={item} pathname={pathname} />
+                                        ))}
+                                    </YStack>
+                                ) : (
+                                    <MenuRow key={entry.href} item={entry} pathname={pathname} />
+                                )
+                            )}
                         </YStack>
                     </nav>
 

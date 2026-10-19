@@ -19,6 +19,18 @@ export interface NavItem extends LinkItem {
     indicator?: boolean;
 }
 
+/** A labelled group of header links: a dropdown on desktop, a section in the mobile menu. */
+export interface NavGroup {
+    /** Stable id, used for DOM ids and React keys. */
+    id: string;
+    label: string;
+    items: NavItem[];
+}
+
+export type NavEntry = NavItem | NavGroup;
+
+export const isNavGroup = (entry: NavEntry): entry is NavGroup => "items" in entry;
+
 export interface FooterColumn {
     heading: string;
     links: LinkItem[];

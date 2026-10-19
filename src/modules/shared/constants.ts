@@ -80,6 +80,12 @@ export const groupedPermissions = {
     [Roles.USER]: [Permissions.READ_OWN_CHATS],
 };
 
+/** Whether `role` grants `permission` (`Permissions.AlL` grants everything). */
+export const roleHasPermission = (role: Roles, permission: Permissions): boolean => {
+    const granted = groupedPermissions[role] ?? [];
+    return granted.includes(Permissions.AlL) || granted.includes(permission);
+};
+
 export const validation = {
     password: Yup.string()
         .min(8, i18n.t("validation.incorrect_password_format"))

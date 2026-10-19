@@ -7,6 +7,7 @@ import VolunteerAvailabilityPrompt from "../../../matching/components/VolunteerA
 import { AnnouncementBar } from "../../../layout/AnnouncementBar";
 import { AppHeader } from "../../../layout/AppHeader";
 import { SiteFooter } from "../../../layout/SiteFooter";
+import { RolePreviewBar } from "../../../role-preview/components/RolePreviewBar";
 import CookiesBar from "../CookiesBar";
 
 interface Props {
@@ -106,6 +107,8 @@ const Layout = ({ children }: Props) => {
             >
                 Skip to main content
             </a>
+            {/* Administrator's role preview: on every route, above the chrome. */}
+            <RolePreviewBar />
             {showGlobalChrome && (
                 <div
                     style={{
