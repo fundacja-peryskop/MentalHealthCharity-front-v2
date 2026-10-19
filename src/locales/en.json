@@ -793,5 +793,17 @@
         "all_forms": "All forms",
         "limit_hint": "Pinned forms limit reached",
         "load_error": "Could not load the pinned form (#{{id}})"
+    },
+    "role_preview": {
+        "panel_title": "Role preview",
+        "panel_badge": "Developer tool",
+        "panel_description": "See the app through another role's eyes - the menu, available pages and views. Only the interface in this browser tab changes.",
+        "panel_warning": "Requests to the server are still sent as you, the administrator: you see your account's data, and anything you save is saved to your account.",
+        "role_label": "Role to preview",
+        "start": "Start preview",
+        "bar_label": "Interface preview",
+        "bar_title": "Previewing as",
+        "bar_hint": "Data and actions belong to the administrator account.",
+        "end": "End preview"
     }
 }

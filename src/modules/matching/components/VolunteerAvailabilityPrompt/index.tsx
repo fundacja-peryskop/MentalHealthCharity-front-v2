@@ -25,7 +25,9 @@ import { volunteerAvailabilityQueryOptions } from "../../queries/volunteerAvaila
 
 const VolunteerAvailabilityPrompt = () => {
     const { t } = useTranslation();
-    const { user } = useUser();
+    // The real role, not an administrator's role preview: this prompt saves the
+    // declared availability for the signed-in account.
+    const { actualUser: user } = useUser();
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
     const [capacity, setCapacity] = useState(String(DEFAULT_AVAILABILITY_CAPACITY));
