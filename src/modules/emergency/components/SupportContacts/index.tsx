@@ -1,63 +1,14 @@
-import { Button, Stack, Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
+import { Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Loader2, Phone, PhoneForwarded, RefreshCw, UserRound } from "lucide-react";
+import { AlertTriangle, Loader2, PhoneForwarded, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { PillButton } from "../../layout/admin";
-import { useIconColor } from "../../layout/useIconColor";
-import { CONTACT_GROUPS, dial } from "../content";
-import { supportContactsQueryOptions } from "../queries/supportContactsQueryOptions";
-import type { SupportContact } from "../types";
+import { PillButton } from "../../../layout/admin";
+import { useIconColor } from "../../../layout/useIconColor";
+import { CONTACT_GROUPS } from "../../content";
+import { supportContactsQueryOptions } from "../../queries/supportContactsQueryOptions";
+import ContactCard from "../ContactCard";
 
-const ContactCard = ({ contact }: { contact: SupportContact }) => {
-    const { t } = useTranslation();
-    const c = useIconColor();
-
-    return (
-        <XStack
-            tag="li"
-            flexWrap="wrap"
-            alignItems="center"
-            justifyContent="space-between"
-            gap="$md"
-            padding="$lg"
-            borderRadius="$md"
-            borderWidth={1}
-            borderColor="$borderColor"
-            backgroundColor="$background"
-        >
-            <XStack alignItems="center" gap="$md" flex={1} minWidth={160}>
-                <Stack
-                    width={40}
-                    height={40}
-                    flexShrink={0}
-                    borderRadius="$full"
-                    alignItems="center"
-                    justifyContent="center"
-                    backgroundColor="$primarySoft"
-                    aria-hidden
-                >
-                    <UserRound size={20} color={c.primary} />
-                </Stack>
-                <Typography variant="regularSemibold" tag="span">
-                    {contact.name}
-                </Typography>
-            </XStack>
-            <Button
-                variant="primary"
-                outlined
-                aria-label={t("emergency.contacts.call", { name: contact.name })}
-                onPress={() => dial(contact.phone)}
-            >
-                <Phone size={16} color={c.primary} aria-hidden />
-                <Typography variant="regularSemibold" color="$primary">
-                    {contact.phone}
-                </Typography>
-            </Button>
-        </XStack>
-    );
-};
-
-export const SupportContacts = () => {
+const SupportContacts = () => {
     const { t } = useTranslation();
     const c = useIconColor();
     const { data, isLoading, isFetching, isError, refetch } = useQuery(supportContactsQueryOptions());
@@ -139,3 +90,5 @@ export const SupportContacts = () => {
         </YStack>
     );
 };
+
+export default SupportContacts;

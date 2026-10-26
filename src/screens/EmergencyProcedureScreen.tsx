@@ -1,8 +1,8 @@
 import { Section, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { PhoneOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { EmergencyProcedure } from "../modules/emergency/components/EmergencyProcedure";
-import { SupportContacts } from "../modules/emergency/components/SupportContacts";
+import EmergencyProcedure from "../modules/emergency/components/EmergencyProcedure";
+import SupportContacts from "../modules/emergency/components/SupportContacts";
 import { PageContainer } from "../modules/layout/PageContainer";
 import { useIconColor } from "../modules/layout/useIconColor";
 

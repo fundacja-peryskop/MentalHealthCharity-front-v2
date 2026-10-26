@@ -1,29 +1,13 @@
 import { Button, Stack, Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
 import { HeartPulse, LifeBuoy, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useIconColor } from "../../layout/useIconColor";
-import { dial, EMERGENCY_NUMBER, IMMEDIATE_STEPS_COUNT } from "../content";
+import { useIconColor } from "../../../layout/useIconColor";
+import { dial, EMERGENCY_NUMBER, IMMEDIATE_STEPS_COUNT } from "../../content";
+import StepBadge from "../StepBadge";
 
 const STEP_NUMBERS = Array.from({ length: IMMEDIATE_STEPS_COUNT }, (_, index) => index);
 
-const StepBadge = ({ number }: { number: number }) => (
-    <Stack
-        width={32}
-        height={32}
-        flexShrink={0}
-        borderRadius="$full"
-        alignItems="center"
-        justifyContent="center"
-        backgroundColor="$dangerSoft"
-        aria-hidden
-    >
-        <Typography variant="smallSemibold" color="$dangerTextSoft">
-            {number}
-        </Typography>
-    </Stack>
-);
-
-export const EmergencyProcedure = () => {
+const EmergencyProcedure = () => {
     const { t } = useTranslation();
     const c = useIconColor();
 
@@ -119,3 +103,5 @@ export const EmergencyProcedure = () => {
         </XStack>
     );
 };
+
+export default EmergencyProcedure;
