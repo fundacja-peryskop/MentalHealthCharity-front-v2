@@ -14,6 +14,7 @@
             "donations": "Wesprzyj nas",
             "trainings": "Szkolenia",
             "availability": "Dyspozycyjność",
+            "emergency": "Zagrożenie życia",
             "volunteer_area": "Wolontariusz",
             "chat": "Czat",
             "admin": "Zarządzaj stroną",
@@ -92,7 +93,40 @@
             "no_changes": "Brak zmian"
         },
         "delete": "Usuń",
-        "back": "Wstecz"
+        "back": "Wstecz",
+        "loading": "Ładowanie"
+    },
+    "emergency": {
+        "eyebrow": "Strefa wolontariusza",
+        "title": "Zagrożenie życia",
+        "subtitle": "Sytuacja zagrożenia zdrowia i życia osoby w kryzysie wymaga od wolontariusza przestrzegania określonych procedur opisanych poniżej.",
+        "thoughts": {
+            "title": "Myśli samobójcze",
+            "description": "Zgłoś sprawę opiekunowi i opisz problem."
+        },
+        "immediate": {
+            "title": "Bezpośrednie zagrożenie życia i zdrowia czynem samobójczym",
+            "steps": [
+                "Spróbuj uzyskać informacje o miejscu pobytu osoby w kryzysie i/lub jej numerze telefonu.",
+                "Jeśli uda się uzyskać te informacje - zgłoś sprawę telefonicznie na 112.",
+                "Jeśli nie uda się uzyskać tych informacji - powiadom telefonicznie opiekuna."
+            ],
+            "call_emergency": "Zadzwoń pod {{number}}",
+            "call_emergency_aria": "Zadzwoń pod numer alarmowy {{number}}"
+        },
+        "contacts": {
+            "title": "Telefony",
+            "groups": {
+                "supervisors": "Opiekunowie wolontariuszy",
+                "escalation": "Koordynator opiekunów i prezes fundacji"
+            },
+            "call": "Zadzwoń: {{name}}",
+            "fetch_error": "Nie udało się pobrać numerów telefonów. Spróbuj ponownie."
+        },
+        "no_answer": {
+            "title": "Osoba, do której dzwonisz, nie odbiera?",
+            "description": "Dzwoń do następnej osoby na liście - koordynatora lub prezesa fundacji."
+        }
     },
     "trainings": {
         "eyebrow": "Strefa wolontariusza",

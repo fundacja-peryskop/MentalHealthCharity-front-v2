@@ -17,7 +17,7 @@ export const VOLUNTEER_NAV_GROUP_ID = "volunteer";
 /**
  * Header navigation for the current user, shared by the desktop nav and the
  * mobile menu. Volunteers get a "Volunteer" group with their own tools
- * (trainings, availability); other roles that can view trainings get a plain
+ * (trainings, availability, life-threatening procedure); other roles that can view trainings get a plain
  * link.
  */
 export function buildNavigation({ t, user, hasPermissions, hasUnread }: NavigationInput): NavEntry[] {
@@ -33,6 +33,9 @@ export function buildNavigation({ t, user, hasPermissions, hasUnread }: Navigati
         }
         if (hasPermissions(Permissions.MANAGE_OWN_AVAILABILITY)) {
             volunteerItems.push({ label: t("common.navigation.availability"), href: "/volunteer/availability" });
+        }
+        if (hasPermissions(Permissions.VIEW_EMERGENCY_PROCEDURE)) {
+            volunteerItems.push({ label: t("common.navigation.emergency"), href: "/volunteer/emergency" });
         }
         if (volunteerItems.length > 0) {
             entries.push({

@@ -19,6 +19,7 @@
             "donations": "Donations",
             "trainings": "Trainings",
             "availability": "Availability",
+            "emergency": "Life-threatening situation",
             "volunteer_area": "Volunteer",
             "chat": "Chat",
             "open_menu": "Open menu",
@@ -48,7 +49,42 @@
         "expand": "Expand",
         "collapse": "Collapse",
         "show_more_count_click": "and {{count}} more. Click to show",
-        "not_found": "Oops! No content found."
+        "not_found": "Oops! No content found.",
+        "loading": "Loading",
+        "try_again": "Try again",
+        "no_data": "No data"
+    },
+    "emergency": {
+        "eyebrow": "Volunteer area",
+        "title": "Life-threatening situation",
+        "subtitle": "When a person in crisis is at risk of harm to their health or life, volunteers must follow the procedures described below.",
+        "thoughts": {
+            "title": "Suicidal thoughts",
+            "description": "Report the case to your supervisor and describe the problem."
+        },
+        "immediate": {
+            "title": "Immediate danger to life and health from a suicide attempt",
+            "steps": [
+                "Try to find out where the person in crisis is and/or their phone number.",
+                "If you get this information, report the case by phone to 112.",
+                "If you cannot get this information, phone your supervisor."
+            ],
+            "call_emergency": "Call {{number}}",
+            "call_emergency_aria": "Call the emergency number {{number}}"
+        },
+        "contacts": {
+            "title": "Phone numbers",
+            "groups": {
+                "supervisors": "Volunteer supervisors",
+                "escalation": "Supervisor coordinator and foundation president"
+            },
+            "call": "Call {{name}}",
+            "fetch_error": "Could not load the phone numbers. Please try again."
+        },
+        "no_answer": {
+            "title": "The person you are calling does not pick up?",
+            "description": "Call the next person on the list - the coordinator or the foundation president."
+        }
     },
     "trainings": {
         "eyebrow": "Volunteer area",

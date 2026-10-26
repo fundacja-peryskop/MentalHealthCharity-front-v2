@@ -158,6 +158,8 @@ content file.
 - ✅ Shared DS admin primitives in `src/modules/layout/admin.tsx`: `AdminPageHeader`,
   `FilterPills`, `StatusPill`, `PillButton`, `DataTable` (scrollable flex-grid table on DS tokens).
 - ✅ `TrainingsScreen` - DS resource grid.
+- ✅ `EmergencyProcedureScreen` (`/volunteer/emergency`, "Zagrożenie życia") - DS page in the
+  volunteer nav group; phone numbers come from `GET /support-contact/` (`src/modules/emergency`).
 - ✅ Admin `Dashboard` - DS metric cards, action list, matching summary + capacity bar,
   alerts/reports/forms panels (all query/compute logic preserved; `useIconColor` gained `success`).
 - ✅ Matching screens: `MatchingMenteesScreen` (+ DS paused-decision modal content),

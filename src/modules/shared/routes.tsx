@@ -13,6 +13,7 @@ const AboutChatScreen = React.lazy(() => import("../../screens/AboutChatScreen")
 const ArticleDashboardScreen = React.lazy(() => import("../../screens/ArticlesDashboardScreen"));
 const CreateArticleScreen = React.lazy(() => import("../../screens/CreateArticleScreen"));
 const DonationsScreen = React.lazy(() => import("../../screens/DonationsScreen"));
+const EmergencyProcedureScreen = React.lazy(() => import("../../screens/EmergencyProcedureScreen"));
 const EditArticleScreen = React.lazy(() => import("../../screens/EditArticleScreen"));
 const ForgetPasswordScreen = React.lazy(() => import("../../screens/ForgetPasswordScreen"));
 const HowItWorksScreen = React.lazy(() => import("../../screens/HowItWorksScreen"));
@@ -267,6 +268,13 @@ const routes: RouteType[] = [
         requiresAuth: true,
         permission: Permissions.MANAGE_OWN_AVAILABILITY,
         roles: [Roles.VOLUNTEER],
+    },
+    {
+        url: "/volunteer/emergency",
+        onRender: <EmergencyProcedureScreen />,
+        requiresAuth: true,
+        permission: Permissions.VIEW_EMERGENCY_PROCEDURE,
+        roles: [Roles.VOLUNTEER, Roles.REDACTOR, Roles.ADMIN, Roles.VOLUNTEERSUPERVISOR],
     },
 
     {

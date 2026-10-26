@@ -36,11 +36,11 @@ describe("buildNavigation", () => {
         expect(shape(navFor(Roles.USER))).toEqual(["/articles", "/donations", "/chat"]);
     });
 
-    it("volunteers: a volunteer group with trainings and availability", () => {
+    it("volunteers: a volunteer group with trainings, availability and the emergency procedure", () => {
         expect(shape(navFor(Roles.VOLUNTEER))).toEqual([
             "/articles",
             "/donations",
-            `group:${VOLUNTEER_NAV_GROUP_ID}[/trainings,/volunteer/availability]`,
+            `group:${VOLUNTEER_NAV_GROUP_ID}[/trainings,/volunteer/availability,/volunteer/emergency]`,
             "/chat",
         ]);
         const group = navFor(Roles.VOLUNTEER).find(isNavGroup);
@@ -91,6 +91,8 @@ describe("roleHasPermission", () => {
     it("matches the route guard for the volunteer pages", () => {
         expect(roleHasPermission(Roles.VOLUNTEER, Permissions.MANAGE_OWN_AVAILABILITY)).toBe(true);
         expect(roleHasPermission(Roles.VOLUNTEER, Permissions.VIEW_TRAININGS)).toBe(true);
+        expect(roleHasPermission(Roles.VOLUNTEER, Permissions.VIEW_EMERGENCY_PROCEDURE)).toBe(true);
+        expect(roleHasPermission(Roles.USER, Permissions.VIEW_EMERGENCY_PROCEDURE)).toBe(false);
         expect(roleHasPermission(Roles.USER, Permissions.VIEW_TRAININGS)).toBe(false);
         expect(roleHasPermission(Roles.ADMIN, Permissions.MANAGE_USERS)).toBe(true);
     });

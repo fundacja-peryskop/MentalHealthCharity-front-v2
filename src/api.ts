@@ -201,6 +201,9 @@ export const url = {
             return `${baseUrl}/api/v1/user-public-profile/${id}`;
         },
     },
+    supportContacts: {
+        read: `${baseUrl}/api/v1/support-contact/`,
+    },
     matching: {
         volunteerAvailability: `${baseUrl}/api/v1/matching/volunteer/availability`,
         waitingMentees: `${baseUrl}/api/v1/matching/admin/queue`,
