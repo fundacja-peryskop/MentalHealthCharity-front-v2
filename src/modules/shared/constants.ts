@@ -51,6 +51,7 @@ export enum Permissions {
     DELETE_OTHERS_CHAT_MESSAGES = "DELETE_OTHERS_CHAT_MESSAGES",
     MANAGE_OWN_AVAILABILITY = "MANAGE_OWN_AVAILABILITY",
     VIEW_TRAININGS = "VIEW_TRAININGS",
+    VIEW_EMERGENCY_PROCEDURE = "VIEW_EMERGENCY_PROCEDURE",
 }
 
 export const groupedPermissions = {
@@ -66,6 +67,7 @@ export const groupedPermissions = {
         Permissions.CAN_CONFIRM_CONTRACT,
         Permissions.MANAGE_OWN_AVAILABILITY,
         Permissions.VIEW_TRAININGS,
+        Permissions.VIEW_EMERGENCY_PROCEDURE,
     ],
     [Roles.REDACTOR]: [
         Permissions.CREATE_ARTICLE,
@@ -76,6 +78,7 @@ export const groupedPermissions = {
         Permissions.ADMIN_DASHBOARD,
         Permissions.EDIT_CHAT_NOTE,
         Permissions.VIEW_TRAININGS,
+        Permissions.VIEW_EMERGENCY_PROCEDURE,
     ],
     [Roles.USER]: [Permissions.READ_OWN_CHATS],
 };
