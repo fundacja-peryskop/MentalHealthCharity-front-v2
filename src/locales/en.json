@@ -603,7 +603,6 @@
         "back_to_list": "Back to chats",
         "participant_details": {
             "open": "Show details: {{name}}",
-            "email": "Email",
             "copy_email": "Copy email address",
             "role": "Role",
             "id": "ID",
@@ -614,11 +613,7 @@
             "staff_only": "Visible to the Foundation team only"
         },
         "home_link": {
-            "label": "Fundacja Peryskop - back to the home page",
-            "confirm_title": "Go back to the home page?",
-            "confirm_description": "You will leave the chat and go to the Fundacja Peryskop home page. Sent messages are saved - you can come back to the conversation at any time. An unsent message will not be kept.",
-            "confirm": "Go to the home page",
-            "cancel": "Stay in the chat"
+            "label": "Fundacja Peryskop - back to the home page"
         },
         "select_conversation": "Select a chat from the list to see its messages.",
         "sending": "Sending...",

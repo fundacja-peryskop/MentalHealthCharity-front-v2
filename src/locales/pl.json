@@ -412,7 +412,6 @@
         "back_to_list": "Wróć do listy czatów",
         "participant_details": {
             "open": "Pokaż szczegóły: {{name}}",
-            "email": "Email",
             "copy_email": "Skopiuj adres email",
             "role": "Rola",
             "id": "ID",
@@ -423,11 +422,7 @@
             "staff_only": "Widoczne tylko dla zespołu Fundacji"
         },
         "home_link": {
-            "label": "Fundacja Peryskop - wróć na stronę główną",
-            "confirm_title": "Wrócić na stronę główną?",
-            "confirm_description": "Opuścisz czat i przejdziesz na stronę główną Fundacji Peryskop. Wysłane wiadomości są zapisane - możesz wrócić do rozmowy w każdej chwili. Niewysłana wiadomość nie zostanie zachowana.",
-            "confirm": "Przejdź na stronę główną",
-            "cancel": "Zostań na czacie"
+            "label": "Fundacja Peryskop - wróć na stronę główną"
         },
         "select_conversation": "Wybierz czat z listy, aby zobaczyć wiadomości.",
         "sending": "Wysyłanie...",
