@@ -9,6 +9,8 @@ import formatDate from "../../../shared/helpers/formatDate";
 import usePermissions from "../../../shared/hooks/usePermissions";
 import { Message } from "../../types";
 import MessageContent from "../MessageContent";
+import ParticipantPopover from "../ParticipantPopover";
+import ParticipantTrigger from "../ParticipantTrigger";
 
 interface Props {
     message: Message;
@@ -40,11 +42,19 @@ const ChatMessage = ({ message, onDeleteMessage, onRetryMessage, showArchiveChip
             style={{ flexDirection: senderIsCurrentUser ? "row-reverse" : "row" }}
         >
             {!senderIsCurrentUser && (
-                <Avatar
-                    size={36}
-                    src={resolveAssetUrl(message.sender.chat_avatar_url)}
-                    name={message.sender.full_name}
-                    ring
+                <ParticipantPopover
+                    participant={message.sender}
+                    placement="top-start"
+                    trigger={
+                        <ParticipantTrigger name={message.sender.full_name} flexShrink={0}>
+                            <Avatar
+                                size={36}
+                                src={resolveAssetUrl(message.sender.chat_avatar_url)}
+                                name={message.sender.full_name}
+                                ring
+                            />
+                        </ParticipantTrigger>
+                    }
                 />
             )}
 

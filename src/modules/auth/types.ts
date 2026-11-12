@@ -39,6 +39,8 @@ export interface User {
         description?: string;
     } | null;
     id: number;
+    /** Stable public identifier (the auth token subject). */
+    uuid?: string;
 }
 
 export interface ResetPasswordPayload {

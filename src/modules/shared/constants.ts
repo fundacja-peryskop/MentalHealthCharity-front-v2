@@ -52,6 +52,8 @@ export enum Permissions {
     MANAGE_OWN_AVAILABILITY = "MANAGE_OWN_AVAILABILITY",
     VIEW_TRAININGS = "VIEW_TRAININGS",
     VIEW_EMERGENCY_PROCEDURE = "VIEW_EMERGENCY_PROCEDURE",
+    /** See chat participants' contact and account details (email, UUID, matching flags). */
+    VIEW_PARTICIPANT_DETAILS = "VIEW_PARTICIPANT_DETAILS",
 }
 
 export const groupedPermissions = {
@@ -79,6 +81,7 @@ export const groupedPermissions = {
         Permissions.EDIT_CHAT_NOTE,
         Permissions.VIEW_TRAININGS,
         Permissions.VIEW_EMERGENCY_PROCEDURE,
+        Permissions.VIEW_PARTICIPANT_DETAILS,
     ],
     [Roles.USER]: [Permissions.READ_OWN_CHATS],
 };
