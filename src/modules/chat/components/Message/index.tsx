@@ -3,12 +3,15 @@ import resolveAssetUrl from "@/modules/shared/helpers/resolveAssetUrl";
 import { t } from "i18next";
 import { AlertCircle, Archive, Check, Clock, RotateCcw, Trash2 } from "lucide-react";
 import { useUser } from "../../../auth/components/AuthProvider";
+import RoleBadge from "../../../users/components/RoleBadge";
 import ActionMenu from "../../../shared/components/ActionMenu";
 import { Permissions } from "../../../shared/constants";
 import formatDate from "../../../shared/helpers/formatDate";
 import usePermissions from "../../../shared/hooks/usePermissions";
 import { Message } from "../../types";
 import MessageContent from "../MessageContent";
+import ParticipantPopover from "../ParticipantPopover";
+import ParticipantTrigger from "../ParticipantTrigger";
 
 interface Props {
     message: Message;
@@ -40,19 +43,39 @@ const ChatMessage = ({ message, onDeleteMessage, onRetryMessage, showArchiveChip
             style={{ flexDirection: senderIsCurrentUser ? "row-reverse" : "row" }}
         >
             {!senderIsCurrentUser && (
-                <Avatar
-                    size={36}
-                    src={resolveAssetUrl(message.sender.chat_avatar_url)}
-                    name={message.sender.full_name}
-                    ring
+                <ParticipantPopover
+                    participant={message.sender}
+                    placement="top-start"
+                    trigger={
+                        <ParticipantTrigger name={message.sender.full_name} flexShrink={0}>
+                            <Avatar
+                                size={36}
+                                src={resolveAssetUrl(message.sender.chat_avatar_url)}
+                                name={message.sender.full_name}
+                                ring
+                            />
+                        </ParticipantTrigger>
+                    }
                 />
             )}
 
             <YStack maxWidth="72%" gap={2} alignItems={senderIsCurrentUser ? "flex-end" : "flex-start"} minWidth={0}>
                 {!senderIsCurrentUser && (
-                    <Typography variant="tinySemibold" color="$colorMuted" paddingHorizontal="$xs">
-                        {message.sender.full_name}
-                    </Typography>
+                    // Wraps instead of truncating: single-line text would keep its full width in
+                    // the intrinsic size and push the message column wider than the screen.
+                    <XStack
+                        alignItems="center"
+                        flexWrap="wrap"
+                        columnGap="$sm"
+                        rowGap={2}
+                        paddingHorizontal="$xs"
+                        maxWidth="100%"
+                    >
+                        <Typography variant="tinySemibold" color="$colorMuted" flexShrink={1}>
+                            {message.sender.full_name}
+                        </Typography>
+                        <RoleBadge role={message.sender.user_role} size="sm" />
+                    </XStack>
                 )}
 
                 <YStack

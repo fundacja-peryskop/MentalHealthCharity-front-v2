@@ -350,3 +350,14 @@ surfaces, minimal borders, one brand accent, strong type hierarchy.
   variants; replaces `AnimatedSuccess`, used by the forms, confirm-begin and confirm-complete).
   Added `/confirm` to the Layout auth full-screen set. New pl i18n under `confirm_email_complete.*`.
   Typecheck 0, lint clean, i18n green, build green; error + invalid-link states verified in-browser.
+- _(chat participant details + home link)_ Added DS `Popover`, `Dialog` and `ConfirmDialog` to
+  `@fundacja-peryskop/ui` (Tamagui primitives on floating-ui, web + React Native). New
+  `ParticipantPopover` opens from a message avatar and from the participants list in the chat
+  details panel; email, UUID and matching flags are gated by the new `VIEW_PARTICIPANT_DETAILS`
+  permission (admins, supervisors, redactors). The participant rows in `ChatDetails` now use a DS
+  `ParticipantSummary` (for those roles: role chip beside the name, email underneath); the removal
+  confirmation is still Tailwind. The chat sidebar title is now the foundation logo + name, linking
+  straight to the home page. Roles are colour-coded from one shared map (`users/roleTones.ts`,
+  grey fallback) via `RoleChip` / `RoleBadge`, also shown next to the sender name above messages.
+  Shared `CopyButton` added to `layout`. Typecheck 0, lint clean, no new i18n gaps, build green; verified in-browser
+  through a temporary local preview with mock data at desktop and mobile widths.

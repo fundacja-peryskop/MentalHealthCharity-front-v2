@@ -47,7 +47,7 @@ export const announcement = {
     /** Shown instead of `message` on narrow screens, where the bar wraps. */
     shortMessage: "Inne formy pomocy (telefoniczne)",
     contacts: [
-        { label: "112 (pogotowie)", href: "tel:112" },
+        { label: "999 (pogotowie)", href: "tel:999" },
         { label: "116 123 (telefon zaufania)", href: "tel:116123" },
     ] satisfies LinkItem[],
 } as const;
@@ -64,7 +64,7 @@ const footerColumns: FooterColumn[] = [
     {
         heading: "Pomoc",
         links: [
-            { label: "112 (pogotowie)", href: "tel:112" },
+            { label: "999 (pogotowie)", href: "tel:999" },
             { label: "116 123 (telefon zaufania)", href: "tel:116123" },
             { label: "Regulamin", href: "/tos" },
             { label: "Polityka prywatności", href: "/tos" },

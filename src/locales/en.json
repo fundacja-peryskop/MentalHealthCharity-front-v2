@@ -38,6 +38,7 @@
         "or": "or",
         "confirm": "Confirm",
         "copied_to_clipboard": "Copied to clipboard",
+        "copy_failed": "Could not copy to the clipboard",
         "created_at": "Created {{date}}",
         "details": "Details",
         "enable": "Enable",
@@ -600,6 +601,20 @@
         "no_results": "No results",
         "loading_more": "Loading chats...",
         "back_to_list": "Back to chats",
+        "participant_details": {
+            "open": "Show details: {{name}}",
+            "copy_email": "Copy email address",
+            "role": "Role",
+            "id": "ID",
+            "uuid": "UUID",
+            "copy_uuid": "Copy UUID",
+            "assigned_to_chat": "Assigned to a chat",
+            "excluded_from_automation": "Excluded from automation",
+            "staff_only": "Visible to the Foundation team only"
+        },
+        "home_link": {
+            "label": "Fundacja Peryskop - back to the home page"
+        },
         "select_conversation": "Select a chat from the list to see its messages.",
         "sending": "Sending...",
         "sent": "Sent",
