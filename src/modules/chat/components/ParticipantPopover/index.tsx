@@ -1,4 +1,4 @@
-import { Avatar, Badge, Popover, type PopoverPlacement, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
+import { Avatar, Popover, type PopoverPlacement, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { ShieldCheck } from "lucide-react";
 import { ReactElement, useId } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,7 +7,7 @@ import { User } from "../../../auth/types";
 import { Permissions } from "../../../shared/constants";
 import resolveAssetUrl from "../../../shared/helpers/resolveAssetUrl";
 import usePermissions from "../../../shared/hooks/usePermissions";
-import { translatedRoles } from "../../../users/constants";
+import RoleBadge from "../../../users/components/RoleBadge";
 import ParticipantDetailRow from "../ParticipantDetailRow";
 
 /** Long, unbroken values (emails, UUIDs) must wrap instead of widening the popover. */
@@ -69,9 +69,7 @@ const ParticipantPopover = ({ participant, trigger, placement = "bottom-start" }
 
             <YStack tag="dl" gap="$xs" margin={0}>
                 <ParticipantDetailRow label={t("chat.participant_details.role")}>
-                    <Badge tone="primary" size="sm">
-                        {translatedRoles[participant.user_role]}
-                    </Badge>
+                    <RoleBadge role={participant.user_role} size="sm" />
                 </ParticipantDetailRow>
                 <ParticipantDetailRow label={t("chat.participant_details.id")}>
                     <Typography variant="smallSemibold">{participant.id}</Typography>

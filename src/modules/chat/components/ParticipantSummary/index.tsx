@@ -1,6 +1,7 @@
-import { Avatar, Chip, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
+import { Avatar, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { User } from "../../../auth/types";
 import resolveAssetUrl from "../../../shared/helpers/resolveAssetUrl";
+import RoleChip from "../../../users/components/RoleChip";
 import { translatedRoles } from "../../../users/constants";
 
 /** Matches the 36px rows of the participants list. */
@@ -37,11 +38,7 @@ const ParticipantSummary = ({ participant, showEmail = false }: Props) => {
                     <Typography variant="regularSemibold" numberOfLines={1} flexShrink={1} minWidth={0}>
                         {participant.full_name}
                     </Typography>
-                    {withEmail ? (
-                        <Chip size="sm" color="primary" flexShrink={0}>
-                            {role}
-                        </Chip>
-                    ) : null}
+                    {withEmail ? <RoleChip role={participant.user_role} /> : null}
                 </XStack>
                 <Typography variant="tinySemibold" color="$colorMuted" numberOfLines={1}>
                     {withEmail ? participant.email : role}
