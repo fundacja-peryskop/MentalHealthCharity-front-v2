@@ -613,7 +613,8 @@
             "staff_only": "Visible to the Foundation team only"
         },
         "home_link": {
-            "label": "Fundacja Peryskop - back to the home page"
+            "label": "Fundacja Peryskop - back to the home page",
+            "hint": "Back to the home page"
         },
         "select_conversation": "Select a chat from the list to see its messages.",
         "sending": "Sending...",

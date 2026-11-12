@@ -422,7 +422,8 @@
             "staff_only": "Widoczne tylko dla zespołu Fundacji"
         },
         "home_link": {
-            "label": "Fundacja Peryskop - wróć na stronę główną"
+            "label": "Fundacja Peryskop - wróć na stronę główną",
+            "hint": "Powrót na stronę główną"
         },
         "select_conversation": "Wybierz czat z listy, aby zobaczyć wiadomości.",
         "sending": "Wysyłanie...",

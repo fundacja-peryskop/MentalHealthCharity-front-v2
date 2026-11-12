@@ -1,10 +1,11 @@
 import logo from "@/assets/static/logo_small.webp";
-import { Typography, XStack } from "@fundacja-peryskop/ui";
+import { Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { brand } from "../../../layout/content";
 
-const LOGO_SIZE = 32;
+/** Matches the global header logo; balances the two-line label beside it. */
+const LOGO_SIZE = 36;
 
 const LINK_RESET: React.CSSProperties = { textDecoration: "none", display: "inline-flex", minWidth: 0 };
 
@@ -16,6 +17,7 @@ interface Props {
 /**
  * The foundation's logo and name at the top of the chat sidebar - the way back
  * to the home page from the full-screen chat, which has no global header.
+ * The "back to the home page" hint under the name makes the purpose obvious.
  * A real link, so it also opens in a new tab with a middle click.
  */
 const ChatHomeLink = ({ compact = false }: Props) => {
@@ -40,9 +42,14 @@ const ChatHomeLink = ({ compact = false }: Props) => {
                     style={{ display: "block", flexShrink: 0 }}
                 />
                 {compact ? null : (
-                    <Typography variant="largeBold" tag="span" numberOfLines={1}>
-                        {brand.name}
-                    </Typography>
+                    <YStack minWidth={0}>
+                        <Typography variant="largeBold" tag="span" numberOfLines={1}>
+                            {brand.name}
+                        </Typography>
+                        <Typography variant="tinyRegular" tag="span" color="$colorMuted" numberOfLines={1}>
+                            {t("chat.home_link.hint")}
+                        </Typography>
+                    </YStack>
                 )}
             </XStack>
         </RouterLink>
