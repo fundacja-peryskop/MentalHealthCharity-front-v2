@@ -1,4 +1,4 @@
-import { Avatar, Person } from "@fundacja-peryskop/ui";
+import { Avatar } from "@fundacja-peryskop/ui";
 import getChatName from "../../helpers/getChatName";
 import { Button } from "@/components/ui/button";
 import resolveAssetUrl from "@/modules/shared/helpers/resolveAssetUrl";
@@ -7,12 +7,15 @@ import { Loader2, LockKeyhole, RefreshCwOff, RotateCw, Trash2, UserPlus, X } fro
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { Permissions } from "../../../shared/constants";
 import formatDate from "../../../shared/helpers/formatDate";
-import { Roles, translatedRoles } from "../../../users/constants";
+import usePermissions from "../../../shared/hooks/usePermissions";
+import { Roles } from "../../../users/constants";
 import removeParticipantMutation from "../../queries/removeParticipantMutation";
 import { Chat } from "../../types";
 import ChatSidebarPanel from "../ChatSidebarPanel";
 import ParticipantPopover from "../ParticipantPopover";
+import ParticipantSummary from "../ParticipantSummary";
 import ParticipantTrigger from "../ParticipantTrigger";
 
 /** Matches the 36px rows of the participants list. */
@@ -37,6 +40,8 @@ const ChatDetails = ({
 }: Props) => {
     const { t } = useTranslation();
     const [confirmingId, setConfirmingId] = useState<number | null>(null);
+    const { hasPermissions } = usePermissions();
+    const canViewParticipantDetails = hasPermissions(Permissions.VIEW_PARTICIPANT_DETAILS);
 
     const getRemoveParticipantLabel = (participantRole: Roles) => {
         if (participantRole !== Roles.VOLUNTEER) return t("chat.remove_from_chat");
@@ -221,18 +226,9 @@ const ChatDetails = ({
                                                     borderRadius="$sm"
                                                     style={{ textAlign: "start" }}
                                                 >
-                                                    <Person
-                                                        avatar={
-                                                            <Avatar
-                                                                size={PARTICIPANT_AVATAR_SIZE}
-                                                                src={resolveAssetUrl(participant.chat_avatar_url)}
-                                                                name={participant.full_name}
-                                                            />
-                                                        }
-                                                        name={participant.full_name}
-                                                        description={translatedRoles[participant.user_role]}
-                                                        gap="$md"
-                                                        minWidth={0}
+                                                    <ParticipantSummary
+                                                        participant={participant}
+                                                        showEmail={canViewParticipantDetails}
                                                     />
                                                 </ParticipantTrigger>
                                             }

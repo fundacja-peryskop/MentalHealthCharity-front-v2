@@ -1,17 +1,8 @@
-import {
-    Avatar,
-    Badge,
-    Popover,
-    type PopoverPlacement,
-    Stack,
-    Typography,
-    XStack,
-    YStack,
-} from "@fundacja-peryskop/ui";
+import { Avatar, Badge, Popover, type PopoverPlacement, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { ShieldCheck } from "lucide-react";
 import { ReactElement, useId } from "react";
 import { useTranslation } from "react-i18next";
-import { AppLink, CopyButton, useIconColor } from "../../../layout";
+import { CopyButton, useIconColor } from "../../../layout";
 import { User } from "../../../auth/types";
 import { Permissions } from "../../../shared/constants";
 import resolveAssetUrl from "../../../shared/helpers/resolveAssetUrl";
@@ -61,17 +52,15 @@ const ParticipantPopover = ({ participant, trigger, placement = "bottom-start" }
                     </Typography>
                     {canViewDetails && participant.email ? (
                         <XStack alignItems="center" gap="$xs" minWidth={0}>
-                            <Stack flex={1} minWidth={0}>
-                                <AppLink
-                                    href={`mailto:${participant.email}`}
-                                    variant="smallRegular"
-                                    color="$primary"
-                                    aria-label={`${t("chat.participant_details.email")}: ${participant.email}`}
-                                    style={BREAK_ANYWHERE}
-                                >
-                                    {participant.email}
-                                </AppLink>
-                            </Stack>
+                            <Typography
+                                variant="smallRegular"
+                                color="$colorMuted"
+                                flex={1}
+                                minWidth={0}
+                                style={BREAK_ANYWHERE}
+                            >
+                                {participant.email}
+                            </Typography>
                             <CopyButton value={participant.email} label={t("chat.participant_details.copy_email")} />
                         </XStack>
                     ) : null}
