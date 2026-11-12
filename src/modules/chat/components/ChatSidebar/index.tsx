@@ -9,6 +9,7 @@ import resolveAssetUrl from "../../../shared/helpers/resolveAssetUrl";
 import { Pagination } from "../../../shared/types";
 import { translatedRoles } from "../../../users/constants";
 import { Chat } from "../../types";
+import ChatHomeLink from "../ChatHomeLink";
 import ChatItem from "../ChatItem";
 import Skeleton from "../Skeleton";
 
@@ -213,6 +214,9 @@ const ChatSidebar = ({
         return (
             <YStack height="100%" width="100%" backgroundColor="$background" alignItems="center">
                 <YStack paddingTop="$md" gap="$xs" alignItems="center">
+                    <Stack marginBottom="$xs">
+                        <ChatHomeLink compact />
+                    </Stack>
                     {onToggleCollapsed && (
                         <IconButton
                             onClick={onToggleCollapsed}
@@ -253,9 +257,11 @@ const ChatSidebar = ({
             {/* Title + search + filters */}
             <YStack paddingHorizontal="$lg" paddingTop="$lg" gap="$md">
                 <XStack alignItems="center" justifyContent="space-between" gap="$sm">
-                    <Typography variant="title3" tag="h1">
+                    {/* The brand replaces the visible "Chat" title; the heading stays for assistive tech. */}
+                    <Typography tag="h1" className="sr-only">
                         {t("chat.conversations_title", { defaultValue: "Czat" })}
                     </Typography>
+                    <ChatHomeLink />
                     {onToggleCollapsed && (
                         <IconButton
                             onClick={onToggleCollapsed}
