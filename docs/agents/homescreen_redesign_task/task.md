@@ -361,3 +361,13 @@ surfaces, minimal borders, one brand accent, strong type hierarchy.
   grey fallback) via `RoleChip` / `RoleBadge`, also shown next to the sender name above messages.
   Shared `CopyButton` added to `layout`. Typecheck 0, lint clean, no new i18n gaps, build green; verified in-browser
   through a temporary local preview with mock data at desktop and mobile widths.
+- _(chat empty states + form → chat flow)_ New DS-based `ChatStatusEmptyState` (full pane + compact
+  card for the phone list) driven by `GET /matching/me/chat-status` through `useMyChatStatus`
+  (polls 15 s while searching, 45 s otherwise; re-checks on chat list changes; silent fallback to
+  the neutral state). Animated scenes from the approved prototype re-drawn on the Peryskop palette
+  (`illustrations.tsx`, CSS keyframes, off under `prefers-reduced-motion`). The mentee form no
+  longer ends on a "thank you" step - `useFormWizard({ onSubmitted })` sends people straight to
+  `/chat`. New one-off `AutomaticNotice` under a mentee's first message, and DS "how the chat works"
+  tips in `ChatEmptyState`. `MenteeRematchPrompt` stays out of the chat and help-form pages.
+  Typecheck 0, lint clean, no new i18n gaps, 57 unit tests, build green; verified in-browser against
+  a local backend (SQLite) at desktop and mobile widths.
