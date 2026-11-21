@@ -218,6 +218,7 @@ export const url = {
             return `${baseUrl}/api/v1/matching/admin/forms/${id}/queue`;
         },
         myState: `${baseUrl}/api/v1/matching/me/state`,
+        myChatStatus: `${baseUrl}/api/v1/matching/me/chat-status`,
         rematchDecision: `${baseUrl}/api/v1/matching/me/rematch-decision`,
         updateUserAutomationExclusion({ id }: ReadUserByIdOptions) {
             return `${baseUrl}/api/v1/matching/admin/users/${id}/automation-exclusion`;
