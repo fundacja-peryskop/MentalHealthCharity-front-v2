@@ -17,7 +17,7 @@ export const VOLUNTEER_NAV_GROUP_ID = "volunteer";
 /**
  * Header navigation for the current user, shared by the desktop nav and the
  * mobile menu. Volunteers get a "Volunteer" group with their own tools
- * (trainings, availability, life-threatening procedure); other roles that can view trainings get a plain
+ * (trainings, availability, crisis procedure); other roles that can view trainings get a plain
  * link.
  */
 export function buildNavigation({ t, user, hasPermissions, hasUnread }: NavigationInput): NavEntry[] {

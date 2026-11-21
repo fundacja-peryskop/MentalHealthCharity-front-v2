@@ -14,7 +14,7 @@
             "donations": "Wesprzyj nas",
             "trainings": "Szkolenia",
             "availability": "Dyspozycyjność",
-            "emergency": "Zagrożenie życia",
+            "emergency": "Procedura kryzysowa",
             "volunteer_area": "Wolontariusz",
             "chat": "Czat",
             "admin": "Zarządzaj stroną",
@@ -99,7 +99,7 @@
     },
     "emergency": {
         "eyebrow": "Strefa wolontariusza",
-        "title": "Zagrożenie życia",
+        "title": "Procedura kryzysowa",
         "subtitle": "Sytuacja zagrożenia zdrowia i życia osoby w kryzysie wymaga od wolontariusza przestrzegania określonych procedur opisanych poniżej.",
         "thoughts": {
             "title": "Myśli samobójcze",

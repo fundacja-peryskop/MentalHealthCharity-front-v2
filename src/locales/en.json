@@ -19,7 +19,7 @@
             "donations": "Donations",
             "trainings": "Trainings",
             "availability": "Availability",
-            "emergency": "Life-threatening situation",
+            "emergency": "Crisis procedure",
             "volunteer_area": "Volunteer",
             "chat": "Chat",
             "open_menu": "Open menu",
@@ -57,7 +57,7 @@
     },
     "emergency": {
         "eyebrow": "Volunteer area",
-        "title": "Life-threatening situation",
+        "title": "Crisis procedure",
         "subtitle": "When a person in crisis is at risk of harm to their health or life, volunteers must follow the procedures described below.",
         "thoughts": {
             "title": "Suicidal thoughts",
