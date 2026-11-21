@@ -1306,7 +1306,7 @@
             "michal_name": "Michał",
             "michal_role": "koordynator",
             "kasia_name": "Kasia",
-            "kasia_role": "superwizorka"
+            "kasia_role": "opiekunka"
         },
         "script": {
             "hello": "Cześć! 👋 Cieszymy się, że tu jesteś. W kilku wiadomościach opowiemy Ci, jak działa Peryskop.",
@@ -1314,7 +1314,7 @@
             "form": "Wszystko zaczyna się od krótkiego formularza. Piszesz w nim, z czym przychodzisz - dzięki temu możemy dobrać dla Ciebie odpowiednią osobę.",
             "match": "Potem szukamy wolnej osoby z naszego zespołu wolontariuszy. Gdy ją znajdziemy, damy Ci znać mailem, a rozmowa pojawi się w zakładce \"Czat\".",
             "talk": "Rozmawiacie jeden na jeden, regularnie i w tempie, które Ci odpowiada.",
-            "safe": "Osoby wspierające są przeszkolone i pozostają pod stałą opieką superwizyjną, więc możesz czuć się bezpiecznie.",
+            "safe": "Osoby wspierające są przeszkolone, a nad ich pracą stale czuwają doświadczeni opiekunowie, więc możesz czuć się bezpiecznie.",
             "pace": "Nikt Cię tu nie ocenia. To Ty decydujesz, czym chcesz się podzielić - i możesz wracać do rozmowy, kiedy tylko chcesz.",
             "get_help": "Zacznij, kiedy poczujesz, że to dobry moment.",
             "volunteer": "Lub jeśli chcesz pomagać, kliknij, aby zostać wolontariuszem."
