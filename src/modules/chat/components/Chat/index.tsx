@@ -16,7 +16,9 @@ import { Roles } from "../../../users/constants";
 import { translatedConnectionStatus } from "../../constants";
 import { messageDayKey } from "../../helpers/chatTime";
 import { HistoryPaginationState } from "../../hooks/useChat";
+import { useFirstMessageNotice } from "../../hooks/useFirstMessageNotice";
 import { Chat as ChatType, ConnectionStatus, Message } from "../../types";
+import AutomaticNotice from "../AutomaticNotice";
 import ChatEmptyState from "../ChatEmptyState";
 import ChatMessage from "../Message";
 import ConnectionModal from "../ConnectionModal";
@@ -168,12 +170,22 @@ const Chat = ({
     const isLoadingInitialMessages = reversedMessages.length === 0 && !!historyState?.isLoadingHistory;
     const showMessagesSkeleton = isChatInitializing || isLoadingInitialMessages;
 
+    // One-off "they may not answer right away" note under a mentee's first message.
+    const isHistoryComplete = !!historyState && !historyState.hasMore && !historyState.isLoadingHistory;
+    const { anchorMessageId: noticeAnchorId, onBeforeSend } = useFirstMessageNotice({
+        chat,
+        user,
+        messages,
+        isHistoryComplete,
+    });
+
     const formik = useFormik({
         initialValues: {
             message: "",
         },
         validationSchema,
         onSubmit: (values, { resetForm }) => {
+            onBeforeSend();
             onSendMessage(values.message);
             resetForm();
             saveDraft(chat?.id, "");
@@ -346,6 +358,13 @@ const Chat = ({
         }
     }, [reversedMessages.length]);
 
+    // The notice lives inside its message's row - re-measure when it appears.
+    useEffect(() => {
+        if (noticeAnchorId === undefined || !listRef.current) return;
+        cacheRef.current.clearAll();
+        listRef.current.recomputeRowHeights();
+    }, [noticeAnchorId]);
+
     const handleScroll = useCallback(
         ({
             scrollTop,
@@ -421,12 +440,15 @@ const Chat = ({
                                 showArchiveChip={showArchiveChip}
                                 isNew={newMessageIds.has(message.id) || !!message.isPending}
                             />
+                            {message.id === noticeAnchorId && (
+                                <AutomaticNotice animate={newMessageIds.has(message.id) || !!message.isPending} />
+                            )}
                         </div>
                     )}
                 </CellMeasurer>
             );
         },
-        [reversedMessages, onDeleteMessage, onRetryMessage, newMessageIds]
+        [reversedMessages, onDeleteMessage, onRetryMessage, newMessageIds, noticeAnchorId]
     );
 
     const renderLoadingIndicator = () => {
@@ -541,6 +563,7 @@ const Chat = ({
                     <ChatEmptyState
                         canSend={canSendMessage}
                         isPrivileged={isPrivileged}
+                        isSupportChat={chat?.chat_type === "SUPPORT"}
                         participants={chat?.participants}
                     />
                 )}
