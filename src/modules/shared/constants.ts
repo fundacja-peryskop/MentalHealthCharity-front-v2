@@ -29,6 +29,9 @@ const Errors = {
 
 export default Errors;
 
+/** The foundation's public contact address (support, technical problems). */
+export const CONTACT_EMAIL = "kontakt@fundacjaperyskop.org";
+
 export enum Permissions {
     AlL = "*",
     CREATE_ARTICLE = "CREATE_ARTICLE",

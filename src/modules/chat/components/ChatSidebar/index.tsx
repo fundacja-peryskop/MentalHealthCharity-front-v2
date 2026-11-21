@@ -49,6 +49,10 @@ interface Props {
     collapsed?: boolean;
     /** Toggle collapse. When omitted, no collapse control is shown. */
     onToggleCollapsed?: () => void;
+    /** Replaces the plain "no chats" text when the list is empty (not while searching). */
+    emptyContent?: ReactNode;
+    /** Rendered above the list, e.g. a status card when the list holds only group chats. */
+    listHeader?: ReactNode;
 }
 
 /**
@@ -75,6 +79,8 @@ const ChatSidebar = ({
     onSelectChat,
     collapsed = false,
     onToggleCollapsed,
+    emptyContent,
+    listHeader,
 }: Props) => {
     const { t } = useTranslation();
     const { user } = useUser();
@@ -113,6 +119,7 @@ const ChatSidebar = ({
 
         if (data.items.length === 0) {
             if (compact) return <Stack flex={1} />;
+            if (emptyContent && !searchQuery) return emptyContent;
             return (
                 <YStack flex={1} alignItems="center" justifyContent="center" padding="$xl" gap="$sm">
                     <Typography
@@ -358,6 +365,8 @@ const ChatSidebar = ({
                     </Stack>
                 </YStack>
             )}
+
+            {listHeader ? <Stack marginTop="$md">{listHeader}</Stack> : null}
 
             {/* List */}
             <Stack flex={1} minHeight={0} marginTop="$md">

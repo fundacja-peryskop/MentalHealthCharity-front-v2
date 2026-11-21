@@ -1,4 +1,4 @@
-import { Typography, XStack, YStack } from "@fundacja-peryskop/ui";
+import { Stack, Typography, XStack, YStack } from "@fundacja-peryskop/ui";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import getChatName from "../../helpers/getChatName";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,6 +19,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useIsMobile } from "../../../../hooks/useBreakpoint";
 import { useUser } from "../../../auth/components/AuthProvider";
+import { needsMatchingEmptyState } from "../../../matching/chatStatus";
+import { useMyChatStatus } from "../../../matching/hooks/useMyChatStatus";
 import ReportModal from "../../../report/components/ReportModal";
 import { Permissions } from "../../../shared/constants";
 import usePermissions from "../../../shared/hooks/usePermissions";
@@ -35,6 +37,7 @@ import ChatAvatar from "../ChatAvatar";
 import ChatDetails from "../ChatDetails";
 import ChatHeaderActions, { ChatHeaderAction } from "../ChatHeaderActions";
 import ChatSidebar from "../ChatSidebar";
+import ChatStatusEmptyState from "../ChatStatusEmptyState";
 import CloseChatModal from "../CloseChatModal";
 import ContractSidebar from "../ContractModal/ContractModal";
 import CustomizeChatModal from "../CustomizeChatModal";
@@ -62,6 +65,17 @@ const ChatWindow = () => {
     } = useChatListLoader(100, chatFilter);
     const effectiveData = aggregatedData || data;
     const isMobile = useIsMobile();
+
+    // Explains an empty chat (searching for a volunteer, availability 0, ...).
+    // Only the "active" list is about the person's current support.
+    const isActiveFilter = chatFilter === "active";
+    const { status: chatStatus, isLoading: isChatStatusLoading } = useMyChatStatus({
+        enabled: isActiveFilter,
+        listRevision: effectiveData?.revision,
+    });
+    const showMatchingState = isActiveFilter && needsMatchingEmptyState(chatStatus);
+    const hasNoActiveChats = isActiveFilter && !!effectiveData && effectiveData.items.length === 0 && !searchQuery;
+    const statusEmptyState = <ChatStatusEmptyState status={showMatchingState ? chatStatus : undefined} />;
     const [showDetails, setShowDetails] = useState(!isMobile);
     const [showNote, setShowNote] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -189,11 +203,13 @@ const ChatWindow = () => {
 
     // Auto-open the first chat only on desktop; on mobile we intentionally land
     // on the list first so the user chooses a conversation (requirement #11).
+    // When the person has no conversation yet (e.g. a volunteer whose list only
+    // holds group chats) the status empty state is shown instead.
     useEffect(() => {
-        if (!isMobile && !chatId && effectiveData?.items.length) {
-            navigate(`/chat/${effectiveData.items[0].id}`, { replace: true });
-        }
-    }, [chatId, effectiveData, navigate, isMobile]);
+        if (isMobile || chatId || !effectiveData?.items.length) return;
+        if (isChatStatusLoading || showMatchingState) return;
+        navigate(`/chat/${effectiveData.items[0].id}`, { replace: true });
+    }, [chatId, effectiveData, navigate, isMobile, isChatStatusLoading, showMatchingState]);
 
     useEffect(() => {
         if (!chatId || !selectedChat) return;
@@ -322,6 +338,22 @@ const ChatWindow = () => {
                             }
                             collapsed={isRail}
                             onToggleCollapsed={isMobile ? undefined : toggleSidebar}
+                            // On phones the list is the whole screen, so it carries the status:
+                            // in place of an empty list, or as a card above group chats.
+                            emptyContent={
+                                isMobile && isActiveFilter ? (
+                                    isChatStatusLoading ? (
+                                        <Stack flex={1} />
+                                    ) : (
+                                        statusEmptyState
+                                    )
+                                ) : undefined
+                            }
+                            listHeader={
+                                isMobile && showMatchingState && !hasNoActiveChats ? (
+                                    <ChatStatusEmptyState status={chatStatus} variant="compact" />
+                                ) : undefined
+                            }
                         />
                     </div>
                 )}
@@ -390,8 +422,13 @@ const ChatWindow = () => {
                                 onLoadMoreMessages={loadBackHistory}
                                 historyState={historyState}
                             />
+                        ) : showMatchingState || hasNoActiveChats ? (
+                            statusEmptyState
+                        ) : isChatStatusLoading ? (
+                            // Avoid flashing "pick a chat" before we know which view applies.
+                            <Stack flex={1} />
                         ) : (
-                            // Desktop, nothing selected yet (e.g. no chats at all).
+                            // Desktop, nothing selected yet.
                             <YStack flex={1} alignItems="center" justifyContent="center" padding="$xl" gap="$md">
                                 <MessagesSquare size={48} color="#83dbd3" aria-hidden />
                                 <Typography

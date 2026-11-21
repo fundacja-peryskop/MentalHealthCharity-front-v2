@@ -690,7 +690,81 @@
             "no_messages_body": "Chats with no messages or only a starter message are closed automatically after {{count}} days without activity.",
             "dismiss": "Got it"
         },
-        "help_rules_placeholder": "Support rules will appear here soon."
+        "help_rules_placeholder": "Support rules will appear here soon.",
+        "status_empty": {
+            "neutral": {
+                "title": "It's quiet here for now",
+                "body": "When a conversation starts, you will see it right here."
+            },
+            "mentee_searching": {
+                "title": "We're finding a volunteer for you",
+                "body": "Your request has reached us. We're now looking for an available person from our team to talk with you. It usually doesn't take long, but when everyone is busy it may take a little longer.",
+                "notice": {
+                    "title": "We'll let you know by email",
+                    "body": "As soon as we find someone, we'll send a message to your email address - please check your spam folder too. You don't have to wait on this page: the conversation will appear here by itself."
+                }
+            },
+            "mentee_rematch": {
+                "title": "We're finding a new volunteer for you",
+                "body": "Your previous conversation has ended, but you are still in our queue. We're looking for another person to talk with you."
+            },
+            "mentee_idle": {
+                "title": "Would you like to talk to someone again?",
+                "body": "You don't have an active conversation right now. If you'd like to talk with a volunteer, fill in a short form. We'll add you to the queue and email you when we find someone.",
+                "body_contact": "You don't have an active conversation right now. If you need support, write to us - we'll get back to you and help.",
+                "action": "Fill in the form",
+                "history": {
+                    "title": "Your previous conversations",
+                    "body": "You can find them in the chat list, under the \"Archive\" tab."
+                }
+            },
+            "volunteer_searching": {
+                "title_first": "We're finding your first person to talk with",
+                "title": "We're finding someone for you to talk with",
+                "body": "We're matching you with someone who is waiting for support. It usually doesn't take long, but sometimes it may take a little longer. Thank you for being with us.",
+                "meta": "Your availability: {{count}}",
+                "notice": {
+                    "title": "We'll email you",
+                    "body": "As soon as we assign someone, we'll send you a message and the new conversation will appear here. You don't have to wait on this page."
+                }
+            },
+            "volunteer_unavailable": {
+                "title": "Your availability is set to 0",
+                "body": "That's why we're not assigning you new people to talk with right now. Your current conversations continue as usual. When you'd like to help again, raise your availability - we'll start looking for someone right away."
+            },
+            "volunteer_availability_missing": {
+                "title": "Set your availability",
+                "body": "Before we assign your first person, tell us how many conversations you can have at the same time. It only takes a moment."
+            },
+            "volunteer_paused": {
+                "title": "New conversations are paused",
+                "body": "The coordinators have paused assigning new people to you for now. If you have questions, talk to your supervisor."
+            },
+            "change_availability": "Change availability",
+            "set_availability": "Set availability",
+            "progress": {
+                "label": "Steps of your request",
+                "sent": "Request sent",
+                "searching": "Finding a volunteer",
+                "conversation": "Conversation"
+            },
+            "crisis_line": "If a life is in danger, call:",
+            "crisis_helpline": "116 123 (helpline)",
+            "contact": "Questions? Write to us:"
+        },
+        "first_message_notice": {
+            "label": "Automatic notice",
+            "title": "A reply may take a while",
+            "body": "The other person may not reply right away - they are not always at their computer or phone. You can agree on fixed times to talk, or write to each other loosely, without set times - whatever suits you both."
+        },
+        "empty_mentee_title": "You have someone to talk with",
+        "empty_mentee_description": "Your volunteer is already in this chat. Write your first message whenever you're ready.",
+        "empty_mentee_tips": {
+            "label": "How the chat works",
+            "start": "Say hello and write what brings you here - as much as you want.",
+            "pace": "Your volunteer will reply when they are at their computer or phone. Sometimes it takes longer - that's normal.",
+            "return": "The conversation stays here. You can come back to it whenever you like."
+        }
     },
     "forms_fields": {
         "source": "How they heard about us",
@@ -772,50 +846,28 @@
                 "We will use this email address to notify you when we find the right volunteer.",
                 "Describe your situation as clearly as you can so we can match you with the right volunteer.",
                 "Tell us whether you prefer regular scheduled chat sessions or a looser exchange of messages.",
-                "How did you hear about our foundation?",
-                "That's everything. We will email you when we find a volunteer for you. Keep checking the website for the “CHAT” tab, remember to check your spam folder as well, and if you have any problems with the chat write to kontakt@fundacjaperyskop.org. Whether you chose scheduled sessions or a looser exchange of messages, please do not expect an immediate reply right after assignment - it may take a few days. Thank you for your trust."
+                "How did you hear about our foundation?"
             ],
             "title": [
                 "Receive free support",
                 "Contact",
                 "Describe your situation",
                 "Choose contact style",
-                "How did you hear about Peryskop?",
-                "Thank you for filling out the form!"
+                "How did you hear about Peryskop?"
             ],
             "subtitle_new_user": [
                 "Thank you for your trust. Fill out this short form so we can prepare support for you.",
                 "We will use this email address to notify you when we find the right volunteer.",
                 "Describe your situation as clearly as you can so we can match you with the right volunteer.",
                 "Tell us whether you prefer regular scheduled chat sessions or a looser exchange of messages.",
-                "You need to create an account to use the chat. Support is anonymous and free.",
-                "That's everything. We will email you when we find a volunteer for you. Keep checking the website for the “CHAT” tab, remember to check your spam folder as well, and if you have any problems with the chat write to kontakt@fundacjaperyskop.org. Whether you chose scheduled sessions or a looser exchange of messages, please do not expect an immediate reply right after assignment - it may take a few days. Thank you for your trust."
+                "You need to create an account to use the chat. Support is anonymous and free."
             ],
-            "success": {
-                "lead": "That's everything. We will email you as soon as we find a volunteer for you.",
-                "cards": {
-                    "chat": {
-                        "title": "What happens next",
-                        "body": "Keep checking the website. When the “CHAT” tab appears in the top menu, everything is ready."
-                    },
-                    "email": {
-                        "title": "Check your inbox",
-                        "body": "Remember to check your spam folder as well. If you have any problems with the chat, write to kontakt@fundacjaperyskop.org."
-                    },
-                    "timing": {
-                        "title": "When to expect a reply",
-                        "body": "Whether you chose scheduled sessions or a looser exchange of messages, please do not expect an immediate reply. After you are assigned to a volunteer, it may still take a few days."
-                    }
-                },
-                "closing": "Thank you for your trust."
-            },
             "title_new_user": [
                 "Receive free support",
                 "Contact",
                 "Describe your situation",
                 "Choose contact style",
-                "Create an account to continue",
-                "Thank you for filling out the form!"
+                "Create an account to continue"
             ],
             "issue_description_label": "Describe your situation",
             "contact_preference_label": "What kind of contact would you prefer?",
