@@ -14,6 +14,12 @@ export interface UseFormWizardOptions<T extends object> {
     onSubmit: (values: T) => void | Promise<void>;
     /** Show the success state immediately (e.g. the user has already applied). */
     startCompleted?: boolean;
+    /**
+     * Called after a successful submit INSTEAD of showing the success state -
+     * for flows that move on to another screen (e.g. straight to the chat).
+     * The submit button keeps its spinner until the caller navigates away.
+     */
+    onSubmitted?: (values: T) => void;
 }
 
 const EMPTY_OMIT: never[] = [];
@@ -31,6 +37,7 @@ export function useFormWizard<T extends object>({
     persistOmit = EMPTY_OMIT as unknown as (keyof T)[],
     onSubmit,
     startCompleted = false,
+    onSubmitted,
 }: UseFormWizardOptions<T>): FormWizardApi<T> {
     const lastStep = steps.length - 1;
     const omitRef = useRef(persistOmit);
@@ -55,13 +62,18 @@ export function useFormWizard<T extends object>({
             setStatus("submitting");
             try {
                 await onSubmit(values);
-                clearFormProgress(storageKey);
-                setStatus("success");
             } catch {
                 // The caller surfaces the error (e.g. a toast); keep the user on
                 // the last step with their answers intact so they can retry.
                 setStatus("filling");
+                return;
             }
+            clearFormProgress(storageKey);
+            if (onSubmitted) {
+                onSubmitted(values);
+                return;
+            }
+            setStatus("success");
         },
     });
 

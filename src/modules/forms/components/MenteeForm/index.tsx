@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
 import { useUser } from "../../../auth/components/AuthProvider";
 import { AppLink } from "../../../layout/AppLink";
-import { CtaButton } from "../../../layout/CtaButton";
 import { FormSelectField } from "../../../layout/form/FormSelectField";
 import { FormTextField } from "../../../layout/form/FormTextField";
 import { FormTextareaField } from "../../../layout/form/FormTextareaField";
@@ -27,8 +26,8 @@ const isUnder18 = (age: string) => age !== "" && Number(age) > 0 && Number(age) 
 
 interface Props {
     onSubmit: (values: MenteeFormValues) => void | Promise<void>;
-    /** Render the success state immediately (the user has already applied). */
-    startCompleted?: boolean;
+    /** Called once the form was sent - the screen moves on to the chat. */
+    onSubmitted: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -132,7 +131,7 @@ function SourceConsentFields() {
 
 // ---------------------------------------------------------------------------
 
-const MenteeForm = ({ onSubmit, startCompleted = false }: Props) => {
+const MenteeForm = ({ onSubmit, onSubmitted }: Props) => {
     const { t } = useTranslation();
     const { user } = useUser();
     const variant = user ? "" : "_new_user";
@@ -211,36 +210,12 @@ const MenteeForm = ({ onSubmit, startCompleted = false }: Props) => {
         storageKey: STORAGE_KEY,
         persistOmit: PERSIST_OMIT,
         onSubmit,
-        startCompleted,
+        onSubmitted,
     });
 
-    const successContent = (
-        <YStack gap="$lg" width="100%" alignItems="center">
-            <Typography variant="regularRegular" muted align="center">
-                {t("form.mentee.success.lead")}
-            </Typography>
-
-            <YStack gap="$md" width="100%">
-                {(["chat", "email", "timing"] as const).map((key) => (
-                    <YStack key={key} gap="$xs">
-                        <Typography variant="smallBold">{t(`form.mentee.success.cards.${key}.title`)}</Typography>
-                        <Typography variant="smallRegular" muted width="100%">
-                            {t(`form.mentee.success.cards.${key}.body`)}
-                        </Typography>
-                    </YStack>
-                ))}
-            </YStack>
-
-            <Typography variant="smallBold" align="center">
-                {t("form.mentee.success.closing")}
-            </Typography>
-            <CtaButton href="/" variant="primary" fullWidth>
-                {t("form.homepage")}
-            </CtaButton>
-        </YStack>
-    );
-
-    return <FormWizard wizard={wizard} successTitle={t("form.mentee.title.5")} successContent={successContent} />;
+    // No "thank you" step: a sent form leads straight to the chat, whose empty
+    // state explains what happens next (see ChatStatusEmptyState).
+    return <FormWizard wizard={wizard} />;
 };
 
 export default MenteeForm;
