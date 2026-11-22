@@ -122,12 +122,16 @@
                 "escalation": "Koordynator opiekunów i prezes fundacji"
             },
             "call": "Zadzwoń: {{name}}",
-            "fetch_error": "Nie udało się pobrać numerów telefonów. Spróbuj ponownie."
+            "fetch_error": "Nie udało się pobrać numerów telefonów. Spróbuj ponownie.",
+            "tags": {
+                "president": "Prezes fundacji"
+            }
         },
         "no_answer": {
             "title": "Osoba, do której dzwonisz, nie odbiera?",
             "description": "Dzwoń do następnej osoby na liście - koordynatora lub prezesa fundacji."
-        }
+        },
+        "supervisor_phones": "Telefony do opiekunów"
     },
     "trainings": {
         "eyebrow": "Strefa wolontariusza",

@@ -80,12 +80,16 @@
                 "escalation": "Supervisor coordinator and foundation president"
             },
             "call": "Call {{name}}",
-            "fetch_error": "Could not load the phone numbers. Please try again."
+            "fetch_error": "Could not load the phone numbers. Please try again.",
+            "tags": {
+                "president": "Foundation president"
+            }
         },
         "no_answer": {
             "title": "The person you are calling does not pick up?",
             "description": "Call the next person on the list - the coordinator or the foundation president."
-        }
+        },
+        "supervisor_phones": "Supervisors' phone numbers"
     },
     "trainings": {
         "eyebrow": "Volunteer area",

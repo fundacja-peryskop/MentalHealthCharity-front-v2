@@ -1,11 +1,33 @@
 import { Button, Stack, Typography, XStack, YStack, shadows } from "@fundacja-peryskop/ui";
-import { HeartPulse, LifeBuoy, Phone } from "lucide-react";
+import { useReducedMotion } from "framer-motion";
+import { ArrowDown, HeartPulse, LifeBuoy, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useIconColor } from "../../../layout/useIconColor";
-import { dial, EMERGENCY_NUMBER, IMMEDIATE_STEPS_COUNT } from "../../content";
+import { CONTACTS_SECTION_ID, dial, EMERGENCY_NUMBER, IMMEDIATE_STEPS_COUNT } from "../../content";
 import StepBadge from "../StepBadge";
 
 const STEP_NUMBERS = Array.from({ length: IMMEDIATE_STEPS_COUNT }, (_, index) => index);
+
+/** Jumps to the phone list - both procedures end with "phone your supervisor". */
+const SupervisorPhonesButton = () => {
+    const { t } = useTranslation();
+    const c = useIconColor();
+    const reduceMotion = useReducedMotion();
+
+    const scrollToContacts = () =>
+        document
+            .getElementById(CONTACTS_SECTION_ID)
+            ?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+
+    return (
+        <Button variant="mutedPrimary" onPress={scrollToContacts}>
+            <ArrowDown size={16} color={c.primary} aria-hidden />
+            <Typography variant="regularSemibold" color="$primaryDarker">
+                {t("emergency.supervisor_phones")}
+            </Typography>
+        </Button>
+    );
+};
 
 const EmergencyProcedure = () => {
     const { t } = useTranslation();
@@ -43,6 +65,9 @@ const EmergencyProcedure = () => {
                         {t("emergency.thoughts.description")}
                     </Typography>
                 </YStack>
+                <XStack marginTop="auto" paddingTop="$sm">
+                    <SupervisorPhonesButton />
+                </XStack>
             </YStack>
 
             <YStack
@@ -87,7 +112,7 @@ const EmergencyProcedure = () => {
                     ))}
                 </YStack>
 
-                <XStack>
+                <XStack flexWrap="wrap" gap="$md">
                     <Button
                         variant="danger"
                         aria-label={t("emergency.immediate.call_emergency_aria", { number: EMERGENCY_NUMBER })}
@@ -98,6 +123,7 @@ const EmergencyProcedure = () => {
                             {t("emergency.immediate.call_emergency", { number: EMERGENCY_NUMBER })}
                         </Typography>
                     </Button>
+                    <SupervisorPhonesButton />
                 </XStack>
             </YStack>
         </XStack>

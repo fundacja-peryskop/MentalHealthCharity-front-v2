@@ -1,8 +1,8 @@
-import { Button, Stack, Typography, XStack } from "@fundacja-peryskop/ui";
-import { Phone, UserRound } from "lucide-react";
+import { Button, Chip, Stack, Typography, XStack } from "@fundacja-peryskop/ui";
+import { Award, Phone, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useIconColor } from "../../../layout/useIconColor";
-import { dial } from "../../content";
+import { dial, getContactTagKeys } from "../../content";
 import type { SupportContact } from "../../types";
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 const ContactCard = ({ contact }: Props) => {
     const { t } = useTranslation();
     const c = useIconColor();
+    const tagKeys = getContactTagKeys(contact);
 
     return (
         <XStack
@@ -39,9 +40,20 @@ const ContactCard = ({ contact }: Props) => {
                 >
                     <UserRound size={20} color={c.primary} />
                 </Stack>
-                <Typography variant="regularSemibold" tag="span">
-                    {contact.name}
-                </Typography>
+                <XStack flex={1} flexWrap="wrap" alignItems="center" columnGap="$sm" rowGap="$xs">
+                    <Typography variant="regularSemibold" tag="span">
+                        {contact.name}
+                    </Typography>
+                    {tagKeys.map((key) => (
+                        <Chip
+                            key={key}
+                            color="secondary"
+                            startIcon={<Award size={14} color={c.color} strokeWidth={2.25} aria-hidden />}
+                        >
+                            {t(key)}
+                        </Chip>
+                    ))}
+                </XStack>
             </XStack>
             <Button
                 variant="primary"
