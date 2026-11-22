@@ -14,7 +14,7 @@
             "donations": "Wesprzyj nas",
             "trainings": "Szkolenia",
             "availability": "Dyspozycyjność",
-            "emergency": "Zagrożenie życia",
+            "emergency": "Procedura kryzysowa",
             "volunteer_area": "Wolontariusz",
             "chat": "Czat",
             "admin": "Zarządzaj stroną",
@@ -99,7 +99,7 @@
     },
     "emergency": {
         "eyebrow": "Strefa wolontariusza",
-        "title": "Zagrożenie życia",
+        "title": "Procedura kryzysowa",
         "subtitle": "Sytuacja zagrożenia zdrowia i życia osoby w kryzysie wymaga od wolontariusza przestrzegania określonych procedur opisanych poniżej.",
         "thoughts": {
             "title": "Myśli samobójcze",
@@ -122,12 +122,16 @@
                 "escalation": "Koordynator opiekunów i prezes fundacji"
             },
             "call": "Zadzwoń: {{name}}",
-            "fetch_error": "Nie udało się pobrać numerów telefonów. Spróbuj ponownie."
+            "fetch_error": "Nie udało się pobrać numerów telefonów. Spróbuj ponownie.",
+            "tags": {
+                "president": "Prezes fundacji"
+            }
         },
         "no_answer": {
             "title": "Osoba, do której dzwonisz, nie odbiera?",
             "description": "Dzwoń do następnej osoby na liście - koordynatora lub prezesa fundacji."
-        }
+        },
+        "supervisor_phones": "Telefony do opiekunów"
     },
     "trainings": {
         "eyebrow": "Strefa wolontariusza",

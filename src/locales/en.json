@@ -19,7 +19,7 @@
             "donations": "Donations",
             "trainings": "Trainings",
             "availability": "Availability",
-            "emergency": "Life-threatening situation",
+            "emergency": "Crisis procedure",
             "volunteer_area": "Volunteer",
             "chat": "Chat",
             "open_menu": "Open menu",
@@ -57,7 +57,7 @@
     },
     "emergency": {
         "eyebrow": "Volunteer area",
-        "title": "Life-threatening situation",
+        "title": "Crisis procedure",
         "subtitle": "When a person in crisis is at risk of harm to their health or life, volunteers must follow the procedures described below.",
         "thoughts": {
             "title": "Suicidal thoughts",
@@ -80,12 +80,16 @@
                 "escalation": "Supervisor coordinator and foundation president"
             },
             "call": "Call {{name}}",
-            "fetch_error": "Could not load the phone numbers. Please try again."
+            "fetch_error": "Could not load the phone numbers. Please try again.",
+            "tags": {
+                "president": "Foundation president"
+            }
         },
         "no_answer": {
             "title": "The person you are calling does not pick up?",
             "description": "Call the next person on the list - the coordinator or the foundation president."
-        }
+        },
+        "supervisor_phones": "Supervisors' phone numbers"
     },
     "trainings": {
         "eyebrow": "Volunteer area",

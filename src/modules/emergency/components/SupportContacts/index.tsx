@@ -4,9 +4,11 @@ import { AlertTriangle, Loader2, PhoneForwarded, RefreshCw } from "lucide-react"
 import { useTranslation } from "react-i18next";
 import { PillButton } from "../../../layout/admin";
 import { useIconColor } from "../../../layout/useIconColor";
-import { CONTACT_GROUPS } from "../../content";
+import { CONTACT_GROUPS, CONTACTS_SECTION_ID } from "../../content";
 import { supportContactsQueryOptions } from "../../queries/supportContactsQueryOptions";
 import ContactCard from "../ContactCard";
+
+const CONTACTS_TITLE_ID = `${CONTACTS_SECTION_ID}-title`;
 
 const SupportContacts = () => {
     const { t } = useTranslation();
@@ -19,10 +21,10 @@ const SupportContacts = () => {
     })).filter((group) => group.contacts.length > 0);
 
     return (
-        <YStack tag="section" aria-labelledby="emergency-contacts" gap="$lg">
+        <YStack tag="section" id={CONTACTS_SECTION_ID} aria-labelledby={CONTACTS_TITLE_ID} gap="$lg">
             <XStack alignItems="center" gap="$sm">
                 <PhoneForwarded size={22} color={c.primary} aria-hidden />
-                <Typography variant="title3" tag="h2" id="emergency-contacts">
+                <Typography variant="title3" tag="h2" id={CONTACTS_TITLE_ID}>
                     {t("emergency.contacts.title")}
                 </Typography>
             </XStack>
