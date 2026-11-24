@@ -21,8 +21,8 @@ const stepVariants = {
 
 interface Props<T extends object> {
     wizard: FormWizardApi<T>;
-    /** Heading of the success screen. */
-    successTitle: string;
+    /** Heading of the success screen (omit when the flow navigates away instead). */
+    successTitle?: string;
     /** Form-specific body of the success screen (what happens next, etc.). */
     successContent?: ReactNode;
 }
@@ -67,7 +67,7 @@ export function FormWizard<T extends object>({ wizard, successTitle, successCont
                                     exit={{ opacity: 0 }}
                                     transition={{ duration: 0.3 }}
                                 >
-                                    <AnimatedStatus title={successTitle}>{successContent}</AnimatedStatus>
+                                    <AnimatedStatus title={successTitle ?? ""}>{successContent}</AnimatedStatus>
                                 </motion.div>
                             ) : (
                                 <motion.div

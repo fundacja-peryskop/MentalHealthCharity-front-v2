@@ -4,9 +4,11 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import { useUser } from "../../../auth/components/AuthProvider";
 import Modal from "../../../shared/components/Modal";
 import { Roles } from "../../../users/constants";
+import { isSupportFlowRoute } from "../../chatStatus";
 import { MenteeMatchingStatus } from "../../types";
 import { myMatchingStateQueryOptions } from "../../queries/myMatchingStateQueryOptions";
 import rematchDecisionMutation from "../../queries/rematchDecisionMutation";
@@ -37,6 +39,7 @@ const MenteeRematchPrompt = () => {
     const { actualUser: user } = useUser();
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
+    const { pathname } = useLocation();
     const [reminderAt, setReminderAt] = useState<number | null>(null);
     const isMentee = user?.user_role === Roles.USER;
 
@@ -116,7 +119,7 @@ const MenteeRematchPrompt = () => {
 
     return (
         <Modal
-            open={open}
+            open={open && !isSupportFlowRoute(pathname)}
             onClose={handleClose}
             title={t("matching.rematch_prompt_title", { defaultValue: "Czat został zamknięty" })}
         >

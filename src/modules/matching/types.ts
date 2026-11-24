@@ -9,6 +9,30 @@ export enum MenteeMatchingStatus {
     CLOSED = "CLOSED",
 }
 
+/** Where the signed-in person stands - mirrors the backend's `MyChatStatusEnum`. */
+export enum ChatStatusKind {
+    IN_CONVERSATION = "IN_CONVERSATION",
+    MENTEE_SEARCHING = "MENTEE_SEARCHING",
+    MENTEE_IDLE = "MENTEE_IDLE",
+    VOLUNTEER_SEARCHING = "VOLUNTEER_SEARCHING",
+    VOLUNTEER_AVAILABILITY_MISSING = "VOLUNTEER_AVAILABILITY_MISSING",
+    VOLUNTEER_UNAVAILABLE = "VOLUNTEER_UNAVAILABLE",
+    VOLUNTEER_PAUSED = "VOLUNTEER_PAUSED",
+    NOT_APPLICABLE = "NOT_APPLICABLE",
+}
+
+/** `GET /matching/me/chat-status` - explains an empty chat list. */
+export interface MyChatStatus {
+    status: ChatStatusKind;
+    has_previous_conversations: boolean;
+    /** Mentee searching: a previous volunteer left and a new one is being found. */
+    is_rematch: boolean;
+    /** Mentee idle: whether sending the help form again will queue them. */
+    can_request_support: boolean;
+    /** Volunteers: declared capacity, `null` when never declared. */
+    declared_capacity: number | null;
+}
+
 export interface VolunteerAvailabilityStatus {
     volunteer_id: number;
     declared_capacity: number | null;

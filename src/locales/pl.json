@@ -445,7 +445,81 @@
             "no_messages_body": "Czaty bez wiadomości albo tylko z wiadomością startową są automatycznie zamykane po {{count}} dniach braku aktywności.",
             "dismiss": "Rozumiem"
         },
-        "help_rules_placeholder": "Treść zasad pomocy pojawi się wkrótce."
+        "help_rules_placeholder": "Treść zasad pomocy pojawi się wkrótce.",
+        "status_empty": {
+            "neutral": {
+                "title": "Tu jeszcze cicho",
+                "body": "Gdy pojawi się rozmowa, zobaczysz ją właśnie tutaj."
+            },
+            "mentee_searching": {
+                "title": "Szukamy dla Ciebie wolontariusza",
+                "body": "Twoje zgłoszenie do nas dotarło. Teraz szukamy wolnej osoby z naszego zespołu, która z Tobą porozmawia. Zwykle trwa to krótko, ale gdy wszyscy są zajęci, może potrwać dłużej.",
+                "notice": {
+                    "title": "Damy Ci znać mailem",
+                    "body": "Gdy tylko kogoś znajdziemy, wyślemy wiadomość na Twój adres email - zajrzyj też do folderu SPAM. Nie musisz czekać na tej stronie: rozmowa sama pojawi się tutaj."
+                }
+            },
+            "mentee_rematch": {
+                "title": "Szukamy dla Ciebie nowego wolontariusza",
+                "body": "Poprzednia rozmowa się zakończyła, ale nadal jesteś w naszej kolejce. Szukamy kolejnej osoby, która z Tobą porozmawia."
+            },
+            "mentee_idle": {
+                "title": "Chcesz z kimś jeszcze porozmawiać?",
+                "body": "Nie masz teraz żadnej aktywnej rozmowy. Jeśli chcesz porozmawiać z wolontariuszem, wypełnij krótki formularz. Dodamy Cię do kolejki i damy znać mailem, gdy kogoś znajdziemy.",
+                "body_contact": "Nie masz teraz żadnej aktywnej rozmowy. Jeśli potrzebujesz wsparcia, napisz do nas - odpowiemy i pomożemy.",
+                "action": "Wypełnij formularz",
+                "history": {
+                    "title": "Twoje poprzednie rozmowy",
+                    "body": "Znajdziesz je na liście czatów, w zakładce \"Archiwum\"."
+                }
+            },
+            "volunteer_searching": {
+                "title_first": "Szukamy dla Ciebie pierwszej osoby do rozmowy",
+                "title": "Szukamy dla Ciebie osoby do rozmowy",
+                "body": "Dobieramy osobę, która czeka na wsparcie. Zwykle trwa to krótko, ale czasem może potrwać dłużej. Dziękujemy, że jesteś z nami.",
+                "meta": "Twoja dyspozycyjność: {{count}}",
+                "notice": {
+                    "title": "Powiadomimy Cię mailowo",
+                    "body": "Gdy tylko kogoś przydzielimy, wyślemy Ci wiadomość, a nowa rozmowa pojawi się tutaj. Nie musisz czekać na tej stronie."
+                }
+            },
+            "volunteer_unavailable": {
+                "title": "Twoja dyspozycyjność wynosi 0",
+                "body": "Dlatego teraz nie przydzielamy Ci nowych osób do rozmowy. Obecne rozmowy trwają bez zmian. Gdy zechcesz znów pomagać, zwiększ dyspozycyjność - od razu zaczniemy szukać dla Ciebie osoby."
+            },
+            "volunteer_availability_missing": {
+                "title": "Ustaw swoją dyspozycyjność",
+                "body": "Zanim przydzielimy Ci pierwszą osobę, powiedz nam, ile rozmów możesz prowadzić jednocześnie. To zajmie tylko chwilę."
+            },
+            "volunteer_paused": {
+                "title": "Przydzielanie nowych rozmów jest wstrzymane",
+                "body": "Koordynatorzy wstrzymali na razie automatyczne przydzielanie Ci nowych osób. Jeśli masz pytania, porozmawiaj ze swoim opiekunem."
+            },
+            "change_availability": "Zmień dyspozycyjność",
+            "set_availability": "Ustaw dyspozycyjność",
+            "progress": {
+                "label": "Etapy Twojego zgłoszenia",
+                "sent": "Zgłoszenie wysłane",
+                "searching": "Szukamy wolontariusza",
+                "conversation": "Rozmowa"
+            },
+            "crisis_line": "W sytuacji zagrożenia życia zadzwoń:",
+            "crisis_helpline": "116 123 (telefon zaufania)",
+            "contact": "Masz pytania? Napisz do nas:"
+        },
+        "first_message_notice": {
+            "label": "Automatyczna informacja",
+            "title": "Odpowiedź może chwilę potrwać",
+            "body": "Druga osoba może nie odpisać od razu - nie zawsze jest teraz przy komputerze lub telefonie. Możecie umówić się na stałe godziny rozmów albo pisać do siebie luźno, bez ustalonych terminów - jak Wam wygodniej."
+        },
+        "empty_mentee_title": "Masz już osobę do rozmowy",
+        "empty_mentee_description": "Twój wolontariusz jest już w tym czacie. Napisz pierwszą wiadomość, kiedy zechcesz.",
+        "empty_mentee_tips": {
+            "label": "Jak działa czat",
+            "start": "Przywitaj się i napisz, z czym przychodzisz - tyle, ile chcesz.",
+            "pace": "Wolontariusz odpisze, gdy będzie przy komputerze lub telefonie. Czasem trwa to dłużej - to normalne.",
+            "return": "Rozmowa zostaje tutaj. Możesz do niej wracać, kiedy chcesz."
+        }
     },
     "auth": {
         "login": {
@@ -1032,50 +1106,28 @@
                 "Na ten adres email wyślemy Ci informacje, gdy znajdziemy dla Ciebie odpowiedniego wolontariusza.",
                 "Opisz jak najlepiej swój problem, abyśmy mogli dopasować Ci najlepszego wolontariusza!",
                 "Powiedz nam, czy wolisz regularne, umówione terminy na czacie czy luźną wymianę wiadomości.",
-                "Skąd dowiedziałeś się o naszej fundacji? Pomóż nam rozwijać się i dotrzeć do większej liczby osób!",
-                "To wszystko! Już wkrótce otrzymasz informacje na twój adres email, gdy znajdziemy dla Ciebie wolontariusza. Zaglądaj na naszą stronę, gdy pojawi się w górnym menu zakładka „CZAT” – wszystko poszło dobrze. Gdybyś miał jakiekolwiek problemy z czatem pisz do nas na: kontakt@fundacjaperyskop.org. Pamiętaj, że mail może wpaść do SPAMU, więc szukaj go również tam. Obojętnie, czy wybrałeś/łaś opcję luźnej wymiany wiadomości czy umówionych spotkań – nie spodziewaj się odpowiedzi na czacie od razu, lecz dopiero w przeciągu kilku dni od przypisania do danego wolontariusza. Dziękujemy za zaufanie!"
+                "Skąd dowiedziałeś się o naszej fundacji? Pomóż nam rozwijać się i dotrzeć do większej liczby osób!"
             ],
             "title": [
                 "Otrzymaj darmowe wsparcie",
                 "Kontakt",
                 "Opisz swój problem",
                 "Wybierz formę kontaktu",
-                "Skąd wiesz o Fundacji Peryskop?",
-                "Dziękujemy za wypełnienie formularza!"
+                "Skąd wiesz o Fundacji Peryskop?"
             ],
             "subtitle_new_user": [
                 "Dziękujemy za Twoje zaufanie. Wypełnij krótki formularz, aby uzyskać pomoc realizowaną przez wolontariuszy z całego świata.",
                 "Na ten adres email wyślemy Ci informacje, gdy znajdziemy dla Ciebie odpowiedniego wolontariusza.",
                 "Opisz jak najlepiej swój problem, abyśmy mogli dopasować Ci najlepszego wolontariusza!",
                 "Powiedz nam, czy wolisz regularne, umówione terminy na czacie czy luźną wymianę wiadomości.",
-                "Musisz utworzyć konto, aby rozmawiać na czacie. Wsparcie jest anonimowe i darmowe.",
-                "To wszystko! Już wkrótce otrzymasz informacje na twój adres email, gdy znajdziemy dla Ciebie wolontariusza. Zaglądaj na naszą stronę, gdy pojawi się w górnym menu zakładka „CZAT” – wszystko poszło dobrze. Gdybyś miał jakiekolwiek problemy z czatem pisz do nas na: kontakt@fundacjaperyskop.org. Pamiętaj, że mail może wpaść do SPAMU, więc szukaj go również tam. Obojętnie, czy wybrałeś/łaś opcję luźnej wymiany wiadomości czy umówionych spotkań – nie spodziewaj się odpowiedzi na czacie od razu, lecz dopiero w przeciągu kilku dni od przypisania do danego wolontariusza. Dziękujemy za zaufanie!"
+                "Musisz utworzyć konto, aby rozmawiać na czacie. Wsparcie jest anonimowe i darmowe."
             ],
-            "success": {
-                "lead": "To wszystko! Już wkrótce otrzymasz informacje na twój adres email, gdy znajdziemy dla Ciebie wolontariusza.",
-                "cards": {
-                    "chat": {
-                        "title": "Co dalej",
-                        "body": "Zaglądaj na naszą stronę, gdy pojawi się w górnym menu zakładka „CZAT” – wszystko poszło dobrze. Gdybyś miał jakiekolwiek problemy z czatem pisz do nas na: kontakt@fundacjaperyskop.org"
-                    },
-                    "email": {
-                        "title": "Sprawdź skrzynkę",
-                        "body": "Pamiętaj, że mail może wpaść do SPAMU, więc szukaj go również tam."
-                    },
-                    "timing": {
-                        "title": "Kiedy pojawi się odpowiedź",
-                        "body": "Obojętnie, czy wybrałeś/łaś opcję luźnej wymiany wiadomości czy umówionych spotkań – nie spodziewaj się odpowiedzi na czacie od razu, lecz dopiero w przeciągu kilku dni od przypisania do danego wolontariusza."
-                    }
-                },
-                "closing": "Dziękujemy za zaufanie!"
-            },
             "title_new_user": [
                 "Otrzymaj darmowe wsparcie",
                 "Kontakt",
                 "Opisz swój problem",
                 "Wybierz formę kontaktu",
-                "Załóż konto, aby kontynuować",
-                "Dziękujemy za wypełnienie formularza!"
+                "Załóż konto, aby kontynuować"
             ],
             "name_label": "Podaj imię, ksywkę lub jak mamy się do Ciebie zwracać?",
             "contact_label": "Preferowany kontakt",
